@@ -18,3 +18,5 @@ Read more about our pipelines and repository on the [WARP documentation site](ht
 To contribute to WARP, please read the [contribution guidelines](https://broadinstitute.github.io/warp/docs/contribution/README).
 
 [![Build Status](https://img.shields.io/github/workflow/status/broadinstitute/warp/Deploy%20WARP%20Website?label=Website&logo=github&style=flat-square)](https://github.com/broadinstitute/warp/actions?query=workflow%3A%22Deploy+WARP+Website%22)
+
+This is a small edit so that I can push a commit and get dockstore to sync!
