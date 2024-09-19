@@ -151,7 +151,7 @@ pgen='~{input_pgen}'
 pgen_prefix=${pgen%.*}
 
 regenie --step 1 \
-  --qt \
+  --bt \
   --pgen ${qc_pgen_prefix} \
   -p ~{phenoFile} \
   --phenoColList ~{phenoColList} \
@@ -163,7 +163,7 @@ regenie --step 1 \
   --force-step1
   
 regenie --step 2 \
-  --qt \
+  --bt \
   --pgen ${pgen_prefix} \
   -p ~{phenoFile} \
   --phenoColList ~{phenoColList} \
