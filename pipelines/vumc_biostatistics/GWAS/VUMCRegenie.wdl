@@ -10,6 +10,7 @@ workflow VUMCRegenie {
 
     File phenoFile
     String phenoColList
+    String qt_or_bt
 
     File covarFile
     String covarColList
@@ -41,6 +42,7 @@ workflow VUMCRegenie {
       input_psam = psam_file,
       phenoFile = phenoFile,
       phenoColList = phenoColList,
+      qt_or_bt = qt_or_bt,
       covarFile = covarFile,
       covarColList = covarColList,
       target_prefix = target_prefix
@@ -125,6 +127,7 @@ task Regenie {
 
     File phenoFile
     String phenoColList
+    String qt_or_bt
 
     File covarFile
     String covarColList
@@ -151,7 +154,7 @@ pgen='~{input_pgen}'
 pgen_prefix=${pgen%.*}
 
 regenie --step 1 \
-  --bt \
+  --~{qt_or_bt} \
   --pgen ${qc_pgen_prefix} \
   -p ~{phenoFile} \
   --phenoColList ~{phenoColList} \
@@ -163,7 +166,7 @@ regenie --step 1 \
   --force-step1
   
 regenie --step 2 \
-  --bt \
+  --~{qt_or_bt} \
   --pgen ${pgen_prefix} \
   -p ~{phenoFile} \
   --phenoColList ~{phenoColList} \
