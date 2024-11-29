@@ -207,8 +207,9 @@ regenie --step 1 \
 
 mv ~{output_prefix}_pred.list old.list
  
-while IFS=' ' read -r phenotype old_loco_file; do
+while IFS=' ' read -r phenotype old_loco_path; do
   new_loco_file="~{output_prefix}.${phenotype}.loco"
+  old_loco_file=$(basename "${old_loco_path}")
   echo mv ${old_loco_file} ${new_loco_file}
   mv ${old_loco_file} ${new_loco_file}
   echo ${phenotype} ${new_loco_file} >> ~{output_prefix}_pred.list
