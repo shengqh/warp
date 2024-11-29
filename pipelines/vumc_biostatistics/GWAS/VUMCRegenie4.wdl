@@ -28,7 +28,9 @@ workflow VUMCRegenie4 {
     String qc_option="--mac 100 --geno 0.1 --maf 0.1 --max-maf 0.9 --hwe 1e-15 --snps-only --not-chr 23-27"
     
     String step1_option="--loocv --bsize 1000 --lowmem"
+    Boolean force_step1=false
     Int step1_block_size=1000
+    Int step1_max_variants=1000000
     
     String step2_option="--firth --approx --pThresh 0.01 --bsize 400"
 
@@ -45,7 +47,8 @@ workflow VUMCRegenie4 {
         input_pvar = pvar_file,
         input_psam = psam_file,
         output_prefix = output_prefix + ".qc",
-        qc_option = qc_option
+        qc_option = qc_option,
+        max_variants = step1_max_variants
     }
   }
   
@@ -57,24 +60,18 @@ workflow VUMCRegenie4 {
     input:
       input_file = model_psam
   }
-  Int num_sample = psam_count.num_lines
+  Int num_sample = psam_count.num_lines - 1
 
   call WDLUtils.count_lines as pvar_count {
     input:
       input_file = model_pvar
   }
-  Int num_variant = pvar_count.num_lines
+  Int num_variant = pvar_count.num_lines - 1
 
-  if (num_variant > 1000000) {
-    #https://rgcgithub.github.io/regenie/faq/#step-1
-    #How many variants to use in step 1?
-    #We recommend to use a smaller set of about 500K directly genotyped SNPs in step 1, 
-    #which should be sufficient to capture genome-wide polygenic effects. 
-    #Note that using too many SNPs in Step 1 (e.g. >1M) can lead to a high computational burden 
-    #due to the resulting higher number of predictors in the level 1 models.
+  if ((num_variant > step1_max_variants) && (!force_step1)) {
     call utils.ErrorWithMessage as ErrorMessageDoubleInput{
       input:
-        message = "Too many variants " + num_variant + " left after QC. 500K variants are recommeneded for fitModel. Please check the QC options."
+        message = "Too many variants " + num_variant + " left after QC. 500K~1M variants are recommeneded for fitModel. Too many variants might cause out-of-memory error. You may either redo QC filtering, or set force_step1=true."
     }
   }
 
