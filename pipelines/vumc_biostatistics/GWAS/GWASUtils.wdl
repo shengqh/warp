@@ -167,7 +167,7 @@ task Regenie4Step1FitModel {
     #    -calc working matrices...done (135ms) 
     #    -calc level 0 ridge...done (18ms) 
 
-    String step1_option = "--loocv --bsize 1000"
+    String step1_option = "--loocv --bsize 1000 --lowmem"
 
     String output_prefix
 
