@@ -91,25 +91,67 @@ task PgenQCFilter {
 
     String qc_option
 
+    Int max_variants = 1000000
+
     Int memory_gb = 20
     Int cpu = 8
     Float disk_size_factor = 1.5
 
-    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+    String docker = "shengqh/plink_1.9_2.0:20241129"
   }
 
   Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * disk_size_factor) + 20
 
   command <<<
 
+awk 'BEGIN {FS=OFS="\t"} NR==1 {print; next} {if ($3 == ".") $3 = $1 ":" $2} 1' ~{input_pvar} > id.pvar
+
 plink2 \
   --pgen ~{input_pgen} \
-  --pvar ~{input_pvar} \
+  --pvar id.pvar \
   --psam ~{input_psam} \
   ~{qc_option} \
   --threads ~{cpu} \
+  --write-snplist \
+  --write-samples --no-id-header \
+  --out qc_pass
+
+qc_variants=$(wc -l qc_pass.snplist | cut -d ' ' -f 1)
+
+if [[ $qc_variants -gt ~{max_variants} ]]; then
+  echo "The number of variants after QC is $qc_variants, which is greater than the maximum allowed number of variants (~{max_variants}). ~{max_variants} qc filtered variants will be selected randomly."
+
+  cat <<EOF > filter.py
+import pandas as pd
+
+# Read the file into a DataFrame
+df = pd.read_csv("qc_pass.snplist", sep='\t', header=None)
+print(df.head())
+
+# Randomly select ~{max_variants} rows
+sample_df = df.sample(n=~{max_variants}, random_state=20241129).sort_index()
+print(sample_df.head())
+
+sample_df.to_csv("sampled.snplist", sep='\t', index=False, header=False)
+
+EOF
+
+  python3 filter.py
+else
+  mv qc_pass.snplist sampled.snplist
+fi
+
+plink2 \
+  --pgen ~{input_pgen} \
+  --pvar id.pvar \
+  --psam ~{input_psam} \
+  --extract sampled.snplist \
+  --keep qc_pass.id \
+  --threads ~{cpu} \
   --make-pgen \
   --out ~{output_prefix}
+
+rm -f id.pvar qc_pass.* sampled.snplist
 
 >>>
 
