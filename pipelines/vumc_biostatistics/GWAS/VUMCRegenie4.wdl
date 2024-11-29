@@ -26,7 +26,7 @@ workflow VUMCRegenie4 {
 
     String qc_option="--mac 100 --geno 0.1 --maf 0.1 --max-maf 0.9 --hwe 1e-15 --snps-only --not-chr 23-27"
     
-    String step1_option="--loocv --bsize 1000"
+    String step1_option="--loocv --bsize 1000 --lowmem"
     Int step1_block_size=1000
     
     String step2_option="--firth --approx --pThresh 0.01 --bsize 400"
