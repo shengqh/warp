@@ -1,5 +1,6 @@
 version 1.0
 
+import "../../../tasks/broad/Utilities.wdl" as utils
 import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
@@ -63,6 +64,19 @@ workflow VUMCRegenie4 {
       input_file = model_pvar
   }
   Int num_variant = pvar_count.num_lines
+
+  if (num_variant > 1000000) {
+    #https://rgcgithub.github.io/regenie/faq/#step-1
+    #How many variants to use in step 1?
+    #We recommend to use a smaller set of about 500K directly genotyped SNPs in step 1, 
+    #which should be sufficient to capture genome-wide polygenic effects. 
+    #Note that using too many SNPs in Step 1 (e.g. >1M) can lead to a high computational burden 
+    #due to the resulting higher number of predictors in the level 1 models.
+    call utils.ErrorWithMessage as ErrorMessageDoubleInput{
+      input:
+        message = "Too many variants " + num_variant + " left after QC. 500K variants are recommeneded for fitModel. Please check the QC options."
+    }
+  }
 
   call WDLUtils.string_to_array as pheco_list {
     input:
