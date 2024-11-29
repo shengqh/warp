@@ -43,7 +43,7 @@ workflow VUMCRegenie4 {
         input_pgen = pgen_file,
         input_pvar = pvar_file,
         input_psam = psam_file,
-        output_prefix = output_prefix,
+        output_prefix = output_prefix + ".qc",
         qc_option = qc_option
     }
   }
