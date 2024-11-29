@@ -503,24 +503,10 @@ task CollectRawWgsMetrics {
   Int disk_size = ceil(size(input_bam, "GiB") + ref_size) + additional_disk
 
   Int memory_size = ceil((if (disk_size < 110) then 5 else 7) * memory_multiplier)
-  #String java_memory_size = (memory_size - 1) * 1000
+  String java_memory_size = (memory_size - 1) * 1000
 
-  command <<<
-    set -e
-    # copied the following code from HaplotypeCaller_GATK4_VCF in GermlineVariantDiscovery
-    # Quanhu Sheng, 20230719 
-    #
-    # We need at least 1 GB of available memory outside of the Java heap in order to execute native code, thus, limit
-    # Java's memory by the total memory minus 1 GB. We need to compute the total memory as it might differ from
-    # memory_size_gb because of Cromwell's retry with more memory feature.
-    # Note: In the future this should be done using Cromwell's ${MEM_SIZE} and ${MEM_UNIT} environment variables,
-    #       which do not rely on the output format of the `free` command.
-    available_memory_mb=$(free -m | awk '/^Mem/ {print $2}')
-    let java_memory_size_mb=available_memory_mb-1024
-    echo Total available memory: ${available_memory_mb} MB >&2
-    echo Memory reserved for Java: ${java_memory_size_mb} MB >&2
-
-    java -Xms${java_memory_size_mb}m -Xmx${java_memory_size_mb}m  -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10 -jar /usr/picard/picard.jar \
+  command {
+    java -Xms~{java_memory_size}m -jar /usr/picard/picard.jar \
       CollectRawWgsMetrics \
       INPUT=~{input_bam} \
       VALIDATION_STRINGENCY=SILENT \
@@ -530,8 +516,7 @@ task CollectRawWgsMetrics {
       OUTPUT=~{metrics_filename} \
       USE_FAST_ALGORITHM=true \
       READ_LENGTH=~{read_length}
-  >>>
-
+  }
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     preemptible: preemptible_tries
@@ -602,7 +587,7 @@ task CalculateReadGroupChecksum {
     Int preemptible_tries
   }
 
-  Int disk_size = ceil(size(input_bam, "GiB")) + 40
+  Int disk_size = ceil(size(input_bam, "GiB")) + 80
 
   command {
     java -Xms1000m -Xmx3500m -jar /usr/picard/picard.jar \
@@ -613,7 +598,7 @@ task CalculateReadGroupChecksum {
   runtime {
     docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
     preemptible: preemptible_tries
-    memory: "4000 MiB"
+    memory: "6000 MiB"
     disks: "local-disk " + disk_size + " HDD"
   }
   output {
@@ -632,49 +617,51 @@ task ValidateVCF {
     File? dbsnp_vcf
     File? dbsnp_vcf_index
     File calling_interval_list
-    File? calling_interval_list_index  # if the interval list is a VCF, than an index file is also required
-    Int memory_multiplier = 1
+    File? calling_interval_list_index  # if the interval list is a VCF, than an index file makes VcfToIntervalList run faster
+    Boolean calling_intervals_defined = true
     Int preemptible_tries = 3
     Boolean is_gvcf = true
     String? extra_args
-    String gatk_docker = "us.gcr.io/broad-gatk/gatk:4.3.0.0"
+    #Setting default docker value for workflows that haven't yet been azurized.
+    String docker_path = "us.gcr.io/broad-gatk/gatk:4.6.1.0"
+    Int machine_mem_mb = 7000
   }
 
+  String calling_interval_list_basename = basename(calling_interval_list)
+  String calling_interval_list_index_basename = if calling_intervals_defined then "" else basename(select_first([calling_interval_list_index]))
+
+  Int command_mem_mb = machine_mem_mb - 2000
   Float ref_size = size(ref_fasta, "GiB") + size(ref_fasta_index, "GiB") + size(ref_dict, "GiB")
-  Int disk_size = ceil(size(input_vcf, "GiB") + size(dbsnp_vcf, "GiB") + ref_size) + 20
+  Int disk_size = ceil(size(input_vcf, "GiB") + size(calling_interval_list, "GiB") + size(dbsnp_vcf, "GiB") + ref_size) + 20
 
-  Int memory_size = ceil(7000 * memory_multiplier)
-
-  command <<<
-    # copied the following code from HaplotypeCaller_GATK4_VCF in GermlineVariantDiscovery
-    # Quanhu Sheng, 20230809 
-    #
-    # We need at least 1 GB of available memory outside of the Java heap in order to execute native code, thus, limit
-    # Java's memory by the total memory minus 1 GB. We need to compute the total memory as it might differ from
-    # memory_size because of Cromwell's retry with more memory feature.
-    # Note: In the future this should be done using Cromwell's ${MEM_SIZE} and ${MEM_UNIT} environment variables,
-    #       which do not rely on the output format of the `free` command.
-    available_memory_mb=$(free -m | awk '/^Mem/ {print $2}')
-    let java_memory_size_mb=available_memory_mb-1024
-    echo Total available memory: ${available_memory_mb} MB >&2
-    echo Memory reserved for Java: ${java_memory_size_mb} MB >&2
-
-    # Note that WGS needs a lot of memory to do the -L *.vcf if an interval file is not supplied
-    gatk --java-options "-Xms${java_memory_size_mb}m -Xmx${java_memory_size_mb}m -XX:GCTimeLimit=50 -XX:GCHeapFreeLimit=10" \
+  command {
+    set -e
+    
+    if [ ~{calling_intervals_defined} == "false" ]; then
+      # We can't always assume the index was located with the vcf, so make a link so that the paths look the same
+      ln -s ~{calling_interval_list} ~{calling_interval_list_basename}
+      ln -s ~{calling_interval_list_index} ~{calling_interval_list_index_basename}
+      gatk --java-options "-Xms~{command_mem_mb}m -Xmx~{command_mem_mb}m" \
+        VcfToIntervalList -I ~{calling_interval_list_basename} -O intervals_from_gvcf.interval_list --VARIANT_ID_METHOD USE_FIRST
+      INTERVALS="intervals_from_gvcf.interval_list"
+    else
+      INTERVALS="~{calling_interval_list}"
+    fi
+    
+    gatk --java-options "-Xms~{command_mem_mb}m -Xmx~{command_mem_mb}m" \
       ValidateVariants \
       -V ~{input_vcf} \
       -R ~{ref_fasta} \
-      -L ~{calling_interval_list} \
+      -L $INTERVALS \
       ~{true="-gvcf" false="" is_gvcf} \
       --validation-type-to-exclude ALLELES \
       ~{"--dbsnp " + dbsnp_vcf} \
       ~{extra_args}
-  >>>
-
+  }
   runtime {
-    docker: gatk_docker
+    docker: docker_path
     preemptible: preemptible_tries
-    memory: memory_size + " MiB"
+    memory: machine_mem_mb + " MiB"
     bootDiskSizeGb: 15
     disks: "local-disk " + disk_size + " HDD"
   }
@@ -692,6 +679,8 @@ task CollectVariantCallingMetrics {
     File evaluation_interval_list
     Boolean is_gvcf = true
     Int preemptible_tries
+    #Setting default docker value for workflows that haven't yet been azurized.
+    String docker = "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
   }
 
   Int disk_size = ceil(size(input_vcf, "GiB") + size(dbsnp_vcf, "GiB")) + 20
@@ -707,7 +696,7 @@ task CollectVariantCallingMetrics {
       ~{true="GVCF_INPUT=true" false="" is_gvcf}
   }
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/picard-cloud:2.26.10"
+    docker: docker
     preemptible: preemptible_tries
     memory: "3000 MiB"
     disks: "local-disk " + disk_size + " HDD"

@@ -9,8 +9,8 @@
   "JointGenotyping.snp_recalibration_annotation_values": ["AS_QD", "AS_MQRankSum", "AS_ReadPosRankSum", "AS_FS", "AS_MQ", "AS_SOR"],
   "JointGenotyping.indel_recalibration_tranche_values": ["100.0", "99.95", "99.9", "99.5", "99.0", "97.0", "96.0", "95.0", "94.0", "93.5", "93.0", "92.0", "91.0", "90.0"],
   "JointGenotyping.indel_recalibration_annotation_values": ["AS_FS", "AS_ReadPosRankSum", "AS_MQRankSum", "AS_QD", "AS_SOR"],
-  "JointGenotyping.snp_filter_level": 99.7,
-  "JointGenotyping.indel_filter_level": 95.0,
+  "JointGenotyping.vqsr_snp_filter_level": 99.7,
+  "JointGenotyping.vqsr_indel_filter_level": 95.0,
   "JointGenotyping.snp_vqsr_downsampleFactor": 10,
   "JointGenotyping.hapmap_resource_vcf": "gs://gcp-public-data--broad-references/hg38/v0/hapmap_3.3.hg38.vcf.gz",
   "JointGenotyping.omni_resource_vcf": "gs://gcp-public-data--broad-references/hg38/v0/1000G_omni2.5.hg38.vcf.gz",
@@ -23,7 +23,7 @@
   "JointGenotyping.mills_resource_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi",
   "JointGenotyping.axiomPoly_resource_vcf_index": "gs://gcp-public-data--broad-references/hg38/v0/Axiom_Exome_Plus.genotypes.all_populations.poly.hg38.vcf.gz.tbi",
 
-  "JointGenotyping.unpadded_intervals_file": "gs://gcp-public-data--broad-references/hg38/v0/exome_calling_regions.v1.interval_list",
+  "JointGenotyping.unpadded_intervals_file": "gs://gcp-public-data--broad-references/hg38/v0/exome_calling_regions.v1.1.interval_list",
 
   "JointGenotyping.haplotype_database": "gs://gcp-public-data--broad-references/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt",
 

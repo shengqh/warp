@@ -71,7 +71,7 @@ task CompareGvcfs {
   input {
     File test_gvcf
     File truth_gvcf
-
+    Int memory_mb = ceil(size(test_gvcf, "MiB") + size(truth_gvcf, "MiB") * 5) + 40000
   }
 
   command {
@@ -90,9 +90,9 @@ task CompareGvcfs {
   }
 
   runtime {
-    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4:latest"
-    disks: "local-disk 100 HDD"
-    memory: "110 GiB"
+    docker: "gcr.io/gcp-runtimes/ubuntu_16_0_4@sha256:025124e2f1cf4d29149958f17270596bffe13fc6acca6252977c572dd5ba01bf"
+    disks: "local-disk 300 HDD"
+    memory: "${memory_mb} MiB"
     preemptible: 3
   }
   

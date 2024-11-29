@@ -5,8 +5,8 @@ import "../verification/VerifyTasks.wdl" as VerifyTasks
 workflow VerifyOptimus {
   
   input {
-    File test_loom
-    File truth_loom
+    File test_h5ad
+    File truth_h5ad
 
     File test_bam
     File truth_bam
@@ -16,6 +16,9 @@ workflow VerifyOptimus {
     
     File test_cell_metrics
     File truth_cell_metrics
+
+    File test_library_metrics
+    File truth_library_metrics
 
     Boolean? done
   }
@@ -38,11 +41,16 @@ workflow VerifyOptimus {
       test_zip  = test_cell_metrics,
       truth_zip = truth_cell_metrics
   }
+  
+  call VerifyTasks.CompareH5adFilesGEX as CompareH5adFilesOptimus {
+        input:
+            test_h5ad  = test_h5ad,
+            truth_h5ad = truth_h5ad
+    }
 
-  call VerifyTasks.CompareLooms as CompareLooms{
-    input:
-      test_loom  = test_loom,
-      truth_loom = truth_loom
-  }
-
+  call VerifyTasks.CompareLibraryFiles as CompareLibraryMetrics {
+          input:
+            test_text_file = test_library_metrics,
+            truth_text_file = truth_library_metrics
+}
 }
