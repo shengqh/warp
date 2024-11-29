@@ -107,7 +107,7 @@ workflow VUMCRegenie4 {
       covarColList = covarColList,
       output_prefix = output_prefix,
       step1_option = step1_option,
-      memory_gb = step1_memory_gb
+      memory_gb = step1_memory_gb * 2 #Level 1 ridge and making predictions need much more memory than Level 0 ridge.
   }
 
   scatter(chromosome in chromosome_list) {
