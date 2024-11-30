@@ -382,9 +382,6 @@ task RegeniePlots {
   Float regenie_files_size = size(regenie_file, "GiB")
   Int disk_size = select_first([disk_size_override, ceil(10.0 + regenie_files_size)])
 
-  # Plots are produced for each phenotype.
-  # For each phenotype, a file containing all of the hits from Step 2 is output.
-  # For each phenotype, a file containing a subset of all of the hits where "-LOG10P > 1.3" from Step 2 is output.
   command <<<
 set -euo pipefail
 
@@ -394,18 +391,16 @@ library(data.table)
 library(qqman)
 
 regenie_output <- fread("~{regenie_file}")
-regenie_ADD_subset <-subset.data.frame(regenie_output, TEST=="ADD")
-regenie_ADD_subset[,"CHROM"] <-as.numeric(unlist(regenie_ADD_subset[,"CHROM"]))
-regenie_ADD_subset[,"LOG10P"] <-as.numeric(unlist(regenie_ADD_subset[,"LOG10P"]))
-regenie_ADD_subset[,"GENPOS"] <-as.numeric(unlist(regenie_ADD_subset[,"GENPOS"]))
 
+regenie_output = regenie_output[!is.na(regenie_output\$LOG10P),]
+
+p = 10 ^ (-1 * regenie_output\$LOG10P)
 png("~{output_prefix}.qqplot.png", width=5, height=5, units="in", res=300)
-p = 10 ^ (-1 * (as.numeric(unlist(regenie_ADD_subset[,"LOG10P"]))))
 print(qq(p))
 dev.off()
 
 png("~{output_prefix}.manhattan.png", width=10, height=5, units="in", res=300)
-print(manhattan(regenie_ADD_subset, chr="CHROM", bp="GENPOS", snp="ID", p="LOG10P", logp=FALSE, annotatePval = 1E-5))
+print(manhattan(regenie_output, chr="CHROM", bp="GENPOS", snp="ID", p="LOG10P", logp=FALSE, annotatePval = 1E-5))
 dev.off()
 
 EOF
