@@ -91,7 +91,15 @@ workflow VUMCRegenie4 {
   Array[String] covar_names = covar_list.arr
   Int num_covariate = length(covar_names)
 
-  Int num_chromosome = length(chromosome_list)
+  call BioUtils.GetValidChromosomeList {
+    input:
+      input_pvar = pvar_file,
+      input_chromosomes = chromosome_list
+  }
+
+  Array[String] valid_chromosomes = GetValidChromosomeList.valid_chromosomes
+
+  Int num_chromosome = length(valid_chromosomes)
 
   call GWASUtils.Regenie4MemoryEstimation {
     input:
@@ -121,7 +129,7 @@ workflow VUMCRegenie4 {
       memory_gb = step1_memory_gb * 2 #Level 1 ridge and making predictions need much more memory than Level 0 ridge.
   }
 
-  scatter(chromosome in chromosome_list) {
+  scatter(chromosome in valid_chromosomes) {
     call GWASUtils.Regenie4Step2AssociationTest as RegenieStep2AssociationTest {
       input:
         pred_list_file = RegenieStep1FitModel.pred_list_file,
@@ -147,7 +155,7 @@ workflow VUMCRegenie4 {
     input:
       regenie_chromosome_files = regenie_chromosome_files,
       phenotype_names = phenotype_names,
-      chromosome_list = chromosome_list,
+      chromosome_list = valid_chromosomes,
       regenie_prefix = output_prefix,
       output_prefix = output_prefix
   }

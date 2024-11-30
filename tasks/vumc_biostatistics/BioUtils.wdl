@@ -214,3 +214,34 @@ plink2 \
   }
 }
 
+task GetValidChromosomeList {
+  input {
+    File input_pvar
+    Array[String] input_chromosomes
+  }
+
+  Int disk_size = ceil(size(input_pvar, "GB")) + 1
+
+  command <<<
+
+cut -f 1 ~{input_pvar} | tail -n +2 | uniq > pvar_chromosomes.txt
+
+echo -e "~{sep='\n' input_chromosomes}" > input_chromosomes.txt
+
+#using pvar_chromosomes.txt to filter input_chromosomes.txt, get the common chromosomes
+grep -Fxf pvar_chromosomes.txt input_chromosomes.txt > common_chromosomes.txt
+
+>>>
+
+  runtime {
+    cpu: 1
+    docker: "ubuntu:20.04"
+    preemptible: 1
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "1 GiB"
+  }
+
+  output {
+    Array[String] valid_chromosomes = read_lines("common_chromosomes.txt")
+  }
+}
