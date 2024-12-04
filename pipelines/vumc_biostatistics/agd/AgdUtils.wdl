@@ -239,9 +239,10 @@ task Annovar {
     Int cpu = 1
 
     String docker = "shengqh/annovar:20241117"
+    Float disk_size_factor = 5
   }
 
-  Int disk_size = ceil(size([input_vcf], "GB")  * 2) + 10
+  Int disk_size = ceil(size([input_vcf], "GB")  * disk_size_factor) + 20
 
   command <<<
 
@@ -249,7 +250,13 @@ zcat ~{input_vcf} | cut -f1-9 > ~{target_prefix}.avinput.vcf
 
 convert2annovar.pl -format vcf4old ~{target_prefix}.avinput.vcf | cut -f1-7 | awk '{gsub(",\\*", "", $0); print}'> ~{target_prefix}.avinput
 
+rm ~{target_prefix}.avinput.vcf
+
 table_annovar.pl ~{target_prefix}.avinput ~{annovar_db} -buildver hg38 -protocol refGene -operation g --remove  --outfile ~{target_prefix}.annovar
+
+rm ~{target_prefix}.avinput
+
+gzip ~{target_prefix}.annovar.hg38_multianno.txt
 
 >>>
 
@@ -261,7 +268,7 @@ table_annovar.pl ~{target_prefix}.avinput ~{annovar_db} -buildver hg38 -protocol
     memory: memory_gb + " GiB"
   }
   output {
-    File annovar_file = "~{target_prefix}.annovar.hg38_multianno.txt"
+    File annovar_file = "~{target_prefix}.annovar.hg38_multianno.txt.gz"
   }
 }
 
