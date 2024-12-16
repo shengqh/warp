@@ -1,0 +1,9 @@
+{
+  "VUMCReadsInBed.cram": "/nobackup/h_cqs/shengq2/biovu/AGD5000/data/100022391.cram",
+  "VUMCReadsInBed.cram_index": "/nobackup/h_cqs/shengq2/biovu/AGD5000/data/100022391.cram.crai",
+  "VUMCReadsInBed.reference_fasta": "/data/cqs/references/broad/hg38_dragen/Homo_sapiens_assembly38_masked.fasta",
+  "VUMCReadsInBed.reference_fasta_fai": "/data/cqs/references/broad/hg38_dragen/Homo_sapiens_assembly38_masked.fasta.fai",
+  "VUMCReadsInBed.bed_file": "/nobackup/h_cqs/jstolze/BioVU/AGD5000/maskedReadsInCrams/Homo_sapiens_assembly38_masked.bed",
+  "VUMCReadsInBed.output_prefix": "100022391"
+}
+

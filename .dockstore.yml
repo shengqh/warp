@@ -319,3 +319,7 @@ workflows:
   - name: VUMCAGDPhecode
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCAGDPhecode.wdl
+
+  - name: VUMCReadsInBed
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCReadsInBed.wdl
