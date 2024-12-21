@@ -323,3 +323,8 @@ workflows:
   - name: VUMCReadsInBed
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCReadsInBed.wdl
+
+  - name: VUMCFilterPassVariantsInVcf
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCFilterPassVariantsInVcf.wdl
+
