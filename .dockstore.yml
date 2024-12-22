@@ -328,3 +328,7 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCFilterPassVariantsInVcf.wdl
 
+  - name: VUMCFilterPassVariantsInPgen
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCFilterPassVariantsInPgen.wdl
+

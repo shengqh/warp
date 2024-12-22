@@ -1,0 +1,7 @@
+{
+  "VUMCFilterPassVariantsInPgen.input_pgen": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/postproc-pgen/dragen.pgen",
+  "VUMCFilterPassVariantsInPgen.input_psam": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/postproc-pgen/dragen.psam",
+  "VUMCFilterPassVariantsInPgen.input_pvar": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/postproc-pgen/dragen.pvar",
+  "VUMCFilterPassVariantsInPgen.target_prefix": "agd163k-chrM"
+}
+
