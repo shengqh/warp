@@ -77,8 +77,9 @@ external_config.source_uris = [
     "~{id_mapping_file}"
 ]
 external_config.schema = [
-    bigquery.SchemaField("GRID", "STRING"), 
-    bigquery.SchemaField("sample_id","NUMERIC")
+    bigquery.SchemaField("SAMPLE_ID", "NUMERIC"), 
+    bigquery.SchemaField("ICA_ID","STRING"), #in AGD35K, it is SAMPLE_ID, in AGD163K, it is GRID
+    bigquery.SchemaField("PRIMARY_GRID","STRING"),
 ]
 assert external_config.csv_options is not None
 external_config.csv_options.skip_leading_rows = 1
@@ -97,10 +98,9 @@ print(results.head())
 #demographics for the grids in that dataset
 sd_url="~{bigquery_project_id}.~{bigquery_dataset_id}"
 query_sql=f"""select *
-            from
-            {sd_url}.person as p
-            inner join terra_temp as tt
-                on p.person_source_value=tt.GRID;"""
+    from {sd_url}.person as p
+    inner join terra_temp as tt
+        on p.person_source_value=tt.PRIMARY_GRID;"""
 print(query_sql)
 
 res = client.query(query_sql, job_config=job_config).result().to_dataframe() 
@@ -123,7 +123,7 @@ icd_sql=f"""select person_source_value, concept_code as icd, vocabulary_id
     inner join {sd_url}.person as p
         on p.person_id=ae.person_id
     inner join terra_temp as tt
-        on p.person_source_value=tt.GRID
+        on p.person_source_value=tt.PRIMARY_GRID
     where c.vocabulary_id like 'ICD%CM';"""
 print(icd_sql)
 
