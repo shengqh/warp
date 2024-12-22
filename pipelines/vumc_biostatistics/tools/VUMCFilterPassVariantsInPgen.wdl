@@ -60,7 +60,7 @@ task FilterPassVariantsInPgen {
     String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
 
     Int preemptible=1
-    Int memory_gb = 4
+    Int memory_gb = 40
     Int addtional_disk_space_gb = 10
   }
 
