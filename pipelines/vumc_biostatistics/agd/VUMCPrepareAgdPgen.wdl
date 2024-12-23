@@ -35,7 +35,7 @@ workflow VUMCPrepareAgdPgen {
       input_pgen = input_pgen,
       input_pvar = input_pvar,
       input_psam = ReplaceICAIdWithGrid.output_psam,
-      target_prefix = target_prefix
+      target_prefix = target_prefix + ".primary_pass"
   }
 
   if(defined(target_gcp_folder)){

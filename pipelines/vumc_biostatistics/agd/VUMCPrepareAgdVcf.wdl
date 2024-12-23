@@ -21,7 +21,7 @@ workflow VUMCPrepareAgdVcf {
     input: 
       input_vcf = input_vcf,
       id_mapping_file = id_mapping_file,
-      target_prefix = target_prefix
+      target_prefix = target_prefix + ".primary_pass"
   }
 
   if(defined(target_gcp_folder)){
@@ -61,8 +61,8 @@ task PrepareAgdVcf {
 
   Int disk_size = ceil(size(input_vcf, "GB") * 2) + addtional_disk_space_gb
 
-  String target_vcf = "~{target_prefix}.PASS.vcf.gz"
-  String output_sample_file = "~{target_prefix}.PASS.samples.txt"
+  String target_vcf = "~{target_prefix}.vcf.gz"
+  String output_sample_file = "~{target_prefix}.samples.txt"
 
   command <<<
 

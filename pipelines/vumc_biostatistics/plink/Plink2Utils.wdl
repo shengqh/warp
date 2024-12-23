@@ -17,9 +17,9 @@ task FilterPassVariantsInPgen {
 
   Int disk_size = ceil(size([input_pgen, input_psam, input_pvar], "GB") * 2) + addtional_disk_space_gb
 
-  String target_pgen = "~{target_prefix}.PASS.pgen"
-  String target_pvar = "~{target_prefix}.PASS.pvar"
-  String target_psam = "~{target_prefix}.PASS.psam"
+  String target_pgen = "~{target_prefix}.pgen"
+  String target_pvar = "~{target_prefix}.pvar"
+  String target_psam = "~{target_prefix}.psam"
 
   command <<<
 
@@ -30,7 +30,7 @@ plink2  --pgen ~{input_pgen} \
         --psam ~{input_psam} \
         --extract filter.pvar \
         --make-pgen \
-        --out ~{target_prefix}.PASS
+        --out ~{target_prefix}
 
 grep -v "^#" ~{target_psam} | wc -l | cut -d ' ' -f 1 > num_samples.txt
 grep -v "^#" ~{target_pvar} | wc -l | cut -d ' ' -f 1 > num_variants.txt
