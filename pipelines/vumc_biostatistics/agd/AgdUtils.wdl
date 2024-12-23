@@ -26,14 +26,15 @@ with open("~{id_map_file}", "rt") as fin:
     # if GRID is "-", which means invalid, create a fake GRID
     if grid == "-":
       id_map[ica_id] = ica_id + "_INVALID"
+    else:
+      id_map[ica_id] = grid
 
 with open("~{input_psam}", "rt") as fin:
   with open("~{target_psam}", "wt") as fout:
     for line in fin:
       parts = line.strip().split('\t')
       if parts[1] in id_map:
-        grid = id_map[parts[1]]
-        parts[1] = grid
+        parts[1] = id_map[parts[1]]
 
       newline = '\t'.join(parts)
       fout.write(f"{newline}\n")
