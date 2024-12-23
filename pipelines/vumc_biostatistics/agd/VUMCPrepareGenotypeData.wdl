@@ -34,7 +34,7 @@ workflow VUMCPrepareGenotypeData {
       input:
         input_psam = psam_file,
         id_map_file = id_map_file,
-        output_psam = replaced_sample_name
+        target_psam = replaced_sample_name
     }
 
     String grid_sample_name = "~{chromosome}.grid.psam"
@@ -42,7 +42,7 @@ workflow VUMCPrepareGenotypeData {
       input:
         input_psam = ReplaceICAIdWithGrid.output_psam,
         grid_file = grid_file,
-        output_psam = grid_sample_name
+        target_psam = grid_sample_name
     }
 
     call GenotypeUtils.ExtractPgenSamples as ExtractPgenSamples {
