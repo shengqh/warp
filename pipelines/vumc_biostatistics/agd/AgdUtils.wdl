@@ -4,7 +4,9 @@ task ReplaceICAIdWithGrid {
   input {
     File input_psam
     File id_map_file
-    String output_psam
+    Int ICA_ID_Column = 0
+    Int PRIMARY_GRID_Column = 1
+    String target_psam
   }
 
   command <<<
@@ -17,10 +19,16 @@ with open("~{id_map_file}", "rt") as fin:
   id_map = {}
   for line in fin:
     parts = line.strip().split('\t')
-    id_map[parts[0]] = parts[1]
+    
+    ica_id = parts[~{ICA_ID_Column}]
+    grid = parts[~{PRIMARY_GRID_Column}]
+
+    # if GRID is "-", which means invalid, create a fake GRID
+    if grid == "-":
+      id_map[ica_id] = ica_id + "_INVALID"
 
 with open("~{input_psam}", "rt") as fin:
-  with open("~{output_psam}", "wt") as fout:
+  with open("~{target_psam}", "wt") as fout:
     for line in fin:
       parts = line.strip().split('\t')
       if parts[1] in id_map:
@@ -41,7 +49,7 @@ CODE
     memory: "2 GiB"
   }
   output {
-    File output_psam = "~{output_psam}"
+    File output_psam = "~{target_psam}"
   }
 }
 
@@ -49,7 +57,7 @@ task CreateCohortPsam {
   input {
     File input_psam
     File grid_file
-    String output_psam
+    String target_psam
   }
 
   command <<<
@@ -59,7 +67,7 @@ python3 <<CODE
 import os
 
 grids = set(line.strip() for line in open("~{grid_file}", "rt"))
-with open("~{output_psam}", "wt") as fout:
+with open("~{target_psam}", "wt") as fout:
   with open("~{input_psam}", "rt") as fin:
     for line in fin:
       if line.startswith("#"):
@@ -70,7 +78,7 @@ with open("~{output_psam}", "wt") as fout:
 CODE
 
 echo "Number of samples to keep:"
-wc -l "~{output_psam}"
+wc -l "~{target_psam}"
 
 >>>
 
@@ -81,7 +89,7 @@ wc -l "~{output_psam}"
     memory: "2 GiB"
   }
   output {
-    File output_psam = "~{output_psam}"
+    File output_psam = "~{target_psam}"
   }
 }
 
