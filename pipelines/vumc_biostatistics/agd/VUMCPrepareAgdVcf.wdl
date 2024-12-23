@@ -53,8 +53,6 @@ task PrepareAgdVcf {
 
     String target_prefix
 
-    String method = "agd_vcf"
-
     String vcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
 
     Int machine_mem_gb = 4
@@ -71,7 +69,7 @@ task PrepareAgdVcf {
 wget https://raw.githubusercontent.com/shengqh/agd_vcf/refs/heads/main/agd_vcf
 chmod +x agd_vcf
 
-zcat ~{input_vcf} | ./agd_vcf --id_map_file=~{id_mapping_file} -o=~{target_vcf}
+zcat ~{input_vcf} | ./agd_vcf --id_map_file=~{id_mapping_file} | bgzip -c > ~{target_vcf}
 
 tabix -p vcf ~{target_vcf}
 
