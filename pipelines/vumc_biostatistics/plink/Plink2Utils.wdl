@@ -10,6 +10,9 @@ task FilterPassVariantsInPgen {
 
     String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
 
+    #when has_pass is false, this task will just rename pgen files
+    Boolean has_pass=true
+
     Int preemptible=1
     Int memory_gb = 40
     Int addtional_disk_space_gb = 10
@@ -23,14 +26,19 @@ task FilterPassVariantsInPgen {
 
   command <<<
 
-awk '$7 == "PASS" || $1 ~ /^#/' ~{input_pvar} > filter.pvar
-
-plink2  --pgen ~{input_pgen} \
-        --pvar ~{input_pvar} \
-        --psam ~{input_psam} \
-        --extract filter.pvar \
-        --make-pgen \
-        --out ~{target_prefix}
+if [[ "~{has_pass}" == "true" ]]; then
+  awk '$7 == "PASS" || $1 ~ /^#/' ~{input_pvar} > filter.pvar
+  plink2  --pgen ~{input_pgen} \
+          --pvar ~{input_pvar} \
+          --psam ~{input_psam} \
+          --extract filter.pvar \
+          --make-pgen \
+          --out ~{target_prefix}  
+else
+  mv ~{input_pgen} ~{target_pgen} 
+  mv ~{input_pvar} ~{target_pvar}
+  mv ~{input_psam} ~{target_psam}
+fi
 
 grep -v "^#" ~{target_psam} | wc -l | cut -d ' ' -f 1 > num_samples.txt
 grep -v "^#" ~{target_pvar} | wc -l | cut -d ' ' -f 1 > num_variants.txt
