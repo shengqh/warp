@@ -1,8 +1,8 @@
 {
-  "VUMCPreparePhenotype.agd_primary_grid_file": "/nobackup/h_cqs/shengq2/biovu/AGD/SAMPLE_ID_MAP_2023_Q3_35K_primaryGRID_v4_202408.csv",
+  "VUMCPreparePhenotype.agd_primary_grid_file": "/nobackup/h_cqs/shengq2/biovu/AGD/SAMPLE_ID_MAP_2024_Q2_163K_primaryGRID_v5_202410.csv",
   "VUMCPreparePhenotype.min_occurance": "2",
   "VUMCPreparePhenotype.phecode_map_file": "/nobackup/h_cqs/shengq2/biovu/phecode_data/phecode_definitions1.2.csv",
-  "VUMCPreparePhenotype.phecode_data_file": "/nobackup/h_cqs/shengq2/biovu/phecode_data/AGD_35k_fullset_Phecode12_long.csv",
-  "VUMCPreparePhenotype.phename": "499",
-  "VUMCPreparePhenotype.phecode": "499"
+  "VUMCPreparePhenotype.phecode_data_file": "/nobackup/h_cqs/shengq2/biovu/agd163k/phedata_v5_202410/agd163k_v5_202410.Phecode12_long.csv",
+  "VUMCPreparePhenotype.phename": "Type_2_Diabetes",
+  "VUMCPreparePhenotype.phecode": "250.2"
 }
