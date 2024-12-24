@@ -1,8 +1,4 @@
-if [ ! -d "/nobackup/h_cqs/shengq2/biovu/agd35k/pgen" ]; then
-  mkdir /nobackup/h_cqs/shengq2/biovu/agd35k/pgen
-fi
-
-cd /nobackup/h_cqs/shengq2/biovu/agd35k/pgen
+cd /nobackup/h_cqs/shengq2/biovu/agd35k/primary_pass_pgen
 
 java -Dconfig.file=/data/cqs/softwares/cqsperl/config/wdl/cromwell.local.conf \
   -jar /data/cqs/softwares/wdl/cromwell-84.jar \
