@@ -10,9 +10,9 @@ workflow VUMCRegenie4Chromosomes {
   input {
     Array[String] chromosomes
 
-    Array[File] pgen_files
-    Array[File] pvar_files
-    Array[File] psam_files
+    Array[File] input_pgen_files
+    Array[File] input_pvar_files
+    Array[File] input_psam_files
 
     File phenoFile
     String phenoColList
@@ -43,9 +43,9 @@ workflow VUMCRegenie4Chromosomes {
 
   Array[Int] chrom_indecies = range(num_chromosome)
   scatter(chrom_ind in chrom_indecies){
-    File pgen_file = pgen_files[chrom_ind]
-    File pvar_file = pvar_files[chrom_ind]
-    File psam_file = psam_files[chrom_ind]
+    File pgen_file = input_pgen_files[chrom_ind]
+    File pvar_file = input_pvar_files[chrom_ind]
+    File psam_file = input_psam_files[chrom_ind]
     String chromosome = chromosomes[chrom_ind]
 
     call BioUtils.PgenQCFilter as Step2Filter {
