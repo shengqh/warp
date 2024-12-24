@@ -1,13 +1,15 @@
 {
-  "VUMCRegenie4.output_prefix": "demo_bmi_953",
-  "VUMCRegenie4.pgen_file": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953.pgen",
-  "VUMCRegenie4.pvar_file": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953.pvar",
-  "VUMCRegenie4.psam_file": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953.psam",
-  "VUMCRegenie4.phenoFile": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953_phenotype.final.txt",
-  "VUMCRegenie4.phenoColList": "bmi",
-  "VUMCRegenie4.covarFile": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953_phenotype.final.txt",
-  "VUMCRegenie4.covarColList": "PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10",
+  "VUMCRegenie4.output_prefix": "phecode",
+  "VUMCRegenie4.pgen_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/primary_pass_pgen/cromwell_finalOutputs/chr2122.pgen",
+  "VUMCRegenie4.pvar_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/primary_pass_pgen/cromwell_finalOutputs/chr2122.pvar",
+  "VUMCRegenie4.psam_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/primary_pass_pgen/cromwell_finalOutputs/chr2122.psam",
+  "VUMCRegenie4.phenoFile": "/nobackup/h_cqs/shengq2/biovu/20241223_agd35k_v5_phenodata_preparation/20241223_agd35k_v5_202410_phenotype.txt",
+  "VUMCRegenie4.phenoColList": "250.2,250",
+  "VUMCRegenie4.covarFile": "/nobackup/h_cqs/shengq2/biovu/20241223_agd35k_v5_phenodata_preparation/20241223_agd35k_v5_202410_covariants.txt",
+  "VUMCRegenie4.covarColList": "SEX,AGE,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10",
   "VUMCRegenie4.qc_option": "--mac 100 --geno 0.1 --maf 0.2 --max-maf 0.8 --hwe 1e-15 --snps-only --not-chr 23-27",
-  "VUMCRegenie4.force_step1": "false"
+  "VUMCRegenie4.force_step1": "true",
+  "VUMCRegenie4.step1_max_variants": "100000",
+  "VUMCRegenie4.is_binary_traits": "true"
 }
 

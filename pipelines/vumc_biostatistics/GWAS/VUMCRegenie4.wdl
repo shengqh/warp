@@ -4,6 +4,7 @@ import "../../../tasks/broad/Utilities.wdl" as utils
 import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
+import "../../../tasks/vumc_biostatistics/order_files_by_strings.wdl" as order_files_by_strings
 import "./GWASUtils.wdl" as GWASUtils
 
 workflow VUMCRegenie4 {
@@ -18,7 +19,7 @@ workflow VUMCRegenie4 {
 
     File phenoFile
     String phenoColList
-    Boolean is_binary_traits = false
+    Boolean is_binary_traits
 
     File covarFile
     String covarColList
@@ -147,44 +148,33 @@ workflow VUMCRegenie4 {
         chromosome = chromosome,
         memory_gb = step1_memory_gb #chromosome level memory cost would be less than step1, use step1 memory here.
     }
+
+    scatter(cur_pheno in phenotype_names){
+      String expect_regenie_file = "~{output_prefix}.~{chromosome}_~{cur_pheno}.regenie"
+    }
+
+    call order_files_by_strings.order_files_by_strings as OrderFiles {
+      input:
+        input_files = RegenieStep2AssociationTest.regenie_files,
+        expect_files = expect_regenie_file
+    }
   }
 
-  # Because RegenieStep2AssociationTest.regenie_files is not ordered by phenotype, we cannot use the following code
-  # scatter(pheno_idx in range(num_phenotype)){
-  #   String phenotype_name = phenotype_names[pheno_idx]
-  #   scatter(chrom_idx in range(num_chromosome)){
-  #     File regenie_file = RegenieStep2AssociationTest.regenie_files[chrom_idx][pheno_idx]
-  #   }
+  scatter(pheno_idx in range(num_phenotype)){
+    String phenotype_name = phenotype_names[pheno_idx]
+    scatter(chrom_idx in range(num_chromosome)){
+      File regenie_file = OrderFiles.ordered_files[chrom_idx][pheno_idx]
+    }
 
-  #   call GWASUtils.MergeRegenieChromosomeResultsOnePhenotype as MergeRegenieChromosomeResults {
-  #     input:
-  #       regenie_chromosome_files = regenie_file,
-  #       output_prefix = output_prefix + "." + phenotype_name
-  #   }
+    call GWASUtils.MergeRegenieChromosomeResultsOnePhenotype as MergeRegenieChromosomeResults {
+      input:
+        regenie_chromosome_files = regenie_file,
+        output_prefix = output_prefix + "." + phenotype_name
+    }
 
-  #   call GWASUtils.RegeniePlots {
-  #     input:
-  #       regenie_file = MergeRegenieChromosomeResults.phenotype_regenie_file,
-  #       output_prefix = "~{output_prefix}.~{phenotype_name}"
-  #   }
-  # }
-
-  Array[File] regenie_chromosome_files = flatten(RegenieStep2AssociationTest.regenie_files)
-
-  call GWASUtils.MergeRegenieChromosomeResults {
-    input:
-      regenie_chromosome_files = regenie_chromosome_files,
-      phenotype_names = phenotype_names,
-      chromosome_list = valid_chromosomes,
-      regenie_prefix = output_prefix,
-      output_prefix = output_prefix
-  }
-
-  scatter(ind in range(num_phenotype)){
-    String phenotype_name = phenotype_names[ind]
     call GWASUtils.RegeniePlots {
       input:
-        regenie_file = MergeRegenieChromosomeResults.phenotype_regenie_files[ind],
+        regenie_file = MergeRegenieChromosomeResults.phenotype_regenie_file,
         output_prefix = "~{output_prefix}.~{phenotype_name}"
     }
   }
@@ -212,7 +202,7 @@ workflow VUMCRegenie4 {
 
     call GcpUtils.MoveOrCopyFileArray as CopyFile3 {
       input:
-        source_files = MergeRegenieChromosomeResults.phenotype_regenie_files,
+        source_files = MergeRegenieChromosomeResults.phenotype_regenie_file,
         is_move_file = false,
         project_id = billing_gcp_project_id,
         target_gcp_folder = gcs_output_dir
@@ -248,7 +238,7 @@ workflow VUMCRegenie4 {
     File pred_list_file = select_first([CopyFile1.output_file, RegenieStep1FitModel.pred_list_file])
     Array[File] pred_loco_files = select_first([pred_loco_file, RegenieStep1FitModel.pred_loco_files])
 
-    Array[File] phenotype_regenie_files = select_first([phenotype_regenie_file, MergeRegenieChromosomeResults.phenotype_regenie_files])
+    Array[File] phenotype_regenie_files = select_first([phenotype_regenie_file, MergeRegenieChromosomeResults.phenotype_regenie_file])
 
     Array[File] phenotype_qqplot_png = select_first([pheno_qqplot_png, RegeniePlots.qqplot_png])
     Array[File] phenotype_manhattan_png = select_first([pheno_manhattan_png, RegeniePlots.manhattan_png])

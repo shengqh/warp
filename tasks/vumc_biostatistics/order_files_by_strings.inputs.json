@@ -1,0 +1,5 @@
+{
+  "order_files_by_strings.input_files": ["folder/A.txt", "folder/B.txt", "folder/C.txt"],
+  "order_files_by_strings.expect_files": ["B.txt", "A.txt", "C.txt"]
+}
+
