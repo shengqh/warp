@@ -386,9 +386,8 @@ done
 
 for pheno in ~{sep=' ' phenotype_names}; do 
   head -n 1 ~{regenie_file1} > ~{output_prefix}.$pheno.regenie
-  for chr in ~{sep= ' ' chromosome_list}; do 
+  for chr in ~{sep=' ' chromosome_list}; do 
     tail -n +2 ~{regenie_prefix}.${chr}_${pheno}.regenie >> ~{output_prefix}.$pheno.regenie
-    rm ~{regenie_prefix}.${chr}_${pheno}.regenie
   done 
 
   gzip ~{output_prefix}.$pheno.regenie
