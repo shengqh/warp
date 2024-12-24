@@ -79,7 +79,7 @@ with open("~{target_psam}", "wt") as fout:
 CODE
 
 echo "Number of samples to keep:"
-wc -l "~{target_psam}"
+grep -v "^#" "~{target_psam}" | wc -l 
 
 >>>
 
