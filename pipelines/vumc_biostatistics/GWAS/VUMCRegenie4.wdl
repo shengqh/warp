@@ -41,7 +41,7 @@ workflow VUMCRegenie4 {
   }
 
   if(!defined(qc_pgen_file)){
-    call BioUtils.PgenQCFilter {
+    call BioUtils.PgenQCFilter as Step1Filter{
       input:
         input_pgen = pgen_file,
         input_pvar = pvar_file,
@@ -52,9 +52,9 @@ workflow VUMCRegenie4 {
     }
   }
   
-  File model_pgen = select_first([qc_pgen_file, PgenQCFilter.output_pgen])
-  File model_pvar = select_first([qc_pvar_file, PgenQCFilter.output_pvar])
-  File model_psam = select_first([qc_psam_file, PgenQCFilter.output_psam])
+  File model_pgen = select_first([qc_pgen_file, Step1Filter.output_pgen])
+  File model_pvar = select_first([qc_pvar_file, Step1Filter.output_pvar])
+  File model_psam = select_first([qc_psam_file, Step1Filter.output_psam])
 
   call WDLUtils.count_lines as psam_count {
     input:
@@ -142,12 +142,32 @@ workflow VUMCRegenie4 {
         is_binary_traits = is_binary_traits,
         covarFile = covarFile,
         covarColList = covarColList,
-        output_prefix = "~{output_prefix}.chr~{chromosome}",
+        output_prefix = "~{output_prefix}.~{chromosome}",
         step2_option = step2_option,
         chromosome = chromosome,
         memory_gb = step1_memory_gb #chromosome level memory cost would be less than step1, use step1 memory here.
     }
   }
+
+  # Because RegenieStep2AssociationTest.regenie_files is not ordered by phenotype, we cannot use the following code
+  # scatter(pheno_idx in range(num_phenotype)){
+  #   String phenotype_name = phenotype_names[pheno_idx]
+  #   scatter(chrom_idx in range(num_chromosome)){
+  #     File regenie_file = RegenieStep2AssociationTest.regenie_files[chrom_idx][pheno_idx]
+  #   }
+
+  #   call GWASUtils.MergeRegenieChromosomeResultsOnePhenotype as MergeRegenieChromosomeResults {
+  #     input:
+  #       regenie_chromosome_files = regenie_file,
+  #       output_prefix = output_prefix + "." + phenotype_name
+  #   }
+
+  #   call GWASUtils.RegeniePlots {
+  #     input:
+  #       regenie_file = MergeRegenieChromosomeResults.phenotype_regenie_file,
+  #       output_prefix = "~{output_prefix}.~{phenotype_name}"
+  #   }
+  # }
 
   Array[File] regenie_chromosome_files = flatten(RegenieStep2AssociationTest.regenie_files)
 
@@ -160,8 +180,7 @@ workflow VUMCRegenie4 {
       output_prefix = output_prefix
   }
 
-  Array[Int] indecies = range(length(phenotype_names))
-  scatter(ind in indecies){
+  scatter(ind in range(num_phenotype)){
     String phenotype_name = phenotype_names[ind]
     call GWASUtils.RegeniePlots {
       input:

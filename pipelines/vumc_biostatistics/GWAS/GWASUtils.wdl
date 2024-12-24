@@ -306,6 +306,51 @@ regenie --step 2 \
   }
 }
 
+# This task can be used for Regenie with only one phenotype tested.
+task MergeRegenieChromosomeResultsOnePhenotype {
+  input {
+    Array[File] regenie_chromosome_files
+
+    String output_prefix
+
+    String docker = "ubuntu:20.04"
+    Float memory = 3.5
+    Int? disk_size_override
+    Int cpu = 1
+    Int preemptible = 1
+    Int maxRetries = 0
+  }
+  Float regenie_files_size = size(regenie_chromosome_files, "GiB")
+  Int disk = select_first([disk_size_override, ceil(30.0 + 2.0 * regenie_files_size)])
+
+  File regenie_file1 = regenie_chromosome_files[0]
+
+command <<<
+
+set -euo pipefail
+
+head -n 1 ~{regenie_file1} > ~{output_prefix}.regenie
+for chr_file in ~{sep= ' ' regenie_chromosome_files}; do 
+  tail -n +2 $chr_file >> ~{output_prefix}.regenie
+done 
+
+gzip ~{output_prefix}.regenie
+
+>>>
+
+  runtime {
+    docker: docker
+    memory: memory + " GiB"
+    disks: "local-disk " + disk + " HDD"
+    cpu: cpu
+    preemptible: preemptible
+    maxRetries: maxRetries
+  }
+  output {
+    File phenotype_regenie_file = "~{output_prefix}.regenie.gz"
+  }
+}
+
 # Modified from https://github.com/briansha/Regenie_WDL/blob/master/regenie.wdl
 task MergeRegenieChromosomeResults {
   input {
@@ -329,7 +374,7 @@ task MergeRegenieChromosomeResults {
 
   String chr1 = chromosome_list[0]
   String pheno1 = phenotype_names[0]
-  String regenie_file1 = "~{regenie_prefix}.chr~{chr1}_~{pheno1}.regenie"
+  String regenie_file1 = "~{regenie_prefix}.~{chr1}_~{pheno1}.regenie"
 
 command <<<
 
@@ -342,8 +387,8 @@ done
 for pheno in ~{sep=' ' phenotype_names}; do 
   head -n 1 ~{regenie_file1} > ~{output_prefix}.$pheno.regenie
   for chr in ~{sep= ' ' chromosome_list}; do 
-    tail -n +2 ~{regenie_prefix}.chr${chr}_${pheno}.regenie >> ~{output_prefix}.$pheno.regenie
-    rm ~{regenie_prefix}.chr${chr}_${pheno}.regenie
+    tail -n +2 ~{regenie_prefix}.${chr}_${pheno}.regenie >> ~{output_prefix}.$pheno.regenie
+    rm ~{regenie_prefix}.${chr}_${pheno}.regenie
   done 
 
   gzip ~{output_prefix}.$pheno.regenie
