@@ -17,7 +17,7 @@ workflow VUMCRegenie4Chromosomes {
 
     File phenoFile
     String phenoColList
-    Boolean is_binary_traits = true
+    Boolean is_binary_traits
 
     File covarFile
     String covarColList

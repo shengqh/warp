@@ -10,7 +10,7 @@ workflow VUMCRegenie {
 
     File phenoFile
     String phenoColList
-    Boolean is_binary_traits = false
+    Boolean is_binary_traits
 
     File covarFile
     String covarColList
