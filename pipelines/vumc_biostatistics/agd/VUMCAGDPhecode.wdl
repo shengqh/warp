@@ -6,7 +6,7 @@ workflow VUMCAGDPhecode {
   input {
     String bigquery_project_id
     String bigquery_dataset_id
-    String id_mapping_file
+    String id_map_file
     File phemap_file
     String output_prefix
 
@@ -18,7 +18,7 @@ workflow VUMCAGDPhecode {
     input:
       bigquery_project_id = bigquery_project_id,
       bigquery_dataset_id = bigquery_dataset_id,
-      id_mapping_file = id_mapping_file,
+      id_map_file = id_map_file,
       phemap_file = phemap_file,
       output_prefix = output_prefix
   }
@@ -52,7 +52,7 @@ task query_phecode {
     String bigquery_project_id
     String bigquery_dataset_id
     
-    String id_mapping_file
+    String id_map_file
     File phemap_file
 
     String output_prefix
@@ -74,7 +74,7 @@ from google.cloud import bigquery
 # Configure the external data source and query job.
 external_config = bigquery.ExternalConfig("CSV")
 external_config.source_uris = [
-    "~{id_mapping_file}"
+    "~{id_map_file}"
 ]
 external_config.schema = [
     bigquery.SchemaField("SAMPLE_ID", "NUMERIC"), 

@@ -192,10 +192,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2Filter.wdl
 
-  - name: VUMCVcf2HailMatrix
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcf2HailMatrix.wdl
-
   - name: VUMCHailMatrixExtractSamples
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCHailMatrixExtractSamples.wdl
@@ -343,3 +339,11 @@ workflows:
   - name: VUMCPrepareAgdPgen
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCPrepareAgdPgen.wdl
+
+  - name: VUMCPgenToBgen
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCPgenToBgen.wdl
+
+  - name: VUMCVcf2HailMatrix
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCVcf2HailMatrix.wdl

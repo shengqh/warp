@@ -9,7 +9,7 @@ workflow VUMCPrepareAgdVcf {
   input {
     File input_vcf
 
-    File id_mapping_file
+    File id_map_file
 
     String target_prefix
 
@@ -20,7 +20,7 @@ workflow VUMCPrepareAgdVcf {
   call PrepareAgdVcf {
     input: 
       input_vcf = input_vcf,
-      id_mapping_file = id_mapping_file,
+      id_map_file = id_map_file,
       target_prefix = target_prefix + ".primary_pass"
   }
 
@@ -49,16 +49,18 @@ workflow VUMCPrepareAgdVcf {
 task PrepareAgdVcf {
   input{
     File input_vcf
-    File id_mapping_file
+    File id_map_file
 
     String target_prefix
 
     String vcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
 
+    Int cpu = 4
     Int machine_mem_gb = 4
     Int addtional_disk_space_gb = 10
   }
 
+  Int bgzip_thread = cpu -1
   Int disk_size = ceil(size(input_vcf, "GB") * 2) + addtional_disk_space_gb
 
   String target_vcf = "~{target_prefix}.vcf.gz"
@@ -69,7 +71,7 @@ task PrepareAgdVcf {
 wget https://raw.githubusercontent.com/shengqh/agd_vcf/refs/heads/main/agd_vcf
 chmod +x agd_vcf
 
-zcat ~{input_vcf} | ./agd_vcf --id_map_file=~{id_mapping_file} | bgzip -c > ~{target_vcf}
+zcat ~{input_vcf} | ./agd_vcf --id_map_file=~{id_map_file} | bgzip -@ ~{bgzip_thread} -c > ~{target_vcf}
 
 tabix -p vcf ~{target_vcf}
 
@@ -82,8 +84,9 @@ bcftools index -n ~{target_vcf} > num_variants.txt
   >>>
 
   runtime{
+    cpu: cpu
     docker: vcftools_docker
-    preemptible: 1
+    preemptible: 0
     memory: machine_mem_gb + " GB"
     disks: "local-disk " + disk_size + " HDD"
   }
