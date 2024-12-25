@@ -7,6 +7,8 @@ workflow VUMCVcf2HailMatrix {
     File source_vcf
     File source_vcf_index
 
+    File? id_map_file
+
     String reference_genome = "GRCh38"
 
     String target_prefix
@@ -19,6 +21,7 @@ workflow VUMCVcf2HailMatrix {
     input:
       source_vcf = source_vcf,
       source_vcf_index = source_vcf_index,
+      id_map_file = id_map_file,
       reference_genome = reference_genome,
       target_prefix = target_prefix,
       project_id = project_id,
@@ -38,6 +41,9 @@ task Vcf2HailMatrix {
   parameter_meta {
     source_vcf: "The input .vcf.bgz file."
     source_vcf_index: "The input .vcf.bgz.tbi file."
+
+    id_map_file: "Optional. A tab-delimited file with at least two columns: ICA_ID and PRIMARY_GRID."
+
     reference_genome: "The reference genome to use.  Currently only GRCh38 is supported."
     target_prefix: "The prefix to use for the output MatrixTable."
 
@@ -52,8 +58,13 @@ task Vcf2HailMatrix {
   input {
     File source_vcf
     File source_vcf_index
+
+    File? id_map_file
+
     String reference_genome
     String target_prefix
+
+    Boolean pass_only=true
 
     String? project_id
     String target_gcp_folder
@@ -76,9 +87,10 @@ task Vcf2HailMatrix {
 #https://discuss.hail.is/t/i-get-a-negativearraysizeexception-when-loading-a-plink-file/899
 export PYSPARK_SUBMIT_ARGS="--driver-java-options '-XX:hashCode=0' --conf 'spark.executor.extraJavaOptions=-XX:hashCode=0' pyspark-shell"
 
-python3 <<CODE
+cat <<CODE > vcf2hail.py
 
 import hail as hl
+import pandas as pd
 
 hl.init(spark_conf={"spark.driver.memory": "~{memory_gb}g"})
 
@@ -87,10 +99,47 @@ callset = hl.import_vcf("~{source_vcf}",
                         force_bgz=True,
                         reference_genome='~{reference_genome}')
 
+if "~{pass_only}" == "true":
+  print("Filtering out variants that do not pass all filters...")
+  callset = callset.filter_rows(hl.len(callset.filters) == 0)
+
+if "~{id_map_file}" != "":
+  print("Loading ID map file...")
+  df = pd.read_csv("~{id_map_file}", sep="\t") 
+
+  print("Replacing PRIMARY_GRID=='-' with ICA_ID + '_INVALID'...")
+  df['PRIMARY_GRID'] = df.apply(
+      lambda row: f"{row['ICA_ID']}_INVALID" if row['PRIMARY_GRID'] == "-" else row['PRIMARY_GRID'],
+      axis=1
+  )
+
+  print("Saving updated ID map file...")
+  new_id_map_file = "updated_id_map_file.csv"
+  df.to_csv(new_id_map_file, index=False)
+
+  print("Converting pandas data frame to hail table...")
+  ht = hl.Table.from_pandas(df)
+  ht.describe()
+
+  ht = ht.key_by("ICA_ID")
+
+  print("Annotate the MatrixTable with the mapping ...")
+  callset = callset.annotate_cols(PRIMARY_GRID=ht[callset.s].PRIMARY_GRID)
+
+  print("Assign new sample names...")
+  callset = callset.key_cols_by(s=callset.PRIMARY_GRID)
+
+  print("Drop the temporary field...")
+  callset = callset.drop('PRIMARY_GRID')
+
+print("Writing MatrixTable to disk...")
 callset.write("~{target_prefix}", overwrite=True)
 
 CODE
 
+python3 vcf2hail.py
+
+echo "Copying MatrixTable to GCS..."
 gsutil ~{"-u " + project_id} -m rsync -Cr ~{target_prefix} ~{gcs_output_path}
 
 >>>
