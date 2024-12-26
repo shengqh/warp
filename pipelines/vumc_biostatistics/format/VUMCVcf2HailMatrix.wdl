@@ -71,7 +71,7 @@ task Vcf2HailMatrix {
 
     String docker = "shengqh/hail_gcp:20240211"
     Int memory_gb = 64
-    Int preemptible = 1
+    Int preemptible = 0
     Int cpu = 4
     Int boot_disk_gb = 10
   }
@@ -79,8 +79,13 @@ task Vcf2HailMatrix {
   Int disk_size = 100 + 3*ceil(size(source_vcf, "GB"))
   Int total_memory_gb = memory_gb + 2
 
+  String bucket=sub(target_gcp_folder, "^gs://", "")
+  Boolean is_gcs = bucket != target_gcp_folder
+
   String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
   String gcs_output_path = gcs_output_dir + "/" + target_prefix
+
+  String final_url = if is_gcs then gcs_output_path else target_prefix
 
   command <<<
 
@@ -92,55 +97,84 @@ cat <<CODE > vcf2hail.py
 import hail as hl
 import pandas as pd
 
-hl.init(spark_conf={"spark.driver.memory": "~{memory_gb}g"})
+hl.init(master='local[*]',  # Use all available cores
+        min_block_size=128,  # Minimum block size in MB
+        quiet=True,
+        spark_conf={
+            'spark.driver.memory': '~{memory_gb}g',
+            'spark.executor.memory': '~{memory_gb}g',
+            'spark.network.timeout': '800s',
+            'spark.executor.heartbeatInterval': '400s'
+        })
 
+hl.utils.warning("Reading vcf from ~{source_vcf} ...")
 callset = hl.import_vcf("~{source_vcf}",
                         array_elements_required=False,
                         force_bgz=True,
                         reference_genome='~{reference_genome}')
 
 if "~{pass_only}" == "true":
-  print("Filtering out variants that do not pass all filters...")
+  hl.utils.warning("Filtering out variants that do not pass all filters...")
+  nsnp_pre = callset.count_rows()
   callset = callset.filter_rows(hl.len(callset.filters) == 0)
+  nsnp_post = callset.count_rows()
+  hl.utils.warning(f"Filtered out {nsnp_pre - nsnp_post} variants.")
 
 if "~{id_map_file}" != "":
-  print("Loading ID map file...")
+  hl.utils.warning("Loading ID map file...")
   df = pd.read_csv("~{id_map_file}", sep="\t") 
 
-  print("Replacing PRIMARY_GRID=='-' with ICA_ID + '_INVALID'...")
+  hl.utils.warning("Replacing PRIMARY_GRID=='-' with ICA_ID + '_INVALID'...")
   df['PRIMARY_GRID'] = df.apply(
       lambda row: f"{row['ICA_ID']}_INVALID" if row['PRIMARY_GRID'] == "-" else row['PRIMARY_GRID'],
       axis=1
   )
 
-  print("Saving updated ID map file...")
-  new_id_map_file = "updated_id_map_file.csv"
-  df.to_csv(new_id_map_file, index=False)
-
-  print("Converting pandas data frame to hail table...")
+  hl.utils.warning("Converting pandas data frame to hail table...")
   ht = hl.Table.from_pandas(df)
-  ht.describe()
-
   ht = ht.key_by("ICA_ID")
-
-  print("Annotate the MatrixTable with the mapping ...")
+  ht.describe()
+  
+  hl.utils.warning("Annotate the MatrixTable with the mapping ...")
   callset = callset.annotate_cols(PRIMARY_GRID=ht[callset.s].PRIMARY_GRID)
 
-  print("Assign new sample names...")
+  hl.utils.warning("Assign new sample names...")
   callset = callset.key_cols_by(s=callset.PRIMARY_GRID)
 
-  print("Drop the temporary field...")
+  hl.utils.warning("Drop the temporary field...")
   callset = callset.drop('PRIMARY_GRID')
 
-print("Writing MatrixTable to disk...")
-callset.write("~{target_prefix}", overwrite=True)
+nsample = callset.count_cols()
+with open("num_samples.txt", "w") as f:
+    f.write(str(nsample))
+
+nsnp = callset.count_rows()
+with open("num_variants.txt", "w") as f:
+    f.write(str(nsnp))
+
+n_invalid = callset.aggregate_cols(hl.agg.count_where(callset.s.endswith('_INVALID')))
+with open("num_invalid_samples.txt", "w") as f:
+    f.write(str(n_invalid))
+
+hl.utils.warning("Writing MatrixTable to disk...")
+callset.write("~{target_prefix}", 
+              overwrite=True,  # Set to True if you want to overwrite existing data
+              stage_locally=True  # Helps with large datasets by staging locally first
+              _codec_spec={'codec': 'standard'})  # Use standard compression for better write performance
 
 CODE
 
+set -o pipefail
+
 python3 vcf2hail.py
 
-echo "Copying MatrixTable to GCS..."
-gsutil ~{"-u " + project_id} -m rsync -Cr ~{target_prefix} ~{gcs_output_path}
+status=$?
+if [[ "$status" == "0" ]]; then
+  if [[ "~{is_gcs}" == "true" ]]; then
+    echo "Copying MatrixTable to GCS..."
+    gsutil ~{"-u " + project_id} -m rsync -Cr ~{target_prefix} ~{gcs_output_path}
+  fi
+fi
 
 >>>
 
@@ -153,6 +187,9 @@ gsutil ~{"-u " + project_id} -m rsync -Cr ~{target_prefix} ~{gcs_output_path}
     bootDiskSizeGb: boot_disk_gb
   }
   output {
-    String hail_gcs_path = "~{gcs_output_path}"
+    String hail_gcs_path = "~{final_url}"
+    Int num_samples = read_int("num_samples.txt")
+    Int num_variants = read_int("num_variants.txt")  
+    Int num_invalid_samples = read_int("num_invalid_samples.txt")
   }
 }
