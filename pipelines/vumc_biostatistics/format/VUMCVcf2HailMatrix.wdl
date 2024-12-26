@@ -30,6 +30,9 @@ workflow VUMCVcf2HailMatrix {
 
   output {
     String hail_gcs_path = Vcf2HailMatrix.hail_gcs_path
+    Int num_samples = Vcf2HailMatrix.num_samples
+    Int num_variants = Vcf2HailMatrix.num_variants
+    Int num_invalid_samples = Vcf2HailMatrix.num_invalid_samples
   }
 }
 
