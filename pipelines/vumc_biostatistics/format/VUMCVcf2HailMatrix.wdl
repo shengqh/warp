@@ -158,9 +158,8 @@ with open("num_invalid_samples.txt", "w") as f:
 
 hl.utils.warning("Writing MatrixTable to disk...")
 callset.write("~{target_prefix}", 
-              overwrite=True,  # Set to True if you want to overwrite existing data
-              stage_locally=True  # Helps with large datasets by staging locally first
-              _codec_spec={'codec': 'standard'})  # Use standard compression for better write performance
+              overwrite=True, 
+              stage_locally=True)
 
 CODE
 
