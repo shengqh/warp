@@ -1,0 +1,9 @@
+{
+  "VUMCQCFilterAndPrunePgen.input_pgen": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-22/primary-pass-pgen/agd163k_chr22.primary_pass.pgen",
+  "VUMCQCFilterAndPrunePgen.input_psam": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-22/primary-pass-pgen/agd163k_chr22.primary_pass.psam",
+  "VUMCQCFilterAndPrunePgen.input_pvar": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-22/primary-pass-pgen/agd163k_chr22.primary_pass.pvar",
+  "VUMCQCFilterAndPrunePgen.qc_filter_option": "--geno 0.1 --maf 0.05 --hwe 1e-15 --snps-only",
+  "VUMCQCFilterAndPrunePgen.max_variants": "2000",
+  "VUMCQCFilterAndPrunePgen.output_prefix": "chr22.qc"
+}
+
