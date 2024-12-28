@@ -1,8 +1,9 @@
 {
   "VUMCVcf2HailMatrix.id_map_file": "/nobackup/h_cqs/shengq2/biovu/AGD/SAMPLE_ID_MAP_2024_Q2_163K_primaryGRID_v5_202410.txt",
-  "VUMCVcf2HailMatrix.source_vcf": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/postproc-vcf/dragen.vcf.gz",
-  "VUMCVcf2HailMatrix.source_vcf_index": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/postproc-vcf/dragen.vcf.gz.tbi",
-  "VUMCVcf2HailMatrix.target_prefix": "agd163k_chrM",
-  "VUMCVcf2HailMatrix.target_gcp_folder": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/primary_pass_hail"
+  "VUMCVcf2HailMatrix.input_vcf": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/postproc-vcf/dragen.vcf.gz",
+  "VUMCVcf2HailMatrix.input_vcf_index": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/postproc-vcf/dragen.vcf.gz.tbi",
+  "VUMCVcf2HailMatrix.output_prefix": "agd163k_chrM",
+  "VUMCVcf2HailMatrix.output_to_gcp": "false",
+  "VUMCVcf2HailMatrix.target_gcp_folder": ""
 }
 
