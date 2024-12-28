@@ -2,11 +2,11 @@ version 1.0
 
 task Regenie4MemoryEstimation {
   input {
-    Int num_sample
-    Int num_variant
-    Int num_phenotype
-    Int num_chromosome
-    Int num_covariate
+    Int num_samples
+    Int num_variants
+    Int num_phenotypes
+    Int num_chromosomes
+    Int num_covariates
     Int num_ridge_l0 = 5
     Int block_size = 1000
 
@@ -16,11 +16,11 @@ task Regenie4MemoryEstimation {
   command <<<
     cat <<EOF > script.r
 
-num_sample=~{num_sample}
-num_variant=~{num_variant}
-num_phenotype=~{num_phenotype}
-num_chromosome=~{num_chromosome}
-num_covariate=~{num_covariate}
+num_samples=~{num_samples}
+num_variants=~{num_variants}
+num_phenotypes=~{num_phenotypes}
+num_chromosomes=~{num_chromosomes}
+num_covariates=~{num_covariates}
 num_ridge_l0=~{num_ridge_l0}
 block_size=~{block_size}
 
@@ -29,12 +29,12 @@ block_size=~{block_size}
 # // 4P + max( B + PRT, PRT) + #chrs [P:#traits;R=#ridge l0;T=#predictions from l0]
 # int t_eff = ( params->write_l0_pred ? 1 : params->total_n_block );
 
-total_n_block = ceiling(1.0 * num_variant / block_size)
+total_n_block = ceiling(1.0 * num_variants / block_size)
 t_eff = total_n_block
 
 # int p_eff = ( params->write_l0_pred ? 1 : params->n_pheno );
 
-p_eff = num_phenotype
+p_eff = num_phenotypes
 
 # int b_eff = params->total_n_block;
 
@@ -42,23 +42,23 @@ b_eff = total_n_block
 
 # total_ram = 4 * params->n_pheno + params->nChrom + params->ncov;
 
-a1 = 4.0 * num_phenotype + num_chromosome + num_covariate
+a1 = 4.0 * num_phenotypes + num_chromosomes + num_covariates
 
 # total_ram += std::max( params->block_size + params->n_pheno * params->n_ridge_l0 * t_eff, p_eff * params->n_ridge_l0 * b_eff );
 
-b1 = block_size + num_phenotype * num_ridge_l0 * t_eff
+b1 = block_size + num_phenotypes * num_ridge_l0 * t_eff
 b2 = p_eff * num_ridge_l0 * b_eff
 max_b = max(b1, b2)
 
 # total_ram *= params->n_samples * sizeof(double);
 
-sample_cost = (a1 + max_b) * num_sample * 8
+sample_cost = (a1 + max_b) * num_samples * 8
 
 cat("The momory for storing sample level data:", ceiling(sample_cost / 1000^3), "GB\n")
 
 # total_ram += params->nvs_stored * sizeof(struct snp);
 
-variant_cost = num_variant * 300
+variant_cost = num_variants * 300
 
 cat("The momory for storing variant data:", ceiling(variant_cost / 1000^3), "GB\n")
 
@@ -67,7 +67,7 @@ cat("The momory for storing variant data:", ceiling(variant_cost / 1000^3), "GB\
 #     total_ram += params->n_samples * params->block_size * sizeof(double);
 # }
 
-other_cost = num_sample * block_size * 8
+other_cost = num_samples * block_size * 8
 
 # if( params->use_loocv ) total_ram += params->chunk_mb * 1e6; // max amount of memory used for LOO computations involved
 
