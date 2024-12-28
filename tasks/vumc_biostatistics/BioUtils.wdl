@@ -216,7 +216,7 @@ echo "The number of variants after QC is $qc_variants"
 echo "Running Prune on the qc-ed dataset"
 plink2 \
   --pfile qc_pass \
-  --indep-pairwise ~{indep_pairwise_option} \
+  ~{indep_pairwise_option} \
   --threads ~{cpu} \
   --out qc_pass
 
