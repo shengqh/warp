@@ -1,7 +1,7 @@
 version 1.0
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
-import "../plink/Plink2Utils.wdl" as Plink2Utils
+import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
 
 workflow VUMCFilterPassVariantsInPgen {
   input {
@@ -9,7 +9,7 @@ workflow VUMCFilterPassVariantsInPgen {
     File input_pvar
     File input_psam
 
-    String target_prefix
+    String output_prefix
 
     String? project_id
     String? target_gcp_folder
@@ -21,7 +21,7 @@ workflow VUMCFilterPassVariantsInPgen {
       input_pvar = input_pvar,
       input_psam = input_psam,
 
-      target_prefix = target_prefix
+      output_prefix = output_prefix
   }
 
   if(defined(target_gcp_folder)){

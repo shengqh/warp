@@ -1,5 +1,5 @@
 {
   "VUMCFilterPassVariantsInVcf.input_vcf": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/postproc-vcf/dragen.vcf.gz",
-  "VUMCFilterPassVariantsInVcf.target_prefix": "dragen"
+  "VUMCFilterPassVariantsInVcf.output_prefix": "dragen"
 }
 

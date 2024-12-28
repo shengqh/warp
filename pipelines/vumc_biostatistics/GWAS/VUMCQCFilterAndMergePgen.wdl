@@ -2,11 +2,12 @@ version 1.0
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
-import "../genotype/Utils.wdl" as Utils
+import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
 
 workflow VUMCQCFilterAndMergePgen {
   input {
     Array[String] chromosomes
+
     Array[File] pgen_files
     Array[File] pvar_files
     Array[File] psam_files
@@ -28,21 +29,21 @@ workflow VUMCQCFilterAndMergePgen {
     File psam_file = psam_files[i]
     String cur_output_prefix = output_prefix + "." + chromosome
 
-    call BioUtils.PgenQCFilter {
+    call BioUtils.QCFilterPgen {
       input:
         input_pgen = pgen_file,
         input_pvar = pvar_file,
         input_psam = psam_file,
         output_prefix = cur_output_prefix,
-        qc_option = qc_option
+        qc_filter_option = qc_option
     }
   }
 
-  call Utils.MergePgenFiles {
+  call Plink2Utils.MergePgenFiles {
     input:
-      pgen_files = PgenQCFilter.output_pgen,
-      pvar_files = PgenQCFilter.output_pvar,
-      psam_files = PgenQCFilter.output_psam,
+      input_pgen_files = QCFilterPgen.output_pgen,
+      input_pvar_files = QCFilterPgen.output_pvar,
+      input_psam_files = QCFilterPgen.output_psam,
       output_prefix = output_prefix
   }
 

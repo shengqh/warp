@@ -5,7 +5,7 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 workflow VUMCFilterPassVariantsInVcf {
   input {
     File input_vcf
-    String target_prefix
+    String output_prefix
 
     String? project_id
     String? target_gcp_folder
@@ -14,7 +14,7 @@ workflow VUMCFilterPassVariantsInVcf {
   call FilterPassVariantsInVcf {
     input: 
       input_vcf = input_vcf,
-      target_prefix = target_prefix
+      output_prefix = output_prefix
   }
 
   if(defined(target_gcp_folder)){
@@ -44,7 +44,7 @@ task FilterPassVariantsInVcf {
     # Command parameters
     File input_vcf
 
-    String target_prefix
+    String output_prefix
 
     String vcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
 
@@ -54,8 +54,8 @@ task FilterPassVariantsInVcf {
 
   Int disk_size = ceil(size(input_vcf, "GB") * 2) + addtional_disk_space_gb
 
-  String target_vcf = "~{target_prefix}.PASS.vcf.gz"
-  String output_sample_file = "~{target_prefix}.PASS.samples.txt"
+  String target_vcf = "~{output_prefix}.PASS.vcf.gz"
+  String output_sample_file = "~{output_prefix}.PASS.samples.txt"
 
   command <<<
     # After test, awk is almost 2 times faster than bcftools filter for this specific task

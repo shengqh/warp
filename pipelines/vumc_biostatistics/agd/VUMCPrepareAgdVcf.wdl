@@ -11,7 +11,7 @@ workflow VUMCPrepareAgdVcf {
 
     File id_map_file
 
-    String target_prefix
+    String output_prefix
 
     String? project_id
     String? target_gcp_folder
@@ -21,7 +21,7 @@ workflow VUMCPrepareAgdVcf {
     input: 
       input_vcf = input_vcf,
       id_map_file = id_map_file,
-      target_prefix = target_prefix + ".primary_pass"
+      output_prefix = output_prefix + ".primary_pass"
   }
 
   if(defined(target_gcp_folder)){
@@ -51,7 +51,7 @@ task PrepareAgdVcf {
     File input_vcf
     File id_map_file
 
-    String target_prefix
+    String output_prefix
 
     String vcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
 
@@ -63,8 +63,8 @@ task PrepareAgdVcf {
   Int bgzip_thread = cpu -1
   Int disk_size = ceil(size(input_vcf, "GB") * 2) + addtional_disk_space_gb
 
-  String target_vcf = "~{target_prefix}.vcf.gz"
-  String output_sample_file = "~{target_prefix}.samples.txt"
+  String target_vcf = "~{output_prefix}.vcf.gz"
+  String output_sample_file = "~{output_prefix}.samples.txt"
 
   command <<<
 

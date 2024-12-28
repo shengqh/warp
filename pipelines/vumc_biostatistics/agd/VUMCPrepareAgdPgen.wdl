@@ -1,8 +1,9 @@
 version 1.0
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
+import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
+
 import "./AgdUtils.wdl" as AgdUtils
-import "../plink/Plink2Utils.wdl" as Plink2Utils
 
 #This workflow will do prepare the AGD PGEN file for release
 #1) Replace the GRID used in the AGD with the primary GRID based on ID map file
@@ -15,13 +16,13 @@ workflow VUMCPrepareAgdPgen {
 
     File id_map_file
 
-    String target_prefix
+    String output_prefix
 
     String? project_id
     String? target_gcp_folder
   }
   
-  String replaced_sample_name = "~{target_prefix}.id_mapped.psam"
+  String replaced_sample_name = "~{output_prefix}.id_mapped.psam"
 
   call AgdUtils.ReplaceICAIdWithGrid {
     input:
@@ -35,7 +36,7 @@ workflow VUMCPrepareAgdPgen {
       input_pgen = input_pgen,
       input_pvar = input_pvar,
       input_psam = ReplaceICAIdWithGrid.output_psam,
-      target_prefix = target_prefix + ".primary_pass"
+      output_prefix = output_prefix + ".primary_pass"
   }
 
   if(defined(target_gcp_folder)){

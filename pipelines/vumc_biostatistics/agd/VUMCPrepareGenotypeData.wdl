@@ -1,21 +1,22 @@
 version 1.0
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
-import "../genotype/Utils.wdl" as GenotypeUtils
+import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
+
 import "./AgdUtils.wdl" as AgdUtils
 
 workflow VUMCPrepareGenotypeData {
   input {
-    Array[File] source_pgen_files
-    Array[File] source_pvar_files
-    Array[File] source_psam_files
+    Array[File] input_pgen_files
+    Array[File] input_pvar_files
+    Array[File] input_psam_files
 
     Array[String] chromosomes
 
     String plink2_filter_option
 
     File grid_file
-    String target_prefix
+    String output_prefix
 
     File id_map_file
 
@@ -25,9 +26,9 @@ workflow VUMCPrepareGenotypeData {
 
   scatter (idx in range(length(chromosomes))) {
     String chromosome = chromosomes[idx]
-    File pgen_file = source_pgen_files[idx]
-    File pvar_file = source_pvar_files[idx]
-    File psam_file = source_psam_files[idx]
+    File pgen_file = input_pgen_files[idx]
+    File pvar_file = input_pvar_files[idx]
+    File psam_file = input_psam_files[idx]
     String replaced_sample_name = "~{chromosome}.psam"
 
     call AgdUtils.ReplaceICAIdWithGrid as ReplaceICAIdWithGrid {
@@ -45,23 +46,23 @@ workflow VUMCPrepareGenotypeData {
         target_psam = grid_sample_name
     }
 
-    call GenotypeUtils.ExtractPgenSamples as ExtractPgenSamples {
+    call Plink2Utils.ExtractPgenSamples as ExtractPgenSamples {
       input:
-        source_pgen = pgen_file,
-        source_pvar = pvar_file,
-        source_psam = ReplaceICAIdWithGrid.output_psam,
-        chromosome = chromosome,
+        input_pgen = pgen_file,
+        input_pvar = pvar_file,
+        input_psam = ReplaceICAIdWithGrid.output_psam,
+        output_prefix = chromosome,
         plink2_filter_option = plink2_filter_option,
         extract_sample = CreateCohortPsam.output_psam
     }
   }
 
-  call GenotypeUtils.MergePgenFiles as MergePgenFiles{
+  call Plink2Utils.MergePgenFiles as MergePgenFiles{
     input:
-      pgen_files = ExtractPgenSamples.output_pgen,
-      pvar_files = ExtractPgenSamples.output_pvar,
-      psam_files = ExtractPgenSamples.output_psam,
-      output_prefix = target_prefix
+      input_pgen_files = ExtractPgenSamples.output_pgen,
+      input_pvar_files = ExtractPgenSamples.output_pvar,
+      input_psam_files = ExtractPgenSamples.output_psam,
+      output_prefix = output_prefix
   }
 
   if(defined(target_gcp_folder)){
@@ -80,5 +81,7 @@ workflow VUMCPrepareGenotypeData {
     File output_pgen = select_first([CopyFile.output_file1, MergePgenFiles.output_pgen])
     File output_pvar = select_first([CopyFile.output_file2, MergePgenFiles.output_pvar])
     File output_psam = select_first([CopyFile.output_file3, MergePgenFiles.output_psam])
+    Int num_samples = MergePgenFiles.num_samples
+    Int num_variants = MergePgenFiles.num_variants
   }
 }
