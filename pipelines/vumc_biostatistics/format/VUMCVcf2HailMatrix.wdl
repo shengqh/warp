@@ -108,7 +108,7 @@ import pandas as pd
 logger = logging.getLogger('v2h')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)-8s - %(message)s')
 
-logger.info("Calling hl.init ...", flush=True)
+logger.info("Calling hl.init ...")
 hl.init(master='local[*]',  # Use all available cores
         min_block_size=128,  # Minimum block size in MB
         quiet=True,
@@ -119,59 +119,59 @@ hl.init(master='local[*]',  # Use all available cores
             'spark.executor.heartbeatInterval': '400s'
         })
 
-logger.info("Reading vcf from ~{input_vcf} ...", flush=True)
+logger.info("Reading vcf from ~{input_vcf} ...")
 callset = hl.import_vcf("~{input_vcf}",
                         array_elements_required=False,
                         force_bgz=True,
                         reference_genome='~{reference_genome}')
 
 if "~{pass_only}" == "true":
-  logger.info("Filtering out variants that do not pass all filters...", flush=True)
+  logger.info("Filtering out variants that do not pass all filters...")
   nsnp_pre = callset.count_rows()
   callset = callset.filter_rows(hl.len(callset.filters) == 0)
   nsnp_post = callset.count_rows()
-  logger.info(f"Filtered out {nsnp_pre - nsnp_post} variants.", flush=True)
+  logger.info(f"Filtered out {nsnp_pre - nsnp_post} variants.")
 
 if "~{id_map_file}" != "":
-  logger.info("Loading ID map file...", flush=True)
+  logger.info("Loading ID map file...")
   df = pd.read_csv("~{id_map_file}", sep="\t") 
 
-  logger.info("Replacing PRIMARY_GRID=='-' with ICA_ID + '_INVALID'...", flush=True)
+  logger.info("Replacing PRIMARY_GRID=='-' with ICA_ID + '_INVALID'...")
   df['PRIMARY_GRID'] = df.apply(
       lambda row: f"{row['ICA_ID']}_INVALID" if row['PRIMARY_GRID'] == "-" else row['PRIMARY_GRID'],
       axis=1
   )
 
-  logger.info("Converting pandas data frame to hail table...", flush=True)
+  logger.info("Converting pandas data frame to hail table...")
   ht = hl.Table.from_pandas(df)
   ht = ht.key_by("ICA_ID")
   ht.describe()
   
-  logger.info("Annotate the MatrixTable with the mapping ...", flush=True)
+  logger.info("Annotate the MatrixTable with the mapping ...")
   callset = callset.annotate_cols(PRIMARY_GRID=ht[callset.s].PRIMARY_GRID)
 
-  logger.info("Assign new sample names...", flush=True)
+  logger.info("Assign new sample names...")
   callset = callset.key_cols_by(s=callset.PRIMARY_GRID)
 
-  logger.info("Drop the temporary field...", flush=True)
+  logger.info("Drop the temporary field...")
   callset = callset.drop('PRIMARY_GRID')
 
 nsample = callset.count_cols()
-logger.info(f"Number of samples: {nsample}", flush=True)
+logger.info(f"Number of samples: {nsample}")
 with open("num_samples.txt", "w") as f:
   f.write(str(nsample))
 
 n_invalid = callset.aggregate_cols(hl.agg.count_where(callset.s.endswith('_INVALID')))
-logger.info(f"Number of invalid samples: {n_invalid}", flush=True)
+logger.info(f"Number of invalid samples: {n_invalid}")
 with open("num_invalid_samples.txt", "w") as f:
   f.write(str(n_invalid))
 
 nsnp = callset.count_rows()
-logger.info(f"Number of variants: {nsnp}", flush=True)
+logger.info(f"Number of variants: {nsnp}")
 with open("num_variants.txt", "w") as f:
   f.write(str(nsnp))
 
-logger.info("Writing MatrixTable to ~{output_prefix} ...", flush=True)
+logger.info("Writing MatrixTable to ~{output_prefix} ...")
 callset.write("~{output_prefix}", 
               overwrite=True, 
               stage_locally=False)
