@@ -183,7 +183,7 @@ task QCFilterAndPrunePgen {
     String output_prefix
 
     String qc_filter_option
-    String indep_pairwise_option = "50 5 0.2"
+    String indep_pairwise_option
 
     Int max_variants = 1000000
 

@@ -27,11 +27,15 @@ workflow VUMCRegenie4 {
     String output_prefix
 
     #option of variants for model fitting
-    String step1_plink2_option="--mac 100 --geno 0.05 --maf 0.05 --max-maf 0.95 --hwe 1e-15 --snps-only --not-chr 23-27"
+    String step1_plink2_option="--mac 100 --geno 0.01 --maf 0.1 --max-maf 0.9 --hwe 1e-15 --snps-only --not-chr 23-27"
     String step1_regenie_option="--loocv --bsize 1000 --lowmem"
     Int step1_block_size=1000
     Int step1_max_variants=500000
+
+    #https://www.nature.com/articles/s41588-021-00870-7
+    #LD pruning using a R2 threshold of 0.9 with a window size of 1,000 markers and a step size of 100 markers.
     Boolean step1_prune = true
+    String step1_prune_option="--indep-pairwise 1000 100 0.9"
     
     #option of variants for testing
     String? step2_plink2_option
@@ -68,13 +72,15 @@ workflow VUMCRegenie4 {
   Int num_chromosomes = length(valid_chromosomes)
 
   if(defined(step2_plink2_option)){
-    call BioUtils.QCFilterPgen as Step2Filter {
-      input:
-        input_pgen = input_pgen,
-        input_pvar = input_pvar,
-        input_psam = input_psam,
-        qc_filter_option = select_first([step2_plink2_option]),
-        output_prefix = output_prefix + ".step2"
+    if (step2_plink2_option != ""){
+      call BioUtils.QCFilterPgen as Step2Filter {
+        input:
+          input_pgen = input_pgen,
+          input_pvar = input_pvar,
+          input_psam = input_psam,
+          qc_filter_option = select_first([step2_plink2_option]),
+          output_prefix = output_prefix + ".step2"
+      }
     }
   }
 
@@ -106,6 +112,7 @@ workflow VUMCRegenie4 {
           input_pvar = input_pvar,
           input_psam = input_psam,
           qc_filter_option = step1_plink2_option,
+          indep_pairwise_option = step1_prune_option,
           output_prefix = output_prefix + ".step1"
       }
     }
