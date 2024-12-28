@@ -9,8 +9,7 @@ workflow VUMCPlink2BedToBgen {
     File source_fam
 
     String target_prefix
-    String? plink_option
-
+    String? plink2_option
     String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
 
     String? project_id
@@ -22,6 +21,9 @@ workflow VUMCPlink2BedToBgen {
       source_bed = source_bed,
       source_bim = source_bim,
       source_fam = source_fam,
+
+      plink2_option = plink2_option,
+
       target_prefix = target_prefix,
 
       docker = docker
@@ -49,6 +51,8 @@ task Plink2BedToBgen {
     File source_bed
     File source_bim
     File source_fam
+
+    String? plink2_option
     
     String target_prefix
     
@@ -64,7 +68,7 @@ task Plink2BedToBgen {
   command <<<
 
 ## convert plink to pgen
-plink2 \
+plink2 ~{plink2_option} \
   --bed ~{source_bed} \
   --bim ~{source_bim} \
   --fam ~{source_fam} \
