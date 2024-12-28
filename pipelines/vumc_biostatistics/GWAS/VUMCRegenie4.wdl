@@ -1,21 +1,21 @@
 version 1.0
 
-import "../../../tasks/broad/Utilities.wdl" as utils
 import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
+import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
 import "../../../tasks/vumc_biostatistics/order_files_by_strings.wdl" as order_files_by_strings
 import "./GWASUtils.wdl" as GWASUtils
 
 workflow VUMCRegenie4 {
   input {
-    File? qc_pgen_file
-    File? qc_pvar_file
-    File? qc_psam_file
+    File? qc_pgen
+    File? qc_pvar
+    File? qc_psam
 
-    File pgen_file
-    File pvar_file
-    File psam_file
+    File input_pgen
+    File input_pvar
+    File input_psam
 
     File phenoFile
     String phenoColList
@@ -26,54 +26,21 @@ workflow VUMCRegenie4 {
 
     String output_prefix
 
-    String qc_option="--mac 100 --geno 0.1 --maf 0.1 --max-maf 0.9 --hwe 1e-15 --snps-only --not-chr 23-27"
-    
-    String step1_option="--loocv --bsize 1000 --lowmem"
-    Boolean force_step1=false
+    #option of variants for model fitting
+    String step1_plink2_option="--mac 100 --geno 0.05 --maf 0.05 --max-maf 0.95 --hwe 1e-15 --snps-only --not-chr 23-27"
+    String step1_regenie_option="--loocv --bsize 1000 --lowmem"
     Int step1_block_size=1000
-    Int step1_max_variants=1000000
+    Int step1_max_variants=500000
+    Boolean step1_prune = true
     
-    String step2_option="--firth --approx --pThresh 0.01 --bsize 400"
+    #option of variants for testing
+    String? step2_plink2_option
+    String step2_regenie_option="--firth --approx --pThresh 0.01 --bsize 400"
 
     Array[String] chromosome_list = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","X"]
 
     String? billing_gcp_project_id
     String? target_gcp_folder
-  }
-
-  if(!defined(qc_pgen_file)){
-    call BioUtils.PgenQCFilter as Step1Filter{
-      input:
-        input_pgen = pgen_file,
-        input_pvar = pvar_file,
-        input_psam = psam_file,
-        output_prefix = output_prefix + ".qc",
-        qc_option = qc_option,
-        max_variants = step1_max_variants
-    }
-  }
-  
-  File model_pgen = select_first([qc_pgen_file, Step1Filter.output_pgen])
-  File model_pvar = select_first([qc_pvar_file, Step1Filter.output_pvar])
-  File model_psam = select_first([qc_psam_file, Step1Filter.output_psam])
-
-  call WDLUtils.count_lines as psam_count {
-    input:
-      input_file = model_psam
-  }
-  Int num_sample = psam_count.num_lines - 1
-
-  call WDLUtils.count_lines as pvar_count {
-    input:
-      input_file = model_pvar
-  }
-  Int num_variant = pvar_count.num_lines - 1
-
-  if ((num_variant > step1_max_variants) && (!force_step1)) {
-    call utils.ErrorWithMessage as ErrorMessageDoubleInput{
-      input:
-        message = "Too many variants " + num_variant + " left after QC. 500K~1M variants are recommeneded for fitModel. Too many variants might cause out-of-memory error. You may either redo QC filtering, or set force_step1=true."
-    }
   }
 
   call WDLUtils.string_to_array as pheco_list {
@@ -82,7 +49,7 @@ workflow VUMCRegenie4 {
       delimiter = ","
   }
   Array[String] phenotype_names = pheco_list.arr
-  Int num_phenotype = length(phenotype_names)
+  Int num_phenotypes = length(phenotype_names)
 
   call WDLUtils.string_to_array as covar_list{
     input:
@@ -90,25 +57,101 @@ workflow VUMCRegenie4 {
       delimiter = ","
   }
   Array[String] covar_names = covar_list.arr
-  Int num_covariate = length(covar_names)
+  Int num_covariates = length(covar_names)
 
   call BioUtils.GetValidChromosomeList {
     input:
-      input_pvar = pvar_file,
+      input_pvar = input_pvar,
       input_chromosomes = chromosome_list
   }
-
   Array[String] valid_chromosomes = GetValidChromosomeList.valid_chromosomes
+  Int num_chromosomes = length(valid_chromosomes)
 
-  Int num_chromosome = length(valid_chromosomes)
+  if(defined(step2_plink2_option)){
+    call BioUtils.QCFilterPgen as Step2Filter {
+      input:
+        input_pgen = input_pgen,
+        input_pvar = input_pvar,
+        input_psam = input_psam,
+        qc_filter_option = select_first([step2_plink2_option]),
+        output_prefix = output_prefix + ".step2"
+    }
+  }
+
+  File step2_pgen = select_first([Step2Filter.output_pgen, input_pgen])
+  File step2_pvar = select_first([Step2Filter.output_pvar, input_pvar])
+  File step2_psam = select_first([Step2Filter.output_psam, input_psam])
+
+  if(defined(qc_pgen)){
+    call WDLUtils.count_lines as qc_pvar_count {
+      input:
+        input_file = select_first([qc_pvar]),
+        ignore_comments = true
+    }
+    Int qc_num_variants = qc_pvar_count.num_lines
+
+    call WDLUtils.count_lines as qc_psam_count {
+      input:
+        input_file = select_first([qc_psam]),
+        ignore_comments = true
+    }
+    Int qc_num_samples = qc_psam_count.num_lines
+  }
+
+  if(!defined(qc_pgen)){
+    if(step1_prune){
+      call BioUtils.QCFilterAndPrunePgen as Step1FilterPrune {
+        input:
+          input_pgen = input_pgen,
+          input_pvar = input_pvar,
+          input_psam = input_psam,
+          qc_filter_option = step1_plink2_option,
+          output_prefix = output_prefix + ".step1"
+      }
+    }
+    
+    if(!step1_prune){
+      call BioUtils.QCFilterPgen as Step1Filter {
+        input:
+          input_pgen = input_pgen,
+          input_pvar = input_pvar,
+          input_psam = input_psam,
+          qc_filter_option = step1_plink2_option,
+          output_prefix = output_prefix + ".step1"
+      }
+    }
+  }
+
+  File step1_pgen = select_first([qc_pgen, Step1FilterPrune.output_pgen, Step1Filter.output_pgen])
+  File step1_pvar = select_first([qc_pvar, Step1FilterPrune.output_pvar, Step1Filter.output_pvar])
+  File step1_psam = select_first([qc_psam, Step1FilterPrune.output_psam, Step1Filter.output_psam])
+  Int step1_num_variants = select_first([qc_num_variants, Step1FilterPrune.num_variants, Step1Filter.num_variants])
+  Int step1_num_samples = select_first([qc_num_samples, Step1FilterPrune.num_samples, Step1Filter.num_samples])
+
+  if (step1_num_variants > step1_max_variants){
+    call Plink2Utils.SamplingVariantsInPgen {
+      input:
+        input_pgen = step1_pgen,
+        input_pvar = step1_pvar,
+        input_psam = step1_psam,
+        output_prefix = output_prefix + ".step1.sampled",
+        max_num_variants = step1_max_variants
+    }
+  }
+  
+  File model_pgen = select_first([SamplingVariantsInPgen.output_pgen, step1_pgen])
+  File model_pvar = select_first([SamplingVariantsInPgen.output_pvar, step1_pvar])
+  File model_psam = select_first([SamplingVariantsInPgen.output_psam, step1_psam])
+  Int model_num_samples = select_first([SamplingVariantsInPgen.num_samples, step1_num_samples])
+  Int model_num_variants = select_first([SamplingVariantsInPgen.num_variants, step1_num_variants])
 
   call GWASUtils.Regenie4MemoryEstimation {
     input:
-      num_sample = num_sample,
-      num_variant = num_variant,
-      num_phenotype = num_phenotype,
-      num_chromosome = num_chromosome,
-      num_covariate = num_covariate,
+      num_samples = model_num_samples,
+      num_variants = model_num_variants,
+      num_phenotypes = num_phenotypes,
+      num_chromosomes = num_chromosomes,
+      num_covariates = num_covariates,
       num_ridge_l0 = 5,
       block_size = step1_block_size
   }
@@ -126,7 +169,7 @@ workflow VUMCRegenie4 {
       covarFile = covarFile,
       covarColList = covarColList,
       output_prefix = output_prefix,
-      step1_option = step1_option,
+      step1_option = step1_regenie_option,
       memory_gb = step1_memory_gb * 2 #Level 1 ridge and making predictions need much more memory than Level 0 ridge.
   }
 
@@ -135,16 +178,16 @@ workflow VUMCRegenie4 {
       input:
         pred_list_file = RegenieStep1FitModel.pred_list_file,
         pred_loco_files = RegenieStep1FitModel.pred_loco_files,
-        input_pgen = pgen_file,
-        input_pvar = pvar_file,
-        input_psam = psam_file,
+        input_pgen = step2_pgen,
+        input_pvar = step2_pvar,
+        input_psam = step2_psam,
         phenoFile = phenoFile,
         phenoColList = phenoColList,
         is_binary_traits = is_binary_traits,
         covarFile = covarFile,
         covarColList = covarColList,
         output_prefix = "~{output_prefix}.~{chromosome}",
-        step2_option = step2_option,
+        step2_option = step2_regenie_option,
         chromosome = chromosome,
         memory_gb = step1_memory_gb #chromosome level memory cost would be less than step1, use step1 memory here.
     }
@@ -160,9 +203,9 @@ workflow VUMCRegenie4 {
     }
   }
 
-  scatter(pheno_idx in range(num_phenotype)){
+  scatter(pheno_idx in range(num_phenotypes)){
     String phenotype_name = phenotype_names[pheno_idx]
-    scatter(chrom_idx in range(num_chromosome)){
+    scatter(chrom_idx in range(num_chromosomes)){
       File regenie_file = OrderFiles.ordered_files[chrom_idx][pheno_idx]
     }
 
