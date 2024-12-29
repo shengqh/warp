@@ -55,10 +55,13 @@ task Pgen2Bgen {
     String output_prefix
     
     String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
-    Int memory_gb = 100
+    Int? memory_gb_override
+    Int? disk_size_override
   }
 
-  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 3) + 20
+  Int pgen_file_size = ceil(size([input_pgen, input_pvar, input_psam], "GB"))
+  Int disk_size = select_first([disk_size_override, pgen_file_size * 3 + 20])
+  Int memory_gb = select_first([memory_gb_override, pgen_file_size * 3])
 
   String target_bgen = output_prefix + ".bgen"
   String target_sample = output_prefix + ".sample"
