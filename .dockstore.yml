@@ -339,7 +339,7 @@ workflows:
 
   - name: VUMCPgenToBgen
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCPgenToBgen.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCPgen2Bgen.wdl 
 
   - name: VUMCBed2HailMatrix
     subclass: WDL
