@@ -1,5 +1,37 @@
 version: 1.2
 workflows:
+  - name: VUMCPrepareAgdVcf
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCPrepareAgdVcf.wdl
+
+  - name: VUMCPrepareAgdPgen
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCPrepareAgdPgen.wdl
+
+  - name: VUMCPgenToBgen
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCPgenToBgen.wdl
+
+  - name: VUMCBed2HailMatrix
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCBed2HailMatrix.wdl
+
+  - name: VUMCVcf2HailMatrix
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCVcf2HailMatrix.wdl
+
+  - name: VUMCBgen2HailMatrix
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCBgen2HailMatrix.wdl
+
+  - name: VUMCFilterPassVariantsInVcf
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCFilterPassVariantsInVcf.wdl
+
+  - name: VUMCFilterPassVariantsInPgen
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCFilterPassVariantsInPgen.wdl
+
   - name: VUMCFastqQC
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCFastqQC.wdl
@@ -172,10 +204,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCPlink2BedToBgen.wdl
 
-  - name: VUMCBed2HailMatrix
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCBed2HailMatrix.wdl
-
   - name: VUMCPlink2FilterRegion
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2FilterRegion.wdl
@@ -323,27 +351,3 @@ workflows:
   - name: VUMCReadsInBed
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCReadsInBed.wdl
-
-  - name: VUMCFilterPassVariantsInVcf
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCFilterPassVariantsInVcf.wdl
-
-  - name: VUMCFilterPassVariantsInPgen
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCFilterPassVariantsInPgen.wdl
-
-  - name: VUMCPrepareAgdVcf
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCPrepareAgdVcf.wdl
-
-  - name: VUMCPrepareAgdPgen
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCPrepareAgdPgen.wdl
-
-  - name: VUMCPgenToBgen
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCPgenToBgen.wdl
-
-  - name: VUMCVcf2HailMatrix
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCVcf2HailMatrix.wdl
