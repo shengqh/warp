@@ -4,11 +4,11 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCPgen2Bgen {
   input {
-    File source_pgen
-    File source_pvar
-    File source_psam
+    File input_pgen
+    File input_pvar
+    File input_psam
 
-    String target_prefix
+    String output_prefix
     String? plink2_option
 
     String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
@@ -19,10 +19,10 @@ workflow VUMCPgen2Bgen {
 
   call Pgen2Bgen {
     input:
-      source_pgen = source_pgen,
-      source_pvar = source_pvar,
-      source_psam = source_psam,
-      target_prefix = target_prefix,
+      input_pgen = input_pgen,
+      input_pvar = input_pvar,
+      input_psam = input_psam,
+      output_prefix = output_prefix,
       plink2_option = plink2_option,
       docker = docker
   }
@@ -46,31 +46,31 @@ workflow VUMCPgen2Bgen {
 
 task Pgen2Bgen {
   input {
-    File source_pgen
-    File source_pvar
-    File source_psam
+    File input_pgen
+    File input_pvar
+    File input_psam
     
     String? plink2_option
 
-    String target_prefix
+    String output_prefix
     
     String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
     Int memory_gb = 20
   }
 
-  Int disk_size = ceil(size([source_pgen, source_pvar, source_psam], "GB")  * 2) + 20
+  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 20
 
-  String new_bgen = target_prefix + ".bgen"
-  String new_sample = target_prefix + ".sample"
+  String target_bgen = output_prefix + ".bgen"
+  String target_sample = output_prefix + ".sample"
 
   command <<<
 
-plink2 \
-  --pgen ~{source_pgen} \
-  --pvar ~{source_pvar} \
-  --psam ~{source_psam} \
+plink2 ~{plink2_option} \
+  --pgen ~{input_pgen} \
+  --pvar ~{input_pvar} \
+  --psam ~{input_psam} \
   --export bgen-1.2 bits=8 \
-  --out ~{target_prefix} "~{plink2_option}"
+  --out ~{output_prefix} 
 
 >>>
 
@@ -81,7 +81,7 @@ plink2 \
     memory: memory_gb + " GiB"
   }
   output {
-    File output_bgen = new_bgen
-    File output_sample = new_sample
+    File output_bgen = target_bgen
+    File output_sample = target_sample
   }
 }

@@ -1,7 +1,0 @@
-{
-  "VUMCPgen2Bgen.source_pgen": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/postproc-pgen/filtered.pgen",
-  "VUMCPgen2Bgen.source_psam": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/postproc-pgen/filtered.psam",
-  "VUMCPgen2Bgen.source_pvar": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/postproc-pgen/filtered.pvar",
-  "VUMCPgen2Bgen.target_prefix": "agd163k_chrM"
-}
-
