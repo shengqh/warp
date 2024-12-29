@@ -78,7 +78,7 @@ logger.info("Calling hl.init ...")
 hl.init(tmp_dir='./tmp',
         master='local[*]',  # Use all available cores
         min_block_size=128,  # Minimum block size in MB
-        quiet=False,
+        quiet=True,
         spark_conf={
             'spark.driver.memory': '~{memory_gb}g',
             'spark.executor.memory': '~{memory_gb}g',
