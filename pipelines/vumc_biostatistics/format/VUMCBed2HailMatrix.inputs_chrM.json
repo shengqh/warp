@@ -1,0 +1,7 @@
+{
+  "VUMCBed2HailMatrix.input_bed": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/cromwell/cromwell_finalOutputs/agd163k_chrM.primary_pass.bed",
+  "VUMCBed2HailMatrix.input_fam": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/cromwell/cromwell_finalOutputs/agd163k_chrM.primary_pass.fam",
+  "VUMCBed2HailMatrix.input_bim": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/cromwell/cromwell_finalOutputs/agd163k_chrM.primary_pass.bim",
+  "VUMCBed2HailMatrix.output_prefix": "agd163k_chrM.primary_pass.mt"
+}
+
