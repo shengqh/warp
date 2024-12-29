@@ -4,11 +4,11 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCPlink2BedToBgen {
   input {
-    File source_bed
-    File source_bim
-    File source_fam
+    File input_bed
+    File input_bim
+    File input_fam
 
-    String target_prefix
+    String output_prefix
     String? plink2_option
     String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
 
@@ -18,13 +18,13 @@ workflow VUMCPlink2BedToBgen {
 
   call Plink2BedToBgen {
     input:
-      source_bed = source_bed,
-      source_bim = source_bim,
-      source_fam = source_fam,
+      input_bed = input_bed,
+      input_bim = input_bim,
+      input_fam = input_fam,
 
       plink2_option = plink2_option,
 
-      target_prefix = target_prefix,
+      output_prefix = output_prefix,
 
       docker = docker
   }
@@ -32,8 +32,8 @@ workflow VUMCPlink2BedToBgen {
   if(defined(target_bucket)){
     call GcpUtils.MoveOrCopyTwoFiles as CopyFile {
       input:
-        source_file1 = Plink2BedToBgen.output_bgen,
-        source_file2 = Plink2BedToBgen.output_sample,
+        source_file1 = "~{Plink2BedToBgen.output_bgen}",
+        source_file2 = "~{Plink2BedToBgen.output_bgen_sample}",
         is_move_file = false,
         project_id = project_id,
         target_gcp_folder = select_first([target_bucket])
@@ -42,38 +42,38 @@ workflow VUMCPlink2BedToBgen {
 
   output {
     File output_bgen = select_first([CopyFile.output_file1, Plink2BedToBgen.output_bgen])
-    File output_bgen_sample = select_first([CopyFile.output_file2, Plink2BedToBgen.output_sample])
+    File output_bgen_sample = select_first([CopyFile.output_file2, Plink2BedToBgen.output_bgen_sample])
   }
 }
 
 task Plink2BedToBgen {
   input {
-    File source_bed
-    File source_bim
-    File source_fam
+    File input_bed
+    File input_bim
+    File input_fam
 
     String? plink2_option
     
-    String target_prefix
+    String output_prefix
     
     String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
     Int memory_gb = 20
   }
 
-  Int disk_size = ceil(size([source_bed, source_bim, source_fam], "GB")  * 2) + 20
+  Int disk_size = ceil(size([input_bed, input_bim, input_fam], "GB")  * 2) + 20
 
-  String new_bgen = target_prefix + ".bgen"
-  String new_sample = target_prefix + ".sample"
+  String target_bgen = output_prefix + ".bgen"
+  String target_bgen_sample = output_prefix + ".sample"
 
   command <<<
 
 ## convert plink to pgen
 plink2 ~{plink2_option} \
-  --bed ~{source_bed} \
-  --bim ~{source_bim} \
-  --fam ~{source_fam} \
-  --export bgen-1.2 bits=8 \
-  --out ~{target_prefix}
+  --bed ~{input_bed} \
+  --bim ~{input_bim} \
+  --fam ~{input_fam} \
+  --export bgen-1.2 bits=8 ref-first \
+  --out ~{output_prefix}
 
 >>>
 
@@ -84,7 +84,7 @@ plink2 ~{plink2_option} \
     memory: memory_gb + " GiB"
   }
   output {
-    File output_bgen = new_bgen
-    File output_sample = new_sample
+    File output_bgen = target_bgen
+    File output_bgen_sample = target_bgen_sample
   }
 }

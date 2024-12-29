@@ -171,7 +171,7 @@ workflows:
 
   - name: VUMCPlink2BedToBgen
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCPlink2BedToBgen.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCPlink2BedToBgen.wdl
 
   - name: VUMCPlink2FilterRegion
     subclass: WDL

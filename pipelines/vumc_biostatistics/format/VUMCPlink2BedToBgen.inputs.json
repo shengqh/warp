@@ -1,0 +1,7 @@
+{
+  "VUMCPlink2BedToBgen.input_bed": "/nobackup/h_cqs/shengq2/biovu/agd35k/chrM.bed",
+  "VUMCPlink2BedToBgen.input_fam": "/nobackup/h_cqs/shengq2/biovu/agd35k/chrM.fam",
+  "VUMCPlink2BedToBgen.input_bim": "/nobackup/h_cqs/shengq2/biovu/agd35k/chrM.bim",
+  "VUMCPlink2BedToBgen.output_prefix": "agd35k_chrm_v1_2",
+}
+
