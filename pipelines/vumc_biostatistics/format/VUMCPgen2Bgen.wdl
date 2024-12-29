@@ -72,7 +72,7 @@ plink2 ~{plink2_option} \
   --pgen ~{input_pgen} \
   --pvar ~{input_pvar} \
   --psam ~{input_psam} \
-  --export bgen-1.2 bits=8 \
+  --export bgen-1.2 bits=8 ref-first \
   --out ~{output_prefix} 
 
 >>>
