@@ -15,9 +15,8 @@ workflow VUMCVcf2HailMatrix {
 
     String output_prefix
 
-    Boolean output_to_gcp=true
     String? project_id
-    String target_gcp_folder
+    String? target_gcp_folder
   }
 
   call Vcf2HailMatrix {
@@ -28,7 +27,6 @@ workflow VUMCVcf2HailMatrix {
       pass_only = pass_only,
       reference_genome = reference_genome,
       output_prefix = output_prefix,
-      output_to_gcp = output_to_gcp,
       project_id = project_id,
       target_gcp_folder = target_gcp_folder
   }
@@ -46,23 +44,6 @@ task Vcf2HailMatrix {
     description: "Convert a .vcf.bgz file to a Hail MatrixTable and copy it to a final gs:// URL."
   }
 
-  parameter_meta {
-    input_vcf: "The input .vcf.bgz file."
-    input_vcf_index: "The input .vcf.bgz.tbi file."
-
-    id_map_file: "Optional. A tab-delimited file with at least two columns: ICA_ID and PRIMARY_GRID."
-
-    reference_genome: "The reference genome to use.  Currently only GRCh38 is supported."
-    output_prefix: "The prefix to use for the output MatrixTable."
-
-    project_id: "The GCP project to use for gsutil."
-    target_gcp_folder: "The output GCP directory to copy the MatrixTable to."
-
-    docker: "The docker image to use for this task."
-    memory_gb: "The amount of memory to use for this task."
-    preemptible: "Number of preemptible tries to use for this task."
-  }  
-
   input {
     File input_vcf
     File input_vcf_index
@@ -74,9 +55,8 @@ task Vcf2HailMatrix {
 
     Boolean pass_only=true
 
-    Boolean output_to_gcp=true
     String? project_id
-    String target_gcp_folder
+    String? target_gcp_folder
 
     String docker = "shengqh/hail_gcp:20240211"
     Int disk_size_factor = 3
@@ -90,8 +70,9 @@ task Vcf2HailMatrix {
   Int disk_size = select_first([disk_size_override, disk_size_factor * ceil(size(input_vcf, "GB")) + 100])
   Int total_memory_gb = memory_gb + 2
 
-  String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
-  String gcs_output_path = gcs_output_dir + "/" + output_prefix
+  Boolean output_to_gcp = defined(target_gcp_folder)
+  String gcs_output_dir = sub("~{target_gcp_folder}", "/+$", "")
+  String gcs_output_path = if output_to_gcp then gcs_output_dir + "/" + output_prefix else ""
 
   String local_output_file = "~{output_prefix}/metadata.json.gz"
 
@@ -99,6 +80,8 @@ task Vcf2HailMatrix {
 
 #https://discuss.hail.is/t/i-get-a-negativearraysizeexception-when-loading-a-plink-file/899
 export PYSPARK_SUBMIT_ARGS="--driver-java-options '-XX:hashCode=0' --conf 'spark.executor.extraJavaOptions=-XX:hashCode=0' pyspark-shell"
+
+mkdir -p tmp
 
 cat <<CODE > vcf2hail.py
 import logging
@@ -109,9 +92,10 @@ logger = logging.getLogger('v2h')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)-8s - %(message)s')
 
 logger.info("Calling hl.init ...")
-hl.init(master='local[*]',  # Use all available cores
+hl.init(tmp_dir='./tmp',
+        master='local[*]',  # Use all available cores
         min_block_size=128,  # Minimum block size in MB
-        quiet=True,
+        quiet=False,
         spark_conf={
             'spark.driver.memory': '~{memory_gb}g',
             'spark.executor.memory': '~{memory_gb}g',
@@ -119,7 +103,7 @@ hl.init(master='local[*]',  # Use all available cores
             'spark.executor.heartbeatInterval': '400s'
         })
 
-logger.info("Reading vcf from ~{input_vcf} ...")
+logger.info("Reading from ~{input_vcf} ...")
 callset = hl.import_vcf("~{input_vcf}",
                         array_elements_required=False,
                         force_bgz=True,
@@ -194,10 +178,15 @@ if [[ -f "~{local_output_file}" ]]; then
       echo "Copying to GCS failed."
       exit $res
     fi
+
+    echo "Copying to GCS succeed."
+    touch hail_copied_to_gcp.txt
+    exit 0
+  else
+    echo "Compressing hail matrix folder ..."
+    tar czf ~{output_prefix}.tar.gz ~{output_prefix}
   fi
 
-  touch convert_complete.txt
-  exit 0
 else
   echo "Writing failed."
   exit 1
@@ -214,11 +203,11 @@ fi
     bootDiskSizeGb: boot_disk_gb
   }
   output {
-    String hail_local_path = "~{output_prefix}"
     String hail_gcs_path = "~{gcs_output_path}"
+    File hail_local_path = if output_to_gcp then "hail_copied_to_gcp.txt" else "~{output_prefix}.tar.gz"
+
     Int num_samples = read_int("num_samples.txt")
     Int num_variants = read_int("num_variants.txt")  
     Int num_invalid_samples = read_int("num_invalid_samples.txt")
-    File completion_file = "convert_complete.txt" # This is a dummy file to indicate the task has completed
   }
 }
