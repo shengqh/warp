@@ -80,7 +80,7 @@ logger.info("Calling hl.init ...")
 hl.init(tmp_dir='./tmp',
         master='local[*]',  # Use all available cores
         min_block_size=128,  # Minimum block size in MB
-        quiet=False,
+        quiet=True,
         spark_conf={
             'spark.driver.memory': '~{memory_gb}g',
             'spark.executor.memory': '~{memory_gb}g',
@@ -124,12 +124,6 @@ callset = hl.import_bgen("~{input_bgen}",
 
 nsnp = callset.count_rows()
 logger.info(f"Number of variants: {nsnp}")
-
-logger.info("Filtering out haploid genotypes ...")
-callset = callset.filter_entries(callset.GT.ploidy == 2)                           
-
-nsnp = callset.count_rows()
-logger.info(f"Number of variants post filtering: {nsnp}")
 with open("num_variants.txt", "w") as f:
   f.write(str(nsnp))
 
