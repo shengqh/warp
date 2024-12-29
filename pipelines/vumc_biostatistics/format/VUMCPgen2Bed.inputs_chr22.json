@@ -1,0 +1,7 @@
+{
+  "VUMCPgen2Bed.input_pgen": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/cromwell/cromwell_finalOutputs/agd163k_chr22.primary_pass.pgen",
+  "VUMCPgen2Bed.input_psam": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/cromwell/cromwell_finalOutputs/agd163k_chr22.primary_pass.psam",
+  "VUMCPgen2Bed.input_pvar": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/cromwell/cromwell_finalOutputs/agd163k_chr22.primary_pass.pvar",
+  "VUMCPgen2Bed.output_prefix": "agd163k_chr22.primary_pass"
+}
+
