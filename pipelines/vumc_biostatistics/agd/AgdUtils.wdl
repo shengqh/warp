@@ -57,29 +57,42 @@ CODE
 task CreateCohortPsam {
   input {
     File input_psam
-    File grid_file
-    String target_psam
+    File input_grid
+    Int grid_index = 0
+    String output_prefix
   }
 
   command <<<
-
 python3 <<CODE
 
 import os
 
-grids = set(line.strip() for line in open("~{grid_file}", "rt"))
-with open("~{target_psam}", "wt") as fout:
-  with open("~{input_psam}", "rt") as fin:
+# Read the grid file and store the values in a set
+grids = set()
+with open("~{input_grid}", "rt") as fin:
     for line in fin:
-      if line.startswith("#"):
-        fout.write(line)
-        continue
-      if line.split('\t')[1] in grids:
-        fout.write(line)
+        columns = line.strip().split()
+        if len(columns) > ~{grid_index}:
+            grids.add(columns[~{grid_index}])
+
+# Open the input PSAM file and the output file
+output_file = "~{output_prefix}.psam"
+with open("~{input_psam}", "rt") as fin, open(output_file, "wt") as fout:
+    for line in fin:
+        if line.startswith("#"):
+            # Write the header line to the output file
+            fout.write(line)
+        else:
+            # Split the line and check if the second column matches any grid value
+            columns = line.split()
+            if columns[1] in grids:
+                fout.write(line)
+
 CODE
 
-echo "Number of samples to keep:"
-grep -v "^#" "~{target_psam}" | wc -l 
+python3 script.py
+
+grep -v "^#" "~{output_prefix}.psam" | wc -l > psam.count
 
 >>>
 
@@ -90,7 +103,8 @@ grep -v "^#" "~{target_psam}" | wc -l
     memory: "2 GiB"
   }
   output {
-    File output_psam = "~{target_psam}"
+    File output_psam = "~{output_prefix}.psam"
+    Int output_sample_count = read_int("psam.count")
   }
 }
 
