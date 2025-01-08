@@ -305,10 +305,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/GWAS/VUMCRegenie4.wdl
 
-  - name: VUMCRegenie4Chromosomes
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/GWAS/VUMCRegenie4Chromosomes.wdl
-
   - name: VUMCBigQueryDemo
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCBigQueryDemo.wdl
@@ -352,3 +348,19 @@ workflows:
   - name: VUMCBgen2HailMatrix
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCBgen2HailMatrix.wdl
+
+  - name: VUMCRegenie4Task2PrepareTestPgen
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/GWAS/VUMCRegenie4Task2PrepareTestPgen.wdl
+
+  - name: VUMCRegenie4Task3PrepareModelPgen
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/GWAS/VUMCRegenie4Task3PrepareModelPgen.wdl
+
+  - name: VUMCRegenie4Task4Regenie
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/GWAS/VUMCRegenie4Task4Regenie.wdl
+
+  - name: VUMCRegenie4TaskAll
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/GWAS/VUMCRegenie4TaskAll.wdl
