@@ -26,7 +26,7 @@ workflow VUMCRegenie4Chromosomes {
     String output_prefix
 
     #option of variants for model fitting
-    String step1_plink2_option="--mac 100 --geno 0.01 --maf 0.1 --max-maf 0.9 --hwe 1e-15 --snps-only --not-chr 23-27"
+    String step1_plink2_option="--mac 100 --geno 0.01 --maf 0.05 --max-maf 0.95 --hwe 1e-15 --snps-only --not-chr 23-27"
     String step1_regenie_option="--loocv --bsize 1000 --lowmem"
     Int step1_block_size=1000
     Int step1_max_variants=500000
