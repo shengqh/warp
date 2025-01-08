@@ -1,0 +1,7 @@
+{
+  "VUMCRegenie4Task1CreateCohortPsam.input_grid_column": "1",
+  "VUMCRegenie4Task1CreateCohortPsam.input_grid": "/nobackup/h_cqs/shengq2/biovu/AGD/SAMPLE_ID_MAP_2023_Q3_35K_primaryGRID_v5_202410.txt",
+  "VUMCRegenie4Task1CreateCohortPsam.input_psam": "/nobackup/h_cqs/shengq2/biovu/AGD/agd163k_chr1.id_mapped.psam",
+  "VUMCRegenie4Task1CreateCohortPsam.output_prefix": "agd163k_agd35k"
+}
+

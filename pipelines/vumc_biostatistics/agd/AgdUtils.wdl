@@ -11,7 +11,7 @@ task ReplaceICAIdWithGrid {
 
   command <<<
 
-python3 <<CODE
+cat <<CODE> script.py
 
 import io
 
@@ -41,6 +41,8 @@ with open("~{input_psam}", "rt") as fin:
 
 CODE
 
+python3 script.py 
+
 >>>
 
   runtime {
@@ -54,26 +56,69 @@ CODE
   }
 }
 
+/**
+ * Task: CreateCohortPsam
+ * 
+ * Description:
+ * This task is responsible for creating a cohort PSAM (Phenotype and Sample 
+ * Attribute Matrix) file. The PSAM file typically contains metadata about 
+ * samples and phenotypes, which can be used for downstream analysis in 
+ * genomic studies.
+ */
 task CreateCohortPsam {
   input {
     File input_psam
-    File input_grid
-    Int grid_index = 0
+
+    File? input_grid
+    Int input_grid_column = 0
+
+    String? input_ancestry
+    File? input_ancestry_file
+
     String output_prefix
   }
 
   command <<<
-python3 <<CODE
+
+cat <<CODE> script.py
 
 import os
 
+# Ensure required inputs are provided
+if "~{input_grid}" == "" and ("~{input_ancestry}" == "" or "~{input_ancestry_file}" == ""):
+    raise ValueError("Either input_grid must be defined, or both input_ancestry and input_ancestry_file must be defined.")
+
 # Read the grid file and store the values in a set
 grids = set()
-with open("~{input_grid}", "rt") as fin:
-    for line in fin:
-        columns = line.strip().split()
-        if len(columns) > ~{grid_index}:
-            grids.add(columns[~{grid_index}])
+has_grid_file = False
+if "~{input_grid}" != "":
+    has_grid_file = True
+    with open("~{input_grid}", "rt") as fin:
+        for line in fin:
+            columns = line.strip().split('\t')
+            if len(columns) > ~{input_grid_column}:
+                grids.add(columns[~{input_grid_column}])
+
+# 
+ancestry_grid = set()
+has_ancestry_file = False
+if "~{input_ancestry}" != "":
+    if "~{input_ancestry_file}" != "":
+        has_ancestry_file = True
+        with open("~{input_ancestry_file}", "rt") as fin:
+            header = fin.readline().split('\t')
+            if "supervised_ancestry_cluster" in header:
+                ancestry_index = header.index("supervised_ancestry_cluster")
+                for line in fin:
+                    columns = line.strip().split('\t')
+                    if len(columns) > ancestry_index and columns[ancestry_index] == "~{input_ancestry}":
+                        ancestry_grid.add(columns[1])
+
+# generate final grids
+if has_grid_file and has_ancestry_file:
+    grids = grids.intersection(ancestry_grid)
+elif has_ancestry_file:
+    grids = ancestry_grid
 
 # Open the input PSAM file and the output file
 output_file = "~{output_prefix}.psam"
@@ -84,7 +129,7 @@ with open("~{input_psam}", "rt") as fin, open(output_file, "wt") as fout:
             fout.write(line)
         else:
             # Split the line and check if the second column matches any grid value
-            columns = line.split()
+            columns = line.split('\t')
             if columns[1] in grids:
                 fout.write(line)
 

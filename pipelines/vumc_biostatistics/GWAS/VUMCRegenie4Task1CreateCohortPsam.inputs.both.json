@@ -1,0 +1,9 @@
+{
+  "VUMCRegenie4Task1CreateCohortPsam.input_grid_column": "1",
+  "VUMCRegenie4Task1CreateCohortPsam.input_grid": "/nobackup/h_cqs/shengq2/biovu/AGD/SAMPLE_ID_MAP_2023_Q3_35K_primaryGRID_v5_202410.txt",
+  "VUMCRegenie4Task1CreateCohortPsam.input_ancestry": "AFR",
+  "VUMCRegenie4Task1CreateCohortPsam.input_ancestry_file": "/nobackup/h_cqs/shengq2/biovu/agd163k/20241210_final_ancestry_variables.txt",
+  "VUMCRegenie4Task1CreateCohortPsam.input_psam": "/nobackup/h_cqs/shengq2/biovu/agd163k/agd163k_chr1.primary_pass.psam",
+  "VUMCRegenie4Task1CreateCohortPsam.output_prefix": "agd163k_AFR"
+}
+
