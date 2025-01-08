@@ -349,6 +349,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCBgen2HailMatrix.wdl
 
+  - name: VUMCRegenie4Task1CreateCohortPsam
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/GWAS/VUMCRegenie4Task1CreateCohortPsam.wdl
+
   - name: VUMCRegenie4Task2PrepareTestPgen
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/GWAS/VUMCRegenie4Task2PrepareTestPgen.wdl
