@@ -89,37 +89,43 @@ import os
 if "~{input_grid}" == "" and ("~{input_ancestry}" == "" or "~{input_ancestry_file}" == ""):
     raise ValueError("Either input_grid must be defined, or both input_ancestry and input_ancestry_file must be defined.")
 
-# Read the grid file and store the values in a set
+# Read the grid file and store the GRID in a set.
+# It is possible to put the value in the header into GRID list but it should not matter.
 grids = set()
 has_grid_file = False
 if "~{input_grid}" != "":
     has_grid_file = True
     with open("~{input_grid}", "rt") as fin:
         for line in fin:
-            columns = line.strip().split('\t')
+            columns = line.rstrip().split('\t')
             if len(columns) > ~{input_grid_column}:
                 grids.add(columns[~{input_grid_column}])
+print(f"Grids from grid file: {len(grids)}")
 
-# 
-ancestry_grid = set()
+# Read the ancenstry file and store the GRID in a set 
+ancestry_grids = set()
 has_ancestry_file = False
 if "~{input_ancestry}" != "":
     if "~{input_ancestry_file}" != "":
         has_ancestry_file = True
         with open("~{input_ancestry_file}", "rt") as fin:
-            header = fin.readline().split('\t')
+            header = fin.readline().rstrip().split('\t')
             if "~{input_ancestry_column}" in header:
                 ancestry_index = header.index("~{input_ancestry_column}")
                 for line in fin:
-                    columns = line.strip().split('\t')
+                    columns = line.rstrip().split('\t')
                     if len(columns) > ancestry_index and columns[ancestry_index] == "~{input_ancestry}":
-                        ancestry_grid.add(columns[1])
+                        ancestry_grids.add(columns[1])
+print(f"Grids from ancestry file: {len(ancestry_grids)}")
 
 # generate final grids
 if has_grid_file and has_ancestry_file:
-    grids = grids.intersection(ancestry_grid)
+    grids = grids.intersection(ancestry_grids)
 elif has_ancestry_file:
-    grids = ancestry_grid
+    grids = ancestry_grids
+
+if len(grids) == 0:
+    raise ValueError("No grid found.")
 
 # Open the input PSAM file and the output file
 output_file = "~{output_prefix}.psam"
