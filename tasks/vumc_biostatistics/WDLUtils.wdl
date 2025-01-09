@@ -84,3 +84,25 @@ fi
     memory: "1 GiB"
   }
 }
+
+task sum_integers {
+  input {
+    Array[Int] input_integers
+  }
+
+  command <<<
+    echo ~{sep=' ' input_integers} | tr ' ' '\n' | awk '{s+=$1} END {print s}' > sum.txt
+  >>>
+
+  output {
+    Int sum = read_int("sum.txt")
+  }
+
+  runtime {
+    cpu: 1
+    docker: "ubuntu:20.04"
+    preemptible: 1
+    disks: "local-disk 5 HDD"
+    memory: "1 GiB"
+  }
+}
