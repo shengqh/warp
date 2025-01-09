@@ -1,0 +1,9 @@
+{
+  "VUMCRegenie4Task2PrepareTestPgen.input_pgen_files": ["/nobackup/h_cqs/shengq2/biovu/agd163k/primary-pass-pgen/agd163k_chrM.primary_pass.pgen"],
+  "VUMCRegenie4Task2PrepareTestPgen.input_pvar_files": ["/nobackup/h_cqs/shengq2/biovu/agd163k/primary-pass-pgen/agd163k_chrM.primary_pass.pvar"],
+  "VUMCRegenie4Task2PrepareTestPgen.input_psam_files": ["/nobackup/h_cqs/shengq2/biovu/agd163k/primary-pass-pgen/agd163k_chrM.primary_pass.psam"],
+  "VUMCRegenie4Task2PrepareTestPgen.filter_psam_file": "/nobackup/h_cqs/shengq2/biovu/agd163k/agd163k_AFR.psam",
+  "VUMCRegenie4Task2PrepareTestPgen.chromosomes": ["chrM"],
+  "VUMCRegenie4Task2PrepareTestPgen.output_prefix": "agd165k_AFR"
+}
+

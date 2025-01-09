@@ -101,6 +101,8 @@ task QCFilterPgen {
 
   Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * disk_size_factor) + 20
 
+  String filter_sample_option = if defined(filter_psam_file) then "--keep " + filter_psam_file else ""
+
   command <<<
 
 plink2 \
@@ -108,7 +110,7 @@ plink2 \
   --pvar ~{input_pvar} \
   --psam ~{input_psam} \
   ~{qc_filter_option} \
-  --threads ~{cpu} "~{sep='--keep ' filter_psam_file}" \
+  --threads ~{cpu} ~{filter_sample_option} \
   --make-pgen \
   --out ~{output_prefix}
 
