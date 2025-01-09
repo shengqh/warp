@@ -4,6 +4,16 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 import "../agd/AgdUtils.wdl" as AgdUtils
 
+# This workflow creates a cohort PSAM file for use in the VUMC Regenie GWAS pipeline.
+# It takes an input PSAM file and optionally a grid file and ancestry information.
+# The output is a PSAM file with the specified output prefix.
+# Current in AGD163K cohort, the ancestry information is as below:
+# ANCESTRY	count
+# EUR	      124139
+# AFR	      30702
+# AMR	      4589
+# EAS	      2549
+# SAS	      581
 workflow VUMCRegenie4Task1CreateCohortPsam {
   input {
     File input_psam
@@ -12,6 +22,7 @@ workflow VUMCRegenie4Task1CreateCohortPsam {
     Int input_grid_column = 0
 
     String? input_ancestry
+    String input_ancestry_column="ANCESTRY"    
     File? input_ancestry_file
 
     String output_prefix
@@ -26,6 +37,7 @@ workflow VUMCRegenie4Task1CreateCohortPsam {
       input_grid = input_grid,
       input_grid_column = input_grid_column,
       input_ancestry = input_ancestry,
+      input_ancestry_column = input_ancestry_column,
       input_ancestry_file = input_ancestry_file,
       output_prefix = output_prefix
   }
