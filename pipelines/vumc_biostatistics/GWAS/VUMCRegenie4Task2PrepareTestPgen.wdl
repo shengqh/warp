@@ -84,7 +84,7 @@ workflow VUMCRegenie4Task2PrepareTestPgen {
 
   call WDLUtils.sum_integers {
     input:
-      values = Step2Filter.num_variants
+      input_integers = Step2Filter.num_variants
   }
 
   output {
@@ -93,7 +93,7 @@ workflow VUMCRegenie4Task2PrepareTestPgen {
     Array[File] test_pvar_files = select_first([step2_pvar, Step2Filter.output_pvar])
 
     String test_plink2_option = step2_plink2_option
-    Int test_num_variants = sum_integers.total_value
+    Int test_num_variants = sum_integers.sum
   }
 }
 
