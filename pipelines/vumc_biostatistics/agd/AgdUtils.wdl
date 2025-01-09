@@ -73,6 +73,7 @@ task CreateCohortPsam {
     Int input_grid_column = 0
 
     String? input_ancestry
+    String input_ancestry_column="ANCESTRY" #"supervised_ancestry_cluster" for original ancestry file
     File? input_ancestry_file
 
     String output_prefix
@@ -107,8 +108,8 @@ if "~{input_ancestry}" != "":
         has_ancestry_file = True
         with open("~{input_ancestry_file}", "rt") as fin:
             header = fin.readline().split('\t')
-            if "supervised_ancestry_cluster" in header:
-                ancestry_index = header.index("supervised_ancestry_cluster")
+            if "~{input_ancestry_column}" in header:
+                ancestry_index = header.index("~{input_ancestry_column}")
                 for line in fin:
                     columns = line.strip().split('\t')
                     if len(columns) > ancestry_index and columns[ancestry_index] == "~{input_ancestry}":
