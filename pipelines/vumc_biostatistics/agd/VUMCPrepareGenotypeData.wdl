@@ -29,21 +29,19 @@ workflow VUMCPrepareGenotypeData {
     File pgen_file = input_pgen_files[idx]
     File pvar_file = input_pvar_files[idx]
     File psam_file = input_psam_files[idx]
-    String replaced_sample_name = "~{chromosome}.psam"
 
     call AgdUtils.ReplaceICAIdWithGrid as ReplaceICAIdWithGrid {
       input:
         input_psam = psam_file,
         id_map_file = id_map_file,
-        target_psam = replaced_sample_name
+        target_psam = "~{chromosome}.psam"
     }
 
-    String grid_sample_name = "~{chromosome}.grid.psam"
     call  AgdUtils.CreateCohortPsam as CreateCohortPsam {
       input:
         input_psam = ReplaceICAIdWithGrid.output_psam,
-        grid_file = grid_file,
-        target_psam = grid_sample_name
+        input_grid = grid_file,
+        output_prefix = "~{chromosome}.grid"
     }
 
     call Plink2Utils.ExtractPgenSamples as ExtractPgenSamples {
