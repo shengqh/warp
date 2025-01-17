@@ -60,7 +60,7 @@ def read_requestor_pay_csv(fs, csv, header=None):
     with fs.open(csv, mode='rb') as f:
         return pd.read_csv(f, header=header)  
 
-qcfiles = read_requestor_pay_csv(fs=fs, csv="~{qc_list_file}", header=0)
+qcfiles = pd.read_csv("~{qc_list_file}", header=0)
 qcfiles.head()
 
 def parse_object_url(url):
