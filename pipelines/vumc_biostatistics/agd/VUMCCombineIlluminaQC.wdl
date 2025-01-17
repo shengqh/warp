@@ -57,8 +57,12 @@ google_project = "~{project_id}"
 fs = gcsfs.GCSFileSystem(project=google_project, requester_pays=True)
 
 def read_requestor_pay_csv(fs, csv, header=None):
-    with fs.open(csv, mode='rt') as f:
-        result = [line for line in f]
+    try:
+        with fs.open(csv, mode='rt') as f:
+            result = [line for line in f]
+        return(result)
+    except Exception:
+        raise Exception(f"Failed to read {csv}: {Exception}")
     return(result)
 
 qcfiles = pd.read_csv("~{qc_list_file}", header=0)
