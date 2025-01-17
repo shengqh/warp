@@ -101,7 +101,7 @@ for index, row in qcfiles.iterrows():
     else:
         qc_tbl = pd.concat([qc_tbl, cur_qc])
 
-output_file = "~{output_prefix}.csv"
+output_file = "~{output_prefix}.long.csv"
 qc_tbl.to_csv(output_file, index=False)
 
 EOF
@@ -119,6 +119,6 @@ python3 combine.py
   }
 
   output {
-    File output_file = "~{output_prefix}.csv"
+    File output_file = "~{output_prefix}.long.csv"
   }
 }
