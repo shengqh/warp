@@ -37,7 +37,7 @@ task CombineQC {
     String project_id
     File qc_list_file
     String output_prefix
-    String docker = "shengqh/hail_gcp:20240213"
+    String docker = "shengqh/hail_gcp:20241127"
   }
 
   command <<<
