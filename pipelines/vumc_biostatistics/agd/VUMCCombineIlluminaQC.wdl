@@ -2,7 +2,7 @@ version 1.0
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
-workflow VUMCCombineQC {
+workflow VUMCCombineIlluminaQC {
   input {
     String project_id
     File qc_list_file
@@ -10,7 +10,7 @@ workflow VUMCCombineQC {
     String? target_gcp_folder  
   }
 
-  call CombineQC {
+  call CombineIlluminaQC {
     input:
       project_id = project_id,
       qc_list_file = qc_list_file,
@@ -20,7 +20,7 @@ workflow VUMCCombineQC {
   if(defined(target_gcp_folder)){
     call GcpUtils.MoveOrCopyOneFile as CopyFile {
       input:
-        source_file = CombineQC.output_file,
+        source_file = CombineIlluminaQC.combined_long_file,
         is_move_file = false,
         project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
@@ -28,11 +28,11 @@ workflow VUMCCombineQC {
   }
 
   output {
-    File output_file = select_first([CopyFile.output_file, CombineQC.output_file])
+    File output_file = select_first([CopyFile.output_file, CombineIlluminaQC.combined_long_file])
   }
 }
 
-task CombineQC {
+task CombineIlluminaQC {
   input {
     String project_id
     File qc_list_file
@@ -57,8 +57,9 @@ google_project = "~{project_id}"
 fs = gcsfs.GCSFileSystem(project=google_project, requester_pays=True)
 
 def read_requestor_pay_csv(fs, csv, header=None):
-    with fs.open(csv, mode='rb') as f:
-        return pd.read_csv(f, header=header)  
+    with fs.open(csv, mode='rt') as f:
+        result = [line for line in f]
+    return(result)
 
 qcfiles = pd.read_csv("~{qc_list_file}", header=0)
 qcfiles.head()
@@ -80,29 +81,26 @@ def gcp_file_exists(url, storage_client, google_project):
     stats = storage.Blob(bucket=bucket, name=blob_name).exists(storage_client)
     return(stats)
 
-qc_tbl=None
-missed=0
-for index, row in qcfiles.iterrows():
-    if index % 100 == 0 and index != 0:
-        print(f"{index} / {qcfiles.shape[0]}, {missed} missed ...")
-        
-    grid = row['GRID']
-    qc_file = row['URL']
-    
-    if not gcp_file_exists(qc_file, sclient, google_project):
-        missed = missed + 1
-        continue
-    
-    qc_url = parse_object_url(qc_file)
-    cur_qc = read_requestor_pay_csv(fs=fs, csv=qc_url, header=None)
-    cur_qc['GRID'] = grid
-    if qc_tbl is None:
-        qc_tbl = cur_qc
-    else:
-        qc_tbl = pd.concat([qc_tbl, cur_qc])
-
 output_file = "~{output_prefix}.long.csv"
-qc_tbl.to_csv(output_file, index=False)
+
+with open(output_file, "wt") as fout:
+    qc_tbl=None
+    missed=0
+    for index, row in qcfiles.iterrows():
+        if index % 100 == 0 and index != 0:
+            print(f"{index} / {qcfiles.shape[0]}, {missed} missed ...")
+            
+        grid = row['GRID']
+        qc_file = row['URL']
+        
+        if not gcp_file_exists(qc_file, sclient, google_project):
+            missed = missed + 1
+            continue
+        
+        qc_url = parse_object_url(qc_file)
+        cur_qc = read_requestor_pay_csv(fs=fs, csv=qc_url, header=None)
+        for line in cur_qc:
+            fout.write(f"{grid},{line}")
 
 EOF
 
@@ -119,6 +117,6 @@ python3 combine.py
   }
 
   output {
-    File output_file = "~{output_prefix}.long.csv"
+    File combined_long_file = "~{output_prefix}.long.csv"
   }
 }

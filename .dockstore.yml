@@ -369,6 +369,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/GWAS/VUMCRegenie4TaskAll.wdl
 
-  - name: VUMCCombineQC
+  - name: VUMCCombineIlluminaQC
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCCombineQC.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCCombineIlluminaQC.wdl
