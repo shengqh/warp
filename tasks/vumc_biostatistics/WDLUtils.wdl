@@ -109,11 +109,11 @@ task sum_integers {
 
 workflow read_pair_from_csv {
   input {
-    File input_csv_file
+    File input_list_csv
     Boolean has_header = true
   }
   
-  Array[String] my_lines = read_lines(input_csv_file)
+  Array[String] my_lines = read_lines(input_list_csv)
   scatter (line in my_lines) {
     String filtered_line = sub(line, '"', '')
     String cur_file_name = sub(filtered_line, ",.+$", "")
