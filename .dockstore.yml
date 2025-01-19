@@ -373,6 +373,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCCombineIlluminaQC.wdl
 
-  - name: VUMCGetFilesizeOfList
+  # - name: VUMCGetFilesizeOfListSmall
+  #   subclass: WDL
+  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCGetFilesizeOfListSmall.wdl
+
+  - name: VUMCGetFilesizeOfListLarge
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCGetFilesizeOfList.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCGetFilesizeOfListLarge.wdl

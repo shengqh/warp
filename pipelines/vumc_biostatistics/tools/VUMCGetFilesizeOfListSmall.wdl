@@ -3,11 +3,12 @@ version 1.0
 import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils
 
 /**
- * This workflow, VUMCGetFilesizeOfList, is designed to calculate the file sizes of a list of files.
+ * This workflow, VUMCGetFilesizeOfListSmall, is designed to calculate the file sizes of a list of files.
  * It takes a list of file paths as input and returns the sizes of these files.
  * This can be useful for managing storage and ensuring that file sizes are within expected limits.
+ * One limitation of this workflow is that the input_list_csv file shoule not exceed 10000000 bytes.
  */
-workflow VUMCGetFilesizeOfList {
+workflow VUMCGetFilesizeOfListSmall {
   input {
     /*
     This WDL script calculates the file sizes of a list of files provided in an input list file.
