@@ -2,21 +2,23 @@ version 1.0
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
-
 /**
  * Workflow: VUMCGetFilesizeOfListLarge
  * 
  * Description:
  * This workflow calculates the file sizes of a list of GCP files. It is designed to handle large datasets efficiently. 
- * The qc_list_file might be exceed 10000000 bytes which is the limitaton of read_lines in WDL.
+ * The qc_list_file might exceed 10000000 bytes which is the limitation of read_lines in WDL.
  * 
  * Input Parameters:
- * - List[File] files: A list of files for which the sizes need to be calculated.
+ * - List[File] qc_list_file: A list of files for which the sizes need to be calculated. Two columns, the first is name and the second is the URL.
  * - String output_prefix: The output prefix.
+ * 
+ * Author:
+ * Quanhu Sheng, quanhu.sheng.1@vumc.org
  */
-workflow VUMCGetFilesizeOfListLarge {
+ Workflow: VUMCGetFilesizeOfListLarge {
   input {
-    File qc_list_file
+    List[File] qc_list_file
     String output_prefix
     String project_id
     String? target_gcp_folder  
@@ -96,8 +98,6 @@ def sizeof_fmt(num, suffix="B"):
 def gcp_file_size(url, storage_client, google_project):
     if gcp_file_exists(url, storage_client, google_project):
         bucket_name, blob_name = parse_url(url)
-        #print("bucket_name = ", bucket_name)
-        #print("blob_name = ", blob_name)
         bucket = storage_client.bucket(bucket_name, user_project=google_project) 
         blob = bucket.get_blob(blob_name)
         return(blob.size)
