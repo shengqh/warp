@@ -106,3 +106,55 @@ task sum_integers {
     memory: "1 GiB"
   }
 }
+
+workflow read_pair_from_csv {
+  input {
+    File input_csv_file
+    Boolean has_header = true
+  }
+  
+  Array[String] my_lines = read_lines(input_csv_file)
+  scatter (line in my_lines) {
+    String filtered_line = sub(line, '"', '')
+    String cur_file_name = sub(filtered_line, ",.+$", "")
+    String cur_file_path = sub(filtered_line, ".+,", "")
+    Pair[String, String] cur_file = (cur_file_name, cur_file_path)
+  }
+
+  if (has_header) {
+    Int len = length(cur_file)
+    scatter(idx in range(len-1)){
+      Int next_idx = idx + 1
+      Pair[String, String] cur_file2 = cur_file[next_idx]
+    }
+  } 
+
+  output {
+    Array[Pair[String, String]] output_pairs = select_first([cur_file2, cur_file])
+  }
+}
+
+task write_lines_to_file {
+  input {
+    Array[String] lines
+    String output_file_name
+  }
+
+  File tmp_file = write_lines(lines)
+
+  command <<<
+mv ~{tmp_file} ~{output_file_name}
+>>>
+
+  output {
+    File output_file = "~{output_file_name}"
+  }
+
+  runtime {
+    cpu: 1
+    docker: "ubuntu:20.04"
+    preemptible: 1
+    disks: "local-disk 5 HDD"
+    memory: "1 GiB"
+  }
+}
