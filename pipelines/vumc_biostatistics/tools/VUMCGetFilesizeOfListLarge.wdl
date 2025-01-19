@@ -86,12 +86,21 @@ def gcp_file_exists(url, storage_client, google_project):
     stats = storage.Blob(bucket=bucket, name=blob_name).exists(storage_client)
     return(stats)
 
+def sizeof_fmt(num, suffix="B"):
+    for unit in ["", "K", "M", "G", "T"]:
+        if abs(num) < 1024.0:
+            return f"{num:3.2f} {unit}{suffix}"
+        num /= 1024.0
+    return f"{num:3.2f} {suffix}"
+
 def gcp_file_size(url, storage_client, google_project):
-    bucket_name, blob_name = parse_url(url)
-    bucket = storage_client.bucket(bucket_name, user_project = google_project) 
-    blob = storage.Blob(bucket=bucket, name=blob_name)
-    blob.reload()
-    return blob.size
+    if gcp_file_exists(url, storage_client, google_project):
+        bucket_name, blob_name = parse_url(url)
+        #print("bucket_name = ", bucket_name)
+        #print("blob_name = ", blob_name)
+        bucket = storage_client.bucket(bucket_name, user_project=google_project) 
+        blob = bucket.get_blob(blob_name)
+        return(blob.size)
 
 output_file = "~{output_prefix}.size.csv"
 
@@ -111,7 +120,8 @@ with open(output_file, "wt") as fout:
             continue
         
         size = gcp_file_size(qc_file, sclient, google_project)
-        fout.write(f"{grid},{qc_file},{size}\n")
+        size_str = sizeof_fmt(size)
+        fout.write(f"{grid},{qc_file},{size_str}\n")
 
 EOF
 
