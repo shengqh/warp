@@ -6,6 +6,17 @@ import "../../../tasks/vumc_biostatistics/order_files_by_strings.wdl" as order_f
 
 import "./GWASUtils.wdl" as GWASUtils
 
+/**
+ * Workflow: VUMCRegenie4Task4Regenie
+ * 
+ * Description:
+ * This workflow performs the both step1 and step2 the Regenie since both of them require phenotype and covariate files. 
+ * It fits the model using the training data and then tests the model using the testing data.
+ * The results are then merged and plotted and are then optionally copied to a specified GCP folder.
+ *
+ * Author:
+ * Quanhu Sheng, quanhu.sheng.1@vumc.org
+ */
 workflow VUMCRegenie4Task4Regenie {
   input {
     Array[String] chromosomes

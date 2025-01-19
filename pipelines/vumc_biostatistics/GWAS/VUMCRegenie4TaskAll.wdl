@@ -5,6 +5,22 @@ import "./VUMCRegenie4Task2PrepareTestPgen.wdl" as Task2
 import "./VUMCRegenie4Task3PrepareModelPgen.wdl" as Task3
 import "./VUMCRegenie4Task4Regenie.wdl" as Task4
 
+/**
+ * Workflow: VUMCRegenie4TaskAll
+ * 
+ * Description:
+ * This workflow performs a GWAS analysis using the VUMC Regenie pipeline.
+ * It combined the four steps of the pipeline into a single workflow.
+ * Task1: VUMCRegenie4Task1CreateCohortPsam
+ * Task2: VUMCRegenie4Task2PrepareTestPgen
+ * Task3: VUMCRegenie4Task3PrepareModelPgen
+ * Task4: VUMCRegenie4Task4Regenie
+ *
+ * Once you run the workflow on one phonotype, you can run the task4 VUMCRegenie4Task4Regenie on other phenotypes using the test and model PGEN files generated.
+ *
+ * Author:
+ * Quanhu Sheng, quanhu.sheng.1@vumc.org
+ */
 workflow VUMCRegenie4TaskAll {
   input {
     Array[String] chromosomes

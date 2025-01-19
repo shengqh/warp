@@ -4,9 +4,17 @@ import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
 
-# Description: This workflow prepares test PGEN files for Regenie step 2. 
-# It performs QC filtering on the input PGEN files using specified PLINK2 options.
-# The filtered files are then optionally copied to a specified GCP folder.
+/**
+ * Workflow: VUMCRegenie4Task1CreateCohortPsam
+ * 
+ * Description:
+ * This workflow prepares test PGEN files for Regenie step 2. 
+ * It performs QC filtering on the input PGEN files using specified PLINK2 options.
+ * The filtered files are then optionally copied to a specified GCP folder.
+ *
+ * Author:
+ * Quanhu Sheng, quanhu.sheng.1@vumc.org
+ */
 workflow VUMCRegenie4Task2PrepareTestPgen {
   input {
     Array[String] chromosomes

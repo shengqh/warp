@@ -6,6 +6,18 @@ import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
 import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
 import "../../../tasks/vumc_biostatistics/order_files_by_strings.wdl" as order_files_by_strings
 
+/**
+ * Workflow: VUMCRegenie4Task3PrepareModelPgen
+ * 
+ * Description:
+ * This workflow prepares the model PGEN files for Regenie step 1. 
+ * It performs QC filtering on the input PGEN files using specified PLINK2 options.
+ * The filtered files are then optionally copied to a specified GCP folder.
+ *
+ * Author:
+ * Quanhu Sheng, quanhu.sheng.1@vumc.org
+ */
+
 workflow VUMCRegenie4Task3PrepareModelPgen {
   input {
     Array[String] chromosomes
