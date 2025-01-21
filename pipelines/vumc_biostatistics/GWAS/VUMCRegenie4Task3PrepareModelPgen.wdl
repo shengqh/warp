@@ -22,6 +22,8 @@ workflow VUMCRegenie4Task3PrepareModelPgen {
   input {
     Array[String] chromosomes
 
+    Boolean use_autosomal_chromosome_only = true
+
     Array[File] test_pgen_files
     Array[File] test_pvar_files
     Array[File] test_psam_files
@@ -41,14 +43,28 @@ workflow VUMCRegenie4Task3PrepareModelPgen {
     String? target_gcp_folder
   }
 
-  Int num_chromosomes = length(chromosomes)
+  if (use_autosomal_chromosome_only){
+    call BioUtils.GetAutosomalChromosomeIndecies {
+      input:
+        input_chromosomes = chromosomes
+    }
+    Array[Int] autosomal_chromosome_indecies = GetAutosomalChromosomeIndecies.autosomal_chromosome_indecies
+  }
+  
+  if(!use_autosomal_chromosome_only){
+    Array[Int] all_indecies = range(length(chromosomes))
+  }
 
-  Array[Int] chrom_indecies = range(num_chromosomes)
-  scatter(chrom_ind in chrom_indecies){
-    File pgen_file = test_pgen_files[chrom_ind]
-    File pvar_file = test_pvar_files[chrom_ind]
-    File psam_file = test_psam_files[chrom_ind]
-    String chromosome = chromosomes[chrom_ind]
+  Array[Int] cur_chromosome_indecies = select_first([autosomal_chromosome_indecies, all_indecies])
+
+  Int num_valid_chromsome = length(cur_chromosome_indecies)
+
+  scatter(chrom_ind in range(num_valid_chromsome)){
+    Int old_ind = cur_chromosome_indecies[chrom_ind]
+    File pgen_file = test_pgen_files[old_ind]
+    File pvar_file = test_pvar_files[old_ind]
+    File psam_file = test_psam_files[old_ind]
+    String chromosome = chromosomes[old_ind]
 
     if(step1_prune){
       call BioUtils.QCFilterAndPrunePgen as Step1FilterPrune {
@@ -76,30 +92,42 @@ workflow VUMCRegenie4Task3PrepareModelPgen {
     File step1_chrom_pgen = select_first([Step1FilterPrune.output_pgen, Step1Filter.output_pgen])
     File step1_chrom_pvar = select_first([Step1FilterPrune.output_pvar, Step1Filter.output_pvar])
     File step1_chrom_psam = select_first([Step1FilterPrune.output_psam, Step1Filter.output_psam])
+    Int step1_chrom_num_variants = select_first([Step1FilterPrune.num_variants, Step1Filter.num_variants])
   }
 
-  call Plink2Utils.MergePgenFiles as MergeStep1Pgen {
-    input:
-      input_pgen_files = step1_chrom_pgen,
-      input_pvar_files = step1_chrom_pvar,
-      input_psam_files = step1_chrom_psam,
-      output_prefix = output_prefix + ".step1"
+  if (num_valid_chromsome > 1){
+    call Plink2Utils.MergePgenFiles as MergeStep1Pgen {
+      input:
+        input_pgen_files = step1_chrom_pgen,
+        input_pvar_files = step1_chrom_pvar,
+        input_psam_files = step1_chrom_psam,
+        output_prefix = output_prefix + ".step1"
+    }
   }
 
-  if (MergeStep1Pgen.num_variants > step1_max_variants){
+  if (num_valid_chromsome <= 1){
+    File only_pgen = step1_chrom_pgen[0]
+    File only_pvar = step1_chrom_pvar[0]
+    File only_psam = step1_chrom_psam[0]
+    Int only_num_variants = step1_chrom_num_variants[0]
+  }
+
+  Int step1_cur_num_variants = select_first([MergeStep1Pgen.num_variants, only_num_variants])
+
+  if (step1_cur_num_variants > step1_max_variants){
     call Plink2Utils.SamplingVariantsInPgen {
       input:
-        input_pgen = MergeStep1Pgen.output_pgen,
-        input_pvar = MergeStep1Pgen.output_pvar,
-        input_psam = MergeStep1Pgen.output_psam,
+        input_pgen = select_first([MergeStep1Pgen.output_pgen, only_pgen]),
+        input_pvar = select_first([MergeStep1Pgen.output_pvar, only_pvar]),
+        input_psam = select_first([MergeStep1Pgen.output_psam, only_psam]),
         output_prefix = output_prefix + ".step1.sampled",
         max_num_variants = step1_max_variants
     }
   }
   
-  File model_pgen = select_first([SamplingVariantsInPgen.output_pgen, MergeStep1Pgen.output_pgen])
-  File model_pvar = select_first([SamplingVariantsInPgen.output_pvar, MergeStep1Pgen.output_pvar])
-  File model_psam = select_first([SamplingVariantsInPgen.output_psam, MergeStep1Pgen.output_psam])
+  File model_pgen = select_first([SamplingVariantsInPgen.output_pgen, MergeStep1Pgen.output_pgen, only_pgen])
+  File model_pvar = select_first([SamplingVariantsInPgen.output_pvar, MergeStep1Pgen.output_pvar, only_pvar])
+  File model_psam = select_first([SamplingVariantsInPgen.output_psam, MergeStep1Pgen.output_psam, only_psam])
 
   if(defined(target_gcp_folder)){
     String gcs_output_dir = select_first([target_gcp_folder])
@@ -123,7 +151,7 @@ workflow VUMCRegenie4Task3PrepareModelPgen {
     File model_pvar_file = select_first([CopyFile6.output_file2, model_pvar])
     File model_psam_file = select_first([CopyFile6.output_file3, model_psam])
 
-    Int model_num_variants = select_first([SamplingVariantsInPgen.num_variants, MergeStep1Pgen.num_variants])
+    Int model_num_variants = select_first([SamplingVariantsInPgen.num_variants, MergeStep1Pgen.num_variants, only_num_variants])
   }
 }
 
