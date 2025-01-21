@@ -282,34 +282,32 @@ plink2 \
   }
 }
 
-task GetValidChromosomeList {
+task GetAutosomalChromosomeIndecies {
   input {
-    File input_pvar
     Array[String] input_chromosomes
   }
 
-  Int disk_size = ceil(size(input_pvar, "GB")) + 1
-
   command <<<
-
-cut -f 1 ~{input_pvar} | tail -n +2 | uniq > pvar_chromosomes.txt
-
-echo -e "~{sep='\n' input_chromosomes}" > input_chromosomes.txt
-
-#using pvar_chromosomes.txt to filter input_chromosomes.txt, get the common chromosomes
-grep -Fxf pvar_chromosomes.txt input_chromosomes.txt > common_chromosomes.txt
-
+  echo -e "~{sep='\n' input_chromosomes}" | 
+  awk '{
+            # Remove "chr" prefix if present
+            gsub(/^chr/, "", $1);
+            # If the chromosome is a number between 1-22, print its line number
+            if ($1 ~ /^[1-9]$/ || $1 ~ /^1[0-9]$/ || $1 ~ /^2[0-2]$/) {
+                print NR - 1  # Subtract 1 for 0-based index
+            }
+        }' > autosomal_chromosomes.txt
 >>>
 
   runtime {
     cpu: 1
     docker: "ubuntu:20.04"
     preemptible: 1
-    disks: "local-disk " + disk_size + " HDD"
+    disks: "local-disk 5 HDD"
     memory: "1 GiB"
   }
 
   output {
-    Array[String] valid_chromosomes = read_lines("common_chromosomes.txt")
+    Array[Int] autosomal_chromosome_indecies = read_lines("autosomal_chromosomes.txt")
   }
 }
