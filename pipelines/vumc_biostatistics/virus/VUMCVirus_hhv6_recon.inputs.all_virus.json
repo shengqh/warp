@@ -1,0 +1,14 @@
+{
+  "VUMCVirus_hhv6_recon.sample_name": "R217035205",
+  "VUMCVirus_hhv6_recon.input_cram": "/nobackup/h_cqs/shengq2/biovu/AGD5000/data/R217035205.cram",
+  "VUMCVirus_hhv6_recon.input_cram_index": "/nobackup/h_cqs/shengq2/biovu/AGD5000/data/R217035205.cram.crai",
+  "VUMCVirus_hhv6_recon.ref_fasta": "/nobackup/h_cqs/shengq2/biovu/dragen/ica/hg38.fa",
+  "VUMCVirus_hhv6_recon.ref_fasta_index": "/nobackup/h_cqs/shengq2/biovu/dragen/ica/hg38.fa.fai",
+  "VUMCVirus_hhv6_recon.ref_virus_fasta_bwa_fa": "/data/cqs/references/virus/bwa_index_0.7.17/20250206_refseq_virus_all.fa",
+  "VUMCVirus_hhv6_recon.ref_virus_fasta_bwa_amb": "/data/cqs/references/virus/bwa_index_0.7.17/20250206_refseq_virus_all.fa.amb",
+  "VUMCVirus_hhv6_recon.ref_virus_fasta_bwa_ann": "/data/cqs/references/virus/bwa_index_0.7.17/20250206_refseq_virus_all.fa.ann",
+  "VUMCVirus_hhv6_recon.ref_virus_fasta_bwa_bwt": "/data/cqs/references/virus/bwa_index_0.7.17/20250206_refseq_virus_all.fa.bwt",
+  "VUMCVirus_hhv6_recon.ref_virus_fasta_bwa_pac": "/data/cqs/references/virus/bwa_index_0.7.17/20250206_refseq_virus_all.fa.pac",
+  "VUMCVirus_hhv6_recon.ref_virus_fasta_bwa_sa": "/data/cqs/references/virus/bwa_index_0.7.17/20250206_refseq_virus_all.fa.sa"
+}
+

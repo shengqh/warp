@@ -1,0 +1,7 @@
+{
+  "VUMCVirus_hhv6_recon.ref_fasta": "/nobackup/h_cqs/shengq2/biovu/dragen/ica/hg38.fa",
+  "VUMCVirus_hhv6_recon.ref_fasta_index": "/nobackup/h_cqs/shengq2/biovu/dragen/ica/hg38.fa.fai",
+  "VUMCVirus_hhv6_recon.input_cram": "/nobackup/h_cqs/shengq2/biovu/AGD5000/data/R217035205.cram",
+  "VUMCVirus_hhv6_recon.input_cram_index": "/nobackup/h_cqs/shengq2/biovu/AGD5000/data/R217035205.cram.crai"
+}
+

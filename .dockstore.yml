@@ -380,3 +380,7 @@ workflows:
   - name: VUMCGetFilesizeOfListLarge
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCGetFilesizeOfListLarge.wdl
+
+  - name: VUMCVirus_hhv6_recon
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/virus/VUMCVirus_hhv6_recon.wdl
