@@ -40,6 +40,7 @@ workflow VUMCVirus_hhv6_recon {
     File output_bedgraph = Virus_hhv6_recon.output_bedgraph
     File output_markduplicate_metrics = Virus_hhv6_recon.output_markduplicate_metrics
     File output_summary = Virus_hhv6_recon.output_summary
+    File output_summary_exist = Virus_hhv6_recon.output_summary_exist
   }
 }
 
