@@ -1,0 +1,7 @@
+{
+  "VUMCCombineFiles.input_files": [ "/nobackup/h_cqs/shengq2/biovu/virus/R200000649_virus_detection_summary_exist.txt", "/nobackup/h_cqs/shengq2/biovu/virus/R200013600_virus_detection_summary_exist.txt" ],
+  "VUMCCombineFiles.output_prefix": "hiv_virus",
+  "VUMCCombineFiles.output_suffix": "_exist.txt",
+  "VUMCCombineFiles.input_names": [ "R200000649", "R200013600" ]
+}
+

@@ -384,3 +384,7 @@ workflows:
   - name: VUMCVirus_hhv6_recon
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/virus/VUMCVirus_hhv6_recon.wdl
+
+  - name: VUMCCombineFiles
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCCombineFiles.wdl
