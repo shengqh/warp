@@ -61,10 +61,10 @@ task Virus_hhv6_recon {
     File? ref_virus_fasta_bwa_pac
     File? ref_virus_fasta_bwa_sa
 
-    Int machine_mem_gb = 4
-    Int additional_disk_size = 10
+    Int machine_mem_gb = 40
+    Int additional_disk_size = 20
   }
-  Int disk_size = ceil(size(input_cram, "GB") + additional_disk_size)
+  Int disk_size = ceil(size([input_cram, ref_fasta, ref_virus_fasta_bwa_fa, ref_virus_fasta_bwa_amb, ref_virus_fasta_bwa_ann, ref_virus_fasta_bwa_bwt, ref_virus_fasta_bwa_pac, ref_virus_fasta_bwa_sa],  "GB") + additional_disk_size)
 
   command <<<
 
