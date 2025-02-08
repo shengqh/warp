@@ -5,7 +5,7 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 workflow VUMCCombineFiles {
   input {
     Array[String] input_names
-    Array[File] input_files
+    Array[String] input_files
     String sep="\\t"
     Boolean has_header = false
     String output_prefix
@@ -41,7 +41,7 @@ workflow VUMCCombineFiles {
 task CombineFiles {
   input {
     Array[String] input_names
-    Array[File] input_files
+    Array[String] input_files
     String sep
     Boolean has_header
     String output_file
