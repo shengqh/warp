@@ -302,51 +302,6 @@ rm -rf tmp
   }
 }
 
-task Annovar {
-  input {
-    File input_vcf
-    String annovar_db = "/opt/annovar/humandb"
-    String annovar_option = ""
-
-    String target_prefix
-
-    Int memory_gb = 20
-    Int cpu = 1
-
-    String docker = "shengqh/annovar:20241117"
-    Float disk_size_factor = 5
-  }
-
-  Int disk_size = ceil(size([input_vcf], "GB")  * disk_size_factor) + 20
-
-  command <<<
-
-zcat ~{input_vcf} | cut -f1-9 > ~{target_prefix}.avinput.vcf
-
-convert2annovar.pl -format vcf4old ~{target_prefix}.avinput.vcf | cut -f1-7 | awk '{gsub(",\\*", "", $0); print}'> ~{target_prefix}.avinput
-
-rm ~{target_prefix}.avinput.vcf
-
-table_annovar.pl ~{target_prefix}.avinput ~{annovar_db} -buildver hg38 -protocol refGene -operation g --remove  --outfile ~{target_prefix}.annovar
-
-rm ~{target_prefix}.avinput
-
-gzip ~{target_prefix}.annovar.hg38_multianno.txt
-
->>>
-
-  runtime {
-    docker: docker
-    preemptible: 1
-    cpu: cpu
-    disks: "local-disk " + disk_size + " HDD"
-    memory: memory_gb + " GiB"
-  }
-  output {
-    File annovar_file = "~{target_prefix}.annovar.hg38_multianno.txt.gz"
-  }
-}
-
 task PrepareGeneGenotype {
   input {
     String gene_symbol
