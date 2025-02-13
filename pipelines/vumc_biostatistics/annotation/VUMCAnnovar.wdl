@@ -63,7 +63,7 @@ task Annovar {
   }
 
   Float true_annovar_db_umcompressed_gb = if(defined(annovar_db_umcompressed_gb)) then annovar_db_umcompressed_gb else 0
-  Int disk_size = ceil(size([input_vcf], "GB") * vcf_disk_size_factor + size(annovar_db_tar_gz) + true_annovar_db_umcompressed_gb) + 20
+  Int disk_size = ceil(size([input_vcf], "GB") * vcf_disk_size_factor + size(annovar_db_tar_gz, "GB") + true_annovar_db_umcompressed_gb) + 20
 
   String real_annovar_db = if(defined(annovar_db_tar_gz)) then sub(basename(select_first([annovar_db_tar_gz])), ".tar.gz$", "") else "/opt/annovar/humandb"
   String delete_annovar_db = if(defined(annovar_db_tar_gz)) then sub(basename(select_first([annovar_db_tar_gz])), ".tar.gz$", "") else ""  
