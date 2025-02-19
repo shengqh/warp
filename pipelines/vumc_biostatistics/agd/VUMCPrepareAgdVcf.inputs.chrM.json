@@ -1,6 +1,7 @@
 {
   "VUMCPrepareAgdVcf.id_map_file": "/nobackup/h_cqs/shengq2/biovu/AGD/SAMPLE_ID_MAP_2024_Q2_163K_primaryGRID_v5_202410.csv",
   "VUMCPrepareAgdVcf.input_vcf": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/postproc-vcf/dragen.vcf.gz",
+  "VUMCPrepareAgdVcf.input_vcf_index": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/postproc-vcf/dragen.vcf.gz.tbi",
   "VUMCPrepareAgdVcf.output_prefix": "agd163k_chrM"
 }
 

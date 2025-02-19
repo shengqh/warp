@@ -8,6 +8,7 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 workflow VUMCPrepareAgdVcf {
   input {
     File input_vcf
+    File input_vcf_index
 
     File id_map_file
 
@@ -20,6 +21,7 @@ workflow VUMCPrepareAgdVcf {
   call PrepareAgdVcf {
     input: 
       input_vcf = input_vcf,
+      input_vcf_index = input_vcf_index,
       id_map_file = id_map_file,
       output_prefix = output_prefix + ".primary_pass"
   }
@@ -49,6 +51,8 @@ workflow VUMCPrepareAgdVcf {
 task PrepareAgdVcf {
   input{
     File input_vcf
+    File input_vcf_index
+
     File id_map_file
 
     String output_prefix
@@ -68,10 +72,12 @@ task PrepareAgdVcf {
 
   command <<<
 
+total_variants=$(bcftools index -n ~{input_vcf})
+
 wget https://raw.githubusercontent.com/shengqh/agd_vcf/refs/heads/main/agd_vcf
 chmod +x agd_vcf
 
-zcat ~{input_vcf} | ./agd_vcf --id_map_file=~{id_map_file} | bgzip -@ ~{bgzip_thread} -c > ~{target_vcf}
+zcat ~{input_vcf} | ./agd_vcf --id_map_file=~{id_map_file} --total_variants=$total_variants | bgzip -@ ~{bgzip_thread} -c > ~{target_vcf}
 
 tabix -p vcf ~{target_vcf}
 
