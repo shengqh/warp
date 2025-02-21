@@ -78,17 +78,21 @@ echo total_variants=$total_variants
 wget https://raw.githubusercontent.com/shengqh/agd_vcf/refs/heads/main/agd_vcf
 chmod +x agd_vcf
 
-echo agd_vcf ...
+echo `date`: agd_vcf ...
 zcat ~{input_vcf} | ./agd_vcf --id_map_file=~{id_map_file} --total_variants=$total_variants | bgzip -@ ~{bgzip_thread} -c > ~{target_vcf}
 
-echo tabix ...
+echo `date`: tabix ...
 tabix -p vcf ~{target_vcf}
 
+echo `date`: bcftools query number of samples ...
 bcftools query -l ~{target_vcf} > ~{output_sample_file}
 
 cat ~{output_sample_file} | wc -l > num_samples.txt
 
+echo `date`: bcftools query number of variants ...
 bcftools index -n ~{target_vcf} > num_variants.txt
+
+echo `date`: done.
 
   >>>
 
