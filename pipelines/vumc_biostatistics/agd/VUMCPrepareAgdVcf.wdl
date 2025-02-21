@@ -59,12 +59,13 @@ task PrepareAgdVcf {
 
     String vcftools_docker = "us.gcr.io/broad-gotc-prod/imputation-bcf-vcf:1.0.7-1.10.2-0.1.16-1669908889"
 
-    Int cpu = 4
+    Int cpu = 3
     Int machine_mem_gb = 4
     Int addtional_disk_space_gb = 10
   }
 
-  Int bgzip_thread = cpu -1
+  Int bgzip_thread = cpu - 2 #one cpu for zcat, one cpu for agd_vcf and other cpu for bgzip
+  String bgzip_thread_str = if bgzip_thread > 1 then "-@ " + bgzip_thread else ""
   Int disk_size = ceil(size(input_vcf, "GB") * 2) + addtional_disk_space_gb
 
   String target_vcf = "~{output_prefix}.vcf.gz"
@@ -79,10 +80,10 @@ wget https://raw.githubusercontent.com/shengqh/agd_vcf/refs/heads/main/agd_vcf
 chmod +x agd_vcf
 
 echo `date`: agd_vcf ...
-zcat ~{input_vcf} | ./agd_vcf --id_map_file=~{id_map_file} --total_variants=$total_variants | bgzip -@ ~{bgzip_thread} -c > ~{target_vcf}
+zcat ~{input_vcf} | ./agd_vcf --id_map_file=~{id_map_file} --total_variants=$total_variants | bgzip ~{bgzip_thread_str} -c > ~{target_vcf}
 
 echo `date`: tabix ...
-tabix -p vcf ~{target_vcf}
+tabix -@ ~{cpu} -p vcf ~{target_vcf}
 
 echo `date`: bcftools query number of samples ...
 bcftools query -l ~{target_vcf} > ~{output_sample_file}
