@@ -16,9 +16,10 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
  * Author:
  * Quanhu Sheng, quanhu.sheng.1@vumc.org
  */
- workflow: VUMCGetFilesizeOfListLarge {
+
+ workflow VUMCGetFilesizeOfListLarge {
   input {
-    List[File] qc_list_file
+    File qc_list_file
     String output_prefix
     String project_id
     String? target_gcp_folder  
