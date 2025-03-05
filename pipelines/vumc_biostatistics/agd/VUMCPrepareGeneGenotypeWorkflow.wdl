@@ -3,6 +3,7 @@ version 1.0
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
+import "../annotation/VUMCAnnovar.wdl" as VUMCAnnovar
 import "./AgdUtils.wdl" as AgdUtils
 
 workflow VUMCPrepareGeneGenotypeWorkflow {
@@ -32,7 +33,7 @@ workflow VUMCPrepareGeneGenotypeWorkflow {
       billing_project_id = project_id
   }
 
-  call AgdUtils.Annovar {
+  call VUMCAnnovar.Annovar {
     input:
       input_vcf = HailMatrixExtractRegions.output_vcf,
       target_prefix = gene_symbol
