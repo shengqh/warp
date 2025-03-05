@@ -1,0 +1,9 @@
+{
+  "VUMCRegenie4Task2PrepareTestPgen.input_pgen_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/eligible_v5_202410/AGD35K_QCedV2/QCV2_chr16.pgen"],
+  "VUMCRegenie4Task2PrepareTestPgen.input_pvar_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/eligible_v5_202410/AGD35K_QCedV2/QCV2_chr16.pvar"],
+  "VUMCRegenie4Task2PrepareTestPgen.input_psam_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/eligible_v5_202410/AGD35K_QCedV2/QCV2_chr16.psam"],
+  "VUMCRegenie4Task2PrepareTestPgen.filter_psam_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/eligible_v5_202410/AGD35K_QCedV2/agd35k_afr.psam",
+  "VUMCRegenie4Task2PrepareTestPgen.chromosomes": ["chr16"],
+  "VUMCRegenie4Task2PrepareTestPgen.output_prefix": "agd35k_AFR"
+}
+
