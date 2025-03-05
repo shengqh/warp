@@ -27,7 +27,7 @@ workflow VUMCRegenie4Task2PrepareTestPgen {
 
     String output_prefix
     
-    String step2_plink2_option="--geno 0.05 --maf 0.01"
+    String step2_plink2_option="--geno 0.05 --maf 0.01 --max-alleles 2"
 
     String? billing_gcp_project_id
     String? target_gcp_folder

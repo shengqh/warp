@@ -45,7 +45,7 @@ workflow VUMCRegenie4TaskAll {
     String output_prefix
 
     #option of variants for model fitting
-    String step1_plink2_option="--mac 100 --geno 0.01 --maf 0.1 --max-maf 0.9 --hwe 1e-15 --snps-only --not-chr 23-27"
+    String step1_plink2_option="--mac 100 --geno 0.01 --maf 0.1 --max-maf 0.9 --hwe 1e-15 --snps-only --not-chr 23-27 --max-alleles 2"
     String step1_regenie_option="--loocv --bsize 1000 --lowmem"
     Int step1_block_size=1000
     Int step1_max_variants=500000
@@ -56,7 +56,7 @@ workflow VUMCRegenie4TaskAll {
     String step1_prune_option="--indep-pairwise 1000 100 0.9"
     
     #option of variants for testing
-    String step2_plink2_option="--geno 0.05 --maf 0.01"
+    String step2_plink2_option="--geno 0.05 --maf 0.01 --max-alleles 2"
     String step2_regenie_option="--firth --approx --pThresh 0.01 --bsize 400"
 
     String? billing_gcp_project_id
