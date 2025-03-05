@@ -20,7 +20,7 @@ workflow VUMCPlink2Bgen {
     String? parameter_file3_arg
     File? parameter_file3
 
-    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+    String docker = "shengqh/plink_1.9_2.0:20250304"
 
     Int? memory_size=10
   }
@@ -76,7 +76,7 @@ task Plink2Bgen {
     String? parameter_file3_arg
     File? parameter_file3
 
-    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+    String docker = "shengqh/plink_1.9_2.0:20250304"
 
     Int? memory_size=10
   }

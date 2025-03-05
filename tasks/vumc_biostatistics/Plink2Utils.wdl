@@ -8,7 +8,7 @@ task FilterPassVariantsInPgen {
 
     String output_prefix
 
-    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+    String docker = "shengqh/plink_1.9_2.0:20250304"
 
     #when has_pass is false, this task will just rename pgen files
     Boolean has_pass=true
@@ -73,7 +73,7 @@ task SamplingVariantsInPgen {
     Int max_num_variants
     Int seed=20241227
 
-    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+    String docker = "shengqh/plink_1.9_2.0:20250304"
 
     Int preemptible=1
     Int memory_gb = 40
@@ -134,7 +134,7 @@ task MergePgenFiles {
     Int memory_gb = 20
     Int cpu = 8
 
-    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+    String docker = "shengqh/plink_1.9_2.0:20250304"
   }
 
   Int disk_size = ceil((size(input_pgen_files, "GB") + size(input_pvar_files, "GB") + size(input_psam_files, "GB"))  * 3) + 20
@@ -199,7 +199,7 @@ task ExtractPgenSamples {
 
     Int memory_gb = 20
 
-    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+    String docker = "shengqh/plink_1.9_2.0:20250304"
   }
 
   Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 20
@@ -253,7 +253,7 @@ task ExtractPgenRegions {
 
     Int memory_gb = 20
 
-    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+    String docker = "shengqh/plink_1.9_2.0:20250304"
   }
 
   Int disk_size = ceil(size([input_pgen, input_psam, input_pvar], "GB")  * 2) + 20

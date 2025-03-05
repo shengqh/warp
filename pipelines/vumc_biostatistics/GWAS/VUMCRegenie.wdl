@@ -80,7 +80,7 @@ task PgenQCFilter {
     Int memory_gb = 20
     Int cpu = 8
 
-    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+    String docker = "shengqh/plink_1.9_2.0:20250304"
   }
 
   Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 20

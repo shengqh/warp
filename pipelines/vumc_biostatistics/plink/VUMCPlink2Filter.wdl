@@ -15,7 +15,7 @@ workflow VUMCPlink2Filter {
 
     String? plink2_chr_option = "--chr-set 22 no-xy"
 
-    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+    String docker = "shengqh/plink_1.9_2.0:20250304"
 
     String? project_id
     String? target_bucket
@@ -70,7 +70,7 @@ task Plink2Filter {
 
       String target_prefix
 
-      String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+      String docker = "shengqh/plink_1.9_2.0:20250304"
       Int preemptible=1
       Int memory_size=10
   }

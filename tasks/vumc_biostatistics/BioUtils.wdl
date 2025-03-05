@@ -96,7 +96,7 @@ task QCFilterPgen {
     Int cpu = 8
     Float disk_size_factor = 1.5
 
-    String docker = "shengqh/plink_1.9_2.0:20241129"
+    String docker = "shengqh/plink_1.9_2.0:20250304"
   }
 
   Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * disk_size_factor) + 20
@@ -150,7 +150,7 @@ task QCFilterAndPrunePgen {
     Int cpu = 8
     Float disk_size_factor = 2
 
-    String docker = "shengqh/plink_1.9_2.0:20241129"
+    String docker = "shengqh/plink_1.9_2.0:20250304"
   }
 
   Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * disk_size_factor) + 20
@@ -251,7 +251,7 @@ task PgenQCFilterList {
     Int memory_gb = 20
     Int cpu = 8
 
-    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+    String docker = "shengqh/plink_1.9_2.0:20250304"
   }
 
   Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")) + 5

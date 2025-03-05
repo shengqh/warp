@@ -48,7 +48,7 @@ task Plink2Filter {
 
       String target_prefix
 
-      String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+      String docker = "shengqh/plink_1.9_2.0:20250304"
   }
 
   Int disk_size = ceil(size(source_pgen, "GB") * 2) + 2

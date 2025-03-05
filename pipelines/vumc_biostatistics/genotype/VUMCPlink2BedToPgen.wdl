@@ -12,7 +12,7 @@ workflow VUMCPlink2BedToPgen {
     String? plink2_option
 
     
-    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+    String docker = "shengqh/plink_1.9_2.0:20250304"
 
     String? project_id
     String? target_bucket
@@ -60,7 +60,7 @@ task Plink2BedToPgen {
     
     String target_prefix
     
-    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+    String docker = "shengqh/plink_1.9_2.0:20250304"
     Int memory_gb = 20
   }
 

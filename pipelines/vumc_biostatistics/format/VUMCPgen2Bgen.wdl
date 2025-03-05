@@ -11,7 +11,7 @@ workflow VUMCPgen2Bgen {
     String output_prefix
     String? plink2_option
 
-    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+    String docker = "shengqh/plink_1.9_2.0:20250304"
 
     String? project_id
     String? target_bucket
@@ -54,7 +54,7 @@ task Pgen2Bgen {
 
     String output_prefix
     
-    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+    String docker = "shengqh/plink_1.9_2.0:20250304"
     Int? memory_gb_override
     Int? disk_size_override
   }

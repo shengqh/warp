@@ -20,7 +20,7 @@ workflow VUMCPlink2 {
     Array[String] suffix_list
     String target_prefix
 
-    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+    String docker = "shengqh/plink_1.9_2.0:20250304"
 
     Int? memory_size=10
   }
@@ -81,7 +81,7 @@ task Plink2 {
 
     Array[String] expected_files
 
-    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+    String docker = "shengqh/plink_1.9_2.0:20250304"
 
     Int? memory_size=10
   }
