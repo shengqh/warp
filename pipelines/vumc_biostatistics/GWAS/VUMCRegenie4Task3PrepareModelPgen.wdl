@@ -31,7 +31,7 @@ workflow VUMCRegenie4Task3PrepareModelPgen {
     String output_prefix
 
     #option of variants for model fitting
-    String step1_plink2_option="--mac 100 --geno 0.01 --maf 0.1 --max-maf 0.9 --hwe 1e-15 --snps-only --not-chr 23-27 --biallelic-only strict"
+    String step1_plink2_option="--mac 100 --geno 0.01 --maf 0.1 --max-maf 0.9 --hwe 1e-15 --snps-only --not-chr 23-27 --max-alleles 2"
     Int step1_max_variants=500000
 
     #https://www.nature.com/articles/s41588-021-00870-7
