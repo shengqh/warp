@@ -17,7 +17,7 @@ workflow VUMCReplaceICAIdWithGrid {
     input:
       input_psam = input_psam,
       id_map_file = id_map_file,
-      target_psam = replaced_sample_name
+      output_psam = replaced_sample_name
   }
 
   output {

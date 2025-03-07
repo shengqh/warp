@@ -6,7 +6,7 @@ task ReplaceICAIdWithGrid {
     File id_map_file
     Int ICA_ID_Column = 0
     Int PRIMARY_GRID_Column = 1
-    String target_psam
+    String output_psam
   }
 
   command <<<
@@ -30,7 +30,7 @@ with open("~{id_map_file}", "rt") as fin:
       id_map[ica_id] = grid
 
 with open("~{input_psam}", "rt") as fin:
-  with open("~{target_psam}", "wt") as fout:
+  with open("~{output_psam}", "wt") as fout:
     for line in fin:
       parts = line.strip().split('\t')
       if parts[1] in id_map:
@@ -52,7 +52,7 @@ python3 script.py
     memory: "2 GiB"
   }
   output {
-    File output_psam = "~{target_psam}"
+    File output_psam = "~{output_psam}"
   }
 }
 

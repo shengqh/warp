@@ -34,7 +34,7 @@ workflow VUMCPrepareGenotypeData {
       input:
         input_psam = psam_file,
         id_map_file = id_map_file,
-        target_psam = "~{chromosome}.psam"
+        output_psam = "~{chromosome}.psam"
     }
 
     call  AgdUtils.CreateCohortPsam as CreateCohortPsam {

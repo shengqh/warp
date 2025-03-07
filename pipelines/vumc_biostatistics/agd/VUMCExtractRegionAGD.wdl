@@ -34,7 +34,7 @@ workflow VUMCExtractRegionAGD {
       input:
         input_psam = psam_file,
         id_map_file = id_map_file,
-        target_psam = replaced_sample_name
+        output_psam = replaced_sample_name
     }
 
     call Plink2Utils.ExtractPgenRegions as ExtractPgenRegions {
