@@ -104,7 +104,7 @@ task MergePgenFiles {
     String docker = "shengqh/plink_1.9_2.0:20250304"
   }
 
-  Int disk_size = ceil((size(input_pgen_files, "GB") + size(input_pvar_files, "GB") + size(input_psam_files, "GB"))  * 3) + 20
+  Int disk_size = ceil((size(pgen_files, "GB") + size(pvar_files, "GB") + size(psam_files, "GB"))  * 3) + 20
 
   String target_pgen = output_prefix + ".pgen"
   String target_pvar = output_prefix + ".pvar"
@@ -116,9 +116,9 @@ task MergePgenFiles {
 
   command <<<
 
-cat ~{write_lines(input_pgen_files)} > pgen.list
-cat ~{write_lines(input_pvar_files)} > pvar.list
-cat ~{write_lines(input_psam_files)} > psam.list
+cat ~{write_lines(pgen_files)} > pgen.list
+cat ~{write_lines(pvar_files)} > pvar.list
+cat ~{write_lines(psam_files)} > psam.list
 
 paste pgen.list pvar.list psam.list > merge.list
 
