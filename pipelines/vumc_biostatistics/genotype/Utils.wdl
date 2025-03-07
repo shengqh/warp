@@ -87,13 +87,14 @@ gsutil -m ~{"-u " + project_id} ~{action} ~{source_bed} \
   }
 }
 
-# Ancestry workflow in Doug's group used this function, so just keep it here.
-# There is another copy of this function in tasks/vumc_biostatistics/Plink2Utils.wdl
+# Ancestry workflow in Doug's group used this function, so just keep it here. 
+# It would be used for ancestry workflow only.
+# There is another copy of this function in tasks/vumc_biostatistics/Plink2Utils.wdl with different parameters.
 task MergePgenFiles {
   input {
-    Array[File] input_pgen_files
-    Array[File] input_pvar_files
-    Array[File] input_psam_files
+    Array[File] pgen_files
+    Array[File] pvar_files
+    Array[File] psam_files
 
     String output_prefix
 
