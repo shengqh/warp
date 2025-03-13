@@ -1,5 +1,32 @@
 version 1.0
 
+## VUMC BGEN Indexing Workflow
+##
+## This workflow creates an index file for a BGEN format genetic data file.
+## Developed by VUMC/VANGARD team for efficient processing of population genetic data.
+## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
+## 
+## ### Workflow Purpose:
+## BGEN is a file format for storing large genetic datasets used in population genetics.
+## Creating an index (.bgi) file allows for efficient querying and access to variants in the BGEN file.
+##
+## ### Workflow Steps:
+## 1. Run the bgenix tool to create an index (.bgi) file for the input BGEN file
+## 2. Optionally copy the resulting index file to a specified GCP folder
+##
+## ### Inputs:
+## - input_bgen: Input BGEN file to be indexed
+## - reference_genome: Reference genome version (default: "GRCh38")
+## - project_id: Optional GCP project ID for file copy operations
+## - target_gcp_folder: Optional target GCP folder for the output files
+##
+## ### Outputs:
+## - bgen_index: Generated BGEN index file (.bgi)
+##
+## ### Notes:
+## - Uses bgenix which is optimized for efficient indexing of BGEN files
+## - File copy operation to GCP is optional and only executed if a target folder is provided
+
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCBgenIndex {

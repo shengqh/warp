@@ -1,26 +1,36 @@
 version 1.0
 
-# VUMCBgenHailIndex Workflow
-#
-# This workflow creates a Hail index for BGEN format files. 
-#
-# Original Author: VUMC/VANGARD
-# Modified from: Broad Institute's long-read-pipelines repository
-#
-# WORKFLOW OVERVIEW:
-# The workflow processes genetic data in BGEN format to create an index for use with Hail.
-#
-# WORKFLOW INPUTS:
-# - input_bgen: File            # BGEN format file containing genetic data
-# - input_bgen_sample: File     # Sample file accompanying the BGEN file
-# - reference_genome: String    # Reference genome (default: "GRCh38")
-# - project_id: String?         # Optional Google Cloud project ID
-# - target_gcp_folder: String?  # Optional Google Cloud storage target folder
-#
-# WORKFLOW OUTPUTS:
-# - hail_gcs_path: String       # Google Cloud Storage path to the Hail index
-# - hail_local_path: File       # Local path to the Hail index
-#
+## VUMC BGEN Hail Indexing Workflow
+##
+## This workflow creates Hail index files for a BGEN format genetic data file.
+## Developed by VUMC/VANGARD team for efficient processing of population genetic data.
+## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
+## 
+## ### Workflow Purpose:
+## BGEN is a file format for storing large genetic datasets used in population genetics.
+## Creating Hail index files allows for efficient querying and analysis using the Hail framework.
+##
+## ### Workflow Steps:
+## 1. Uses Hail to create index files for the input BGEN file
+## 2. Optionally copies the resulting index files to a specified GCP folder
+##
+## ### Inputs:
+## - input_bgen: Input BGEN file to be indexed
+## - input_bgen_sample: Sample file associated with the BGEN file
+## - reference_genome: Reference genome version (default: "GRCh38")
+## - project_id: Optional GCP project ID for file copy operations
+## - target_gcp_folder: Optional target GCP folder for the output files
+##
+## ### Outputs:
+## - hail_gcs_path: Path to the Hail index in GCS (if uploaded)
+## - hail_local_path: Local path to the Hail index file or confirmation of GCP copy
+##
+## ### Notes:
+## - Modified from Broad Institute's long-read-pipelines
+## - Uses Hail for efficient indexing and preparation for downstream analyses
+## - File copy operation to GCP is optional and only executed if a target folder is provided
+
+
 workflow VUMCBgenHailIndex {
   #modified based on 
   #https://github.com/broadinstitute/long-read-pipelines/blob/7d36a93964998f513a132b86ca9ace6c663d3327/wdl/tasks/Utility/Hail.wdl
