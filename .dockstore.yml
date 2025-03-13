@@ -392,3 +392,7 @@ workflows:
   - name: VUMCBgenIndex
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCBgenIndex.wdl
+
+  - name: VUMCBgenHailIndex
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCBgenHailIndex.wdl
