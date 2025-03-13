@@ -388,3 +388,7 @@ workflows:
   - name: VUMCCombineFiles
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCCombineFiles.wdl
+
+  - name: VUMCBgenIndex
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCBgenIndex.wdl
