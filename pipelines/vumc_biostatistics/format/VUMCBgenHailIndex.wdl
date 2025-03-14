@@ -74,11 +74,10 @@ task BgenHailIndex {
     Int memory_gb = 64
     Int preemptible = 0
     Int cpu = 4
-    Int? disk_size_override
     Int boot_disk_gb = 25
   }
 
-  Int disk_size = select_first([disk_size_override, ceil(size(input_bgen, "GB")) + 10])
+  Int disk_size = ceil(size(input_bgen, "GB")) + 20
   Int total_memory_gb = memory_gb + 2
 
   Boolean output_to_gcp = defined(target_gcp_folder)
