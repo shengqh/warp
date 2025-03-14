@@ -82,7 +82,7 @@ task BgenHailIndex {
   Int total_memory_gb = memory_gb + 2
 
   Boolean output_to_gcp = defined(target_gcp_folder)
-  String gcs_output_dir = sub("~{target_gcp_folder}", "/+$", "") + "/"
+  String gcs_output_dir = sub("~{target_gcp_folder}", "/+$", "")
   String gcs_output_path = if output_to_gcp then gcs_output_dir else ""
 
   String basename_input_bgen = basename(input_bgen)
@@ -158,7 +158,7 @@ if [[ -f "~{local_output_file}" ]]; then
 
   if [[ "~{output_to_gcp}" == "true" ]]; then
     echo "Copying MatrixTable to GCS..."
-    gsutil ~{"-u " + project_id} -m rsync -Cr ~{basename_input_bgen}.idx2 ~{gcs_output_path}
+    gsutil ~{"-u " + project_id} -m rsync -Cr ~{basename_input_bgen}.idx2 ~{gcs_output_path}/~{basename_input_bgen}.idx2
 
     res=$?
     if [[ $res -ne 0 ]]; then
