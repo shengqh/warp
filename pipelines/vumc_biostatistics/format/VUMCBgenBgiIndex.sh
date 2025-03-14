@@ -3,7 +3,7 @@ cd /nobackup/h_cqs/shengq2/biovu/demo
 
 java -Dconfig.file=/data/cqs/softwares/cqsperl/config/wdl/cromwell.local.conf \
   -jar /data/cqs/softwares/wdl/cromwell-84.jar \
-  run /nobackup/h_cqs/shengq2/program/warp/pipelines/vumc_biostatistics/format/VUMCBgenIndex.wdl \
-  -i /nobackup/h_cqs/shengq2/program/warp/pipelines/vumc_biostatistics/format/VUMCBgenIndex.inputs.json \
+  run /nobackup/h_cqs/shengq2/program/warp/pipelines/vumc_biostatistics/format/VUMCBgenBgiIndex.wdl \
+  -i /nobackup/h_cqs/shengq2/program/warp/pipelines/vumc_biostatistics/format/VUMCBgenBgiIndex.inputs.json \
   --options /data/cqs/softwares/cqsperl/config/wdl/cromwell.options.json
 

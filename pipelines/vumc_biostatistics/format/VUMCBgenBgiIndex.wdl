@@ -29,7 +29,7 @@ version 1.0
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
-workflow VUMCBgenIndex {
+workflow VUMCBgenBgiIndex {
  
   input {
     File input_bgen
@@ -40,7 +40,7 @@ workflow VUMCBgenIndex {
     String? target_gcp_folder
   }
 
-  call BgenIndex {
+  call BgenBgiIndex {
     input:
       input_bgen = input_bgen
   }
@@ -48,7 +48,7 @@ workflow VUMCBgenIndex {
   if(defined(target_gcp_folder)){
     call GcpUtils.MoveOrCopyOneFile as CopyFile {
       input:
-        source_file = BgenIndex.bgen_bgi_index,
+        source_file = BgenBgiIndex.bgen_bgi_index,
         is_move_file = false,
         project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
@@ -56,11 +56,11 @@ workflow VUMCBgenIndex {
   }
 
   output {
-    File bgen_bgi_index = select_first([CopyFile.output_file, BgenIndex.bgen_bgi_index])
+    File bgen_bgi_index = select_first([CopyFile.output_file, BgenBgiIndex.bgen_bgi_index])
   }
 }
 
-task BgenIndex {
+task BgenBgiIndex {
   input {
     File input_bgen
 
