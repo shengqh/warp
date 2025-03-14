@@ -52,15 +52,16 @@ task UpdateFileInDataTable {
     String target_bucket
   }
 
-  String target_url = "${target_bucket}/${basename(source_file)}"
+  String gcs_output_dir = sub(target_bucket, "/+$", "")
+
+  String target_url = "${gcs_output_dir}/${basename(source_file)}"
 
   command <<<
 
 check_file(){
   set +e
 
-  SOURCE_FILE=$1
-  TARGET_FILE=$2
+  TARGET_FILE=$1
 
   echo "Checking if target file exists: $TARGET_FILE"
 
@@ -78,7 +79,7 @@ check_file(){
 
 set -e
 
-check_file ~{source_file} ~{target_url}
+check_file ~{target_url}
 
 >>>
 
