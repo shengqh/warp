@@ -21,7 +21,7 @@ version 1.0
 ## - target_gcp_folder: Optional target GCP folder for the output files
 ##
 ## ### Outputs:
-## - bgen_index: Generated BGEN index file (.bgi)
+## - bgen_bgi_index: Generated BGEN index file (.bgi)
 ##
 ## ### Notes:
 ## - Uses bgenix which is optimized for efficient indexing of BGEN files
@@ -48,7 +48,7 @@ workflow VUMCBgenIndex {
   if(defined(target_gcp_folder)){
     call GcpUtils.MoveOrCopyOneFile as CopyFile {
       input:
-        source_file = BgenIndex.bgen_index,
+        source_file = BgenIndex.bgen_bgi_index,
         is_move_file = false,
         project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
@@ -56,7 +56,7 @@ workflow VUMCBgenIndex {
   }
 
   output {
-    File bgen_index = select_first([CopyFile.output_file, BgenIndex.bgen_index])
+    File bgen_bgi_index = select_first([CopyFile.output_file, BgenIndex.bgen_bgi_index])
   }
 }
 
@@ -96,6 +96,6 @@ bgenix -index -g ~{basename_bgen}
     bootDiskSizeGb: boot_disk_gb
   }
   output {
-    File bgen_index = basename_bgen_bgi
+    File bgen_bgi_index = basename_bgen_bgi
   }
 }

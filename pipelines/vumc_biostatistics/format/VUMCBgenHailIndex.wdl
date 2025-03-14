@@ -22,8 +22,8 @@ version 1.0
 ## - target_gcp_folder: Optional target GCP folder for the output files
 ##
 ## ### Outputs:
-## - hail_gcs_path: Path to the Hail index in GCS (if uploaded)
-## - hail_local_path: Local path to the Hail index file or confirmation of GCP copy
+## - bgen_hail_index_gcp: Path to the Hail index in GCS (if uploaded)
+## - bgen_hail_index_local: Local path to the Hail index file or confirmation of GCP copy
 ##
 ## ### Notes:
 ## - Modified from Broad Institute's long-read-pipelines
@@ -55,8 +55,8 @@ workflow VUMCBgenHailIndex {
   }
 
   output {
-    String hail_gcs_path = BgenHailIndex.hail_gcs_path
-    File hail_local_path = BgenHailIndex.hail_local_path
+    String bgen_hail_index_gcp = BgenHailIndex.bgen_hail_index_gcp
+    File bgen_hail_index_local = BgenHailIndex.bgen_hail_index_local
   }
 }
 
@@ -190,7 +190,7 @@ fi
     bootDiskSizeGb: boot_disk_gb
   }
   output {
-    String hail_gcs_path = if output_to_gcp then "~{gcs_output_path}~{basename_input_bgen}.idx2" else ""
-    File hail_local_path = if output_to_gcp then "hail_copied_to_gcp.txt" else "~{basename_input_bgen}.idx2.tar.gz"
+    String bgen_hail_index_gcp = if output_to_gcp then "~{gcs_output_path}~{basename_input_bgen}.idx2" else ""
+    File bgen_hail_index_local = if output_to_gcp then "hail_copied_to_gcp.txt" else "~{basename_input_bgen}.idx2.tar.gz"
   }
 }
