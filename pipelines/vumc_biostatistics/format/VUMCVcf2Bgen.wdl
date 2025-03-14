@@ -49,7 +49,7 @@ workflow VUMCVcf2Bgen {
   }
 
   if(defined(target_gcp_folder)){
-    call GcpUtils.MoveOrCopyTwoFile as CopyFile {
+    call GcpUtils.MoveOrCopyTwoFiles as CopyFile {
       input:
         source_file1 = Vcf2Bgen.output_bgen,
         source_file2 = Vcf2Bgen.output_sample,
