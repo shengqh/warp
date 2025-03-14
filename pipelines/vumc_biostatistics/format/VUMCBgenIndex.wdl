@@ -71,7 +71,7 @@ task BgenIndex {
     Int boot_disk_gb = 25
   }
 
-  Int disk_size = ceil(size(input_bgen, "GB")) + 20
+  Int disk_size = ceil(size(input_bgen, "GB")) + boot_disk_gb + 20
   Int total_memory_gb = memory_gb + 2
 
   String basename_bgen = basename(input_bgen)

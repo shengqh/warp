@@ -77,7 +77,7 @@ task BgenHailIndex {
     Int boot_disk_gb = 25
   }
 
-  Int disk_size = ceil(size(input_bgen, "GB")) + 20
+  Int disk_size = ceil(size(input_bgen, "GB")) + boot_disk_gb + 20
   Int total_memory_gb = memory_gb + 2
 
   Boolean output_to_gcp = defined(target_gcp_folder)
