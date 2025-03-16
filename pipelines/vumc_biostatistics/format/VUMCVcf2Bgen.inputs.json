@@ -1,6 +1,7 @@
 {
-  "VUMCVcf2Bgen.input_vcf": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/postproc-vcf/dragen.vcf.gz",
-  "VUMCVcf2Bgen.input_vcf_index": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/postproc-vcf/dragen.vcf.gz.tbi",
-  "VUMCVcf2Bgen.output_prefix": "agd163k_chrM"
+  "VUMCVcf2Bgen.input_vcf": "/nobackup/h_cqs/shengq2/biovu/agd163k/primary_pass_vcf/agd163k_chrM.primary_pass.vcf.gz",
+  "VUMCVcf2Bgen.input_vcf_index": "/nobackup/h_cqs/shengq2/biovu/agd163k/primary_pass_vcf/agd163k_chrM.primary_pass.vcf.gz.tbi",
+  "VUMCVcf2Bgen.input_psam": "/nobackup/h_cqs/shengq2/biovu/agd163k/primary-pass-pgen/agd163k_chrM.primary_pass.psam",
+  "VUMCVcf2Bgen.output_prefix": "agd163k_chrM.primary_pass"
 }
 

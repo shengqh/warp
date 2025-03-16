@@ -17,6 +17,7 @@ version 1.0
 ## ### Inputs:
 ## - input_vcf: Input VCF file to be converted
 ## - input_vcf_index: Index file for the input VCF
+## - input_psam: Optional PSAM file for additional sample information
 ## - output_prefix: Prefix for output filenames
 ## - project_id: Optional GCP project ID for file copy operations
 ## - target_gcp_folder: Optional target GCP folder for the output files
@@ -35,6 +36,7 @@ workflow VUMCVcf2Bgen {
   input {
     File input_vcf
     File input_vcf_index
+    File? input_psam
     String output_prefix
 
     String? project_id
@@ -45,6 +47,7 @@ workflow VUMCVcf2Bgen {
     input:
       input_vcf = input_vcf,
       input_vcf_index = input_vcf_index,
+      input_psam = input_psam,
       output_prefix = output_prefix,
   }
 
@@ -69,6 +72,7 @@ task Vcf2Bgen {
   input {
     File input_vcf
     File input_vcf_index
+    File? input_psam
     String output_prefix
     Int memory_gb = 64
     Int cpu = 2
@@ -83,7 +87,7 @@ task Vcf2Bgen {
 set -euo pipefail
 
 # Convert VCF to BGEN using plink2
-plink2 --vcf "~{input_vcf}" \
+plink2 --vcf "~{input_vcf}" ~{"--psam " + input_psam} \
   --out "~{output_prefix}" \
   --export bgen-1.2 bits=8 ref-first \
   --threads ~{cpu} 
