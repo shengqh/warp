@@ -87,7 +87,8 @@ task Vcf2Bgen {
 set -euo pipefail
 
 # Convert VCF to BGEN using plink2
-plink2 --vcf "~{input_vcf}" ~{"--psam " + input_psam} \
+# If input_psam is provided, it might be chrX related, --split-par is required.
+plink2 --vcf "~{input_vcf}" ~{"--split-par --psam " + input_psam} \
   --out "~{output_prefix}" \
   --export bgen-1.2 bits=8 ref-first \
   --threads ~{cpu} 
