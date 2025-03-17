@@ -91,7 +91,7 @@ task VcfInfo {
 
   runtime {
     docker: docker
-    preemptible: 1
+    preemptible: 3
     disks: "local-disk " + disk_size + " HDD"
     memory: "2 GiB"
   }
