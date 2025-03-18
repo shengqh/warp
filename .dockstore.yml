@@ -404,3 +404,7 @@ workflows:
   - name: VUMCUpdateFileInDataTable
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCUpdateFileInDataTable.wdl
+
+  - name: VUMCVcf2SitesOnly
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCVcf2SitesOnly.wdl

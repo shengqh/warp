@@ -1,0 +1,6 @@
+{
+  "VUMCVcf2SitesOnly.input_vcf": "/nobackup/h_cqs/shengq2/biovu/agd163k/primary-pass-vcf/agd163k_chrM.primary_pass.vcf.gz",
+  "VUMCVcf2SitesOnly.input_vcf_index": "/nobackup/h_cqs/shengq2/biovu/agd163k/primary-pass-vcf/agd163k_chrM.primary_pass.vcf.gz.tbi",
+  "VUMCVcf2SitesOnly.output_prefix": "agd163k_chrM"
+}
+
