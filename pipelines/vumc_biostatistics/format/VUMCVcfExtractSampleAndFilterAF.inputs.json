@@ -1,0 +1,9 @@
+{
+  "VUMCVcfExtractSampleAndFilterAF.target_prefix": "agd35k_chrM",
+  "VUMCVcfExtractSampleAndFilterAF.include_samples": "/nobackup/h_cqs/shengq2/biovu/AGD5000/data/dragen5k_samples.txt",
+  "VUMCVcfExtractSampleAndFilterAF.input_vcf": "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf/chrM.vcf.gz",
+  "VUMCVcfExtractSampleAndFilterAF.input_vcf_index": "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf/chrM.vcf.gz.tbi",
+  "VUMCVcfExtractSampleAndFilterAF.ref_fasta": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.fasta",
+  "VUMCVcfExtractSampleAndFilterAF.target_suffix": ".agd5k.vcf.gz"
+}
+
