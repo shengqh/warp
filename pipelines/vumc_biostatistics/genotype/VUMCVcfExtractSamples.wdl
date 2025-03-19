@@ -60,7 +60,7 @@ task BcftoolsExtractSamples {
     String target_suffix
     
     String docker = "shengqh/hail_gcp:20240213"
-    Float disk_factor = 3.0
+    Float disk_factor = 2.2
     Int preemptible = 1
     Int cpu = 8
   }
