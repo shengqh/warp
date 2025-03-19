@@ -133,7 +133,7 @@ if [[ ! -s keep.id.txt ]]; then
 fi
 
 echo "bcftools annotate/biallelic/fill-tags/filter/multiallelic ..."
-bcftools annotate -x QUAL,FILTER,INFO,^FORMAT/GT ~{input_vcf} | bcftools view ~{bcftools_view_option} -S keep.id.txt | bcftools norm -f ~{ref_fasta} -m - | bcftools +fill-tags - -- -t AF | bcftools view -i 'INFO/AF > 0' | bcftools norm -m + | bcftools annotate -x INFO -o ~{target_vcf}
+bcftools annotate -x QUAL,FILTER,INFO,^FORMAT/GT ~{input_vcf} | bcftools view ~{bcftools_view_option} -S keep.id.txt | bcftools norm -f ~{ref_fasta} -m - | bcftools +fill-tags - -- -t AF | bcftools view -i 'INFO/AF > 0' | bcftools norm -f ~{ref_fasta} -m + | bcftools annotate -x INFO -o ~{target_vcf}
 
 echo "build index"
 bcftools index -t --threads ~{cpu} ~{target_vcf}
