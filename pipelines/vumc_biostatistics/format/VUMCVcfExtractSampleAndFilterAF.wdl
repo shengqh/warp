@@ -11,8 +11,8 @@ version 1.0
 ## efficiently extracts the samples and filters the variants to produce a cleaner, more focused VCF.
 ##
 ## ### Workflow Steps:
-## 1. Use bcftools to empty INFO, QUAL, FILTER fields, and keep GT only for the input VCF
-## 2. Extract specified samples 
+## 1. Use bcftools to extract specified samples 
+## 2. Empty INFO, QUAL, FILTER fields, and keep GT only
 ## 3. Normalize variants (multiallelic to biallelic) and calculate allele frequencies using reference genome
 ## 4. Filter variants to keep only those with non-zero allele frequency
 ## 5. Convert from biallelic to multiallelic 
@@ -133,7 +133,7 @@ if [[ ! -s keep.id.txt ]]; then
 fi
 
 echo "bcftools annotate/biallelic/fill-tags/filter/multiallelic ..."
-bcftools annotate -x QUAL,FILTER,INFO,^FORMAT/GT ~{input_vcf} | bcftools view ~{bcftools_view_option} -S keep.id.txt | bcftools norm -f ~{ref_fasta} -m - | bcftools +fill-tags - -- -t AF | bcftools view -i 'INFO/AF > 0' | bcftools norm -f ~{ref_fasta} -m + | bcftools annotate -x INFO -o ~{target_vcf}
+bcftools view ~{bcftools_view_option} -S keep.id.txt ~{input_vcf} | bcftools annotate -x QUAL,FILTER,INFO,^FORMAT/GT | bcftools norm -f ~{ref_fasta} -m - | bcftools +fill-tags - -- -t AF | bcftools view -i 'INFO/AF > 0' | bcftools norm -f ~{ref_fasta} -m + | bcftools annotate -x INFO -o ~{target_vcf}
 
 echo "build index"
 bcftools index -t --threads ~{cpu} ~{target_vcf}
