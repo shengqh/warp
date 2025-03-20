@@ -412,3 +412,7 @@ workflows:
   - name: VUMCVcfExtractSampleAndFilterAF
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCVcfExtractSampleAndFilterAF.wdl
+
+  - name: VUMCExomeGermlineSingleSampleFromFastqLessQC
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wes/VUMCExomeGermlineSingleSampleFromFastqLessQC.wdl

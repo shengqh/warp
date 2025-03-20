@@ -33,7 +33,7 @@ version 1.0
 ## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
 ## licensing information pertaining to the included programs.
 
-import "../../../../../../tasks/vumc_biostatistics/VUMCUnmappedBamToAlignedBamNoBamQC.wdl" as ToBam
+import "../../../../../../tasks/vumc_biostatistics/VUMCUnmappedBamToAlignedBamLessQC.wdl" as ToBam
 import "../../../../../../tasks/broad/AggregatedBamQC.wdl" as AggregatedQC
 import "../../../../../../tasks/broad/Qc.wdl" as QC
 import "../../../../../../tasks/broad/BamProcessing.wdl" as Processing
@@ -63,7 +63,6 @@ workflow VUMCExomeGermlineSingleSampleNoQC {
     String bait_set_name
 
     Boolean skip_reblocking = false
-    Boolean provide_bam_output = false
 
     String cloud_provider
   }
@@ -99,7 +98,7 @@ workflow VUMCExomeGermlineSingleSampleNoQC {
         preemptible_tries = papi_settings.preemptible_tries
   }
 
-  call ToBam.VUMCUnmappedBamToAlignedBamNoBamQC as UnmappedBamToAlignedBam {
+  call ToBam.VUMCUnmappedBamToAlignedBamLessQC as UnmappedBamToAlignedBam {
     input:
       sample_and_unmapped_bams = sample_and_unmapped_bams,
       references = references,
@@ -167,11 +166,6 @@ workflow VUMCExomeGermlineSingleSampleNoQC {
       preemptible_tries = papi_settings.agg_preemptible_tries
   }
 
-  if (provide_bam_output) {
-    File provided_output_bam = UnmappedBamToAlignedBam.output_bam
-    File provided_output_bam_index = UnmappedBamToAlignedBam.output_bam_index
-  }
-
   # Outputs that will be retained when execution is complete
   output {
     Array[File] quality_yield_metrics = UnmappedBamToAlignedBam.quality_yield_metrics
@@ -198,9 +192,6 @@ workflow VUMCExomeGermlineSingleSampleNoQC {
     File gvcf_detail_metrics = BamToGvcf.vcf_detail_metrics
 
     File hybrid_selection_metrics = CollectHsMetrics.metrics
-
-    File? output_bam = provided_output_bam
-    File? output_bam_index = provided_output_bam_index
 
     File output_cram = BamToCram.output_cram
     File output_cram_index = BamToCram.output_cram_index
