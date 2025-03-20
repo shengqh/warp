@@ -125,13 +125,16 @@ task BcftoolsExtractSamplesAndGTOnly {
     Float disk_factor = 2
     Int memory_gb = 20
     Int preemptible = 1
-    Int cpu = 4
+    Int cpu = 8
   }
 
   Int disk_size = ceil(size(input_vcf, "GB") * disk_factor) + 10
 
   String target_vcf = target_prefix + target_suffix
   String target_vcf_index = target_vcf + ".tbi"
+
+  Int first_cpu = ceil((cpu - 2) / 2)
+  Int second_cpu = cpu - 1 - first_cpu
 
   command <<<
 
@@ -148,7 +151,7 @@ if [[ ! -s keep.id.txt ]]; then
 fi
 
 echo "bcftools extract/annotate ..."
-bcftools view ~{bcftools_view_option} -S keep.id.txt ~{input_vcf} | bcftools annotate --threads ~{cpu-2} -x QUAL,FILTER,INFO,^FORMAT/GT -o ~{target_vcf}
+bcftools view ~{bcftools_view_option} --threads ~{first_cpu} -S keep.id.txt ~{input_vcf} | bcftools annotate --threads ~{second_cpu} -x QUAL,FILTER,INFO,^FORMAT/GT -o ~{target_vcf}
 
 echo "build index"
 bcftools index -t --threads ~{cpu} ~{target_vcf}
