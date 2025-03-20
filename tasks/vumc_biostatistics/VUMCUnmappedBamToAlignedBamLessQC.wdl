@@ -25,7 +25,7 @@ import "../../tasks/broad/Utilities.wdl" as Utils
 import "../../structs/dna_seq/DNASeqStructs.wdl" as Structs
 
 # WORKFLOW DEFINITION
-workflow VUMCUnmappedBamToAlignedBamNoBamQC {
+workflow VUMCUnmappedBamToAlignedBamLessQC {
 
   input {
     SampleAndUnmappedBams sample_and_unmapped_bams
