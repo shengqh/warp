@@ -16,7 +16,7 @@ version 1.0
 ## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
 ## licensing information pertaining to the included programs.
 
-import "../../../../../../tasks/vumc_biostatistics/VUMCUnmappedBamToAlignedBamNoBamQC.wdl" as ToBam
+import "../../../../../../tasks/vumc_biostatistics/VUMCUnmappedBamToAlignedBamLessQC.wdl" as ToBam
 import "../../../../../../tasks/broad/AggregatedBamQC.wdl" as AggregatedQC
 import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
 
@@ -66,7 +66,7 @@ workflow VUMCUnmappedBamToAlignedCramNoBamQC {
   String cross_check_fingerprints_by = "READGROUP"
   String recalibrated_bam_basename = sample_and_unmapped_bams.base_file_name + ".aligned.duplicates_marked.recalibrated"
 
-  call ToBam.VUMCUnmappedBamToAlignedBamNoBamQC as UnmappedBamToAlignedBam {
+  call ToBam.VUMCUnmappedBamToAlignedBamLessQC as UnmappedBamToAlignedBam {
     input:
       sample_and_unmapped_bams    = sample_and_unmapped_bams,
       references                  = references,
