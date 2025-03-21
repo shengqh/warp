@@ -1,0 +1,10 @@
+{
+  "VUMCBcftools.input_vcf": "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf/chrM.vcf.gz",
+  "VUMCBcftools.input_vcf_index": "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf/chrM.vcf.gz.tbi",
+  "VUMCBcftools.bcftools_option": "view",
+  "VUMCBcftools.input_file1_arg": "-S",
+  "VUMCBcftools.input_file1": "/nobackup/h_cqs/shengq2/biovu/AGD5000/data/dragen5k_samples.txt",
+  "VUMCBcftools.target_prefix": "agd35k_chrM",
+  "VUMCBcftools.target_suffix": ".agd5k.vcf.gz"
+}
+

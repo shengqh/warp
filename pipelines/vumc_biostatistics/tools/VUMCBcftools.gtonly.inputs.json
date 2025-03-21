@@ -1,0 +1,9 @@
+{
+  "VUMCBcftools.input_vcf": "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf/chrM.vcf.gz",
+  "VUMCBcftools.input_vcf_index": "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf/chrM.vcf.gz.tbi",
+  "VUMCBcftools.bcftools_option": "annotate -x QUAL,FILTER,INFO,^FORMAT/GT",
+  "VUMCBcftools.target_prefix": "agd35k_chrM",
+  "VUMCBcftools.target_suffix": ".gtonly.vcf.gz"
+
+}
+
