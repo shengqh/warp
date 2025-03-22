@@ -83,10 +83,10 @@ task VcfInfo {
     bcftools query -l ~{input_vcf} > ~{output_prefix}.samples.txt
     
     # Count samples
-    wc -l ~{output_prefix}.samples.txt | cut -d ' ' -f 1 > num_samples.txt
+    cat ~{output_prefix}.samples.txt | wc -l > num_samples.txt
 
     # Count variants
-    bcftools view -H ~{input_vcf} | wc -l | cut -d ' ' -f 1 > num_variants.txt
+    bcftools index -n ~{input_vcf} > num_variants.txt
   >>>
 
   runtime {
