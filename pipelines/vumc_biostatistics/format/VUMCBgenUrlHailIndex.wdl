@@ -11,25 +11,20 @@ version 1.0
 ## Creating Hail index files allows for efficient querying and analysis using the Hail framework.
 ##
 ## ### Workflow Steps:
-## 1. Uses Hail to create index files for the input BGEN file
-## 2. Optionally copies the resulting index files to a specified GCP folder
+## 1. Uses Hail to create index files for the input BGEN file (gcp url)
 ##
 ## ### Inputs:
 ## - input_bgen: Input BGEN file to be indexed (gcp url)
 ## - input_bgen_sample: Sample file associated with the BGEN file (gcp url)
 ## - reference_genome: Reference genome version (default: "GRCh38")
 ## - project_id: Optional GCP project ID for file copy operations
-## - target_gcp_folder: Optional target GCP folder for the output files
 ##
 ## ### Outputs:
-## - bgen_hail_index_gcp: Path to the Hail index in GCS (if uploaded)
-## - bgen_hail_index_local: Local path to the Hail index file or confirmation of GCP copy
+## - bgen_hail_index: Path to the Hail index in GCS
 ##
 ## ### Notes:
 ## - Modified from Broad Institute's long-read-pipelines
 ## - Uses Hail for efficient indexing and preparation for downstream analyses
-## - File copy operation to GCP is optional and only executed if a target folder is provided
-
 
 workflow VUMCBgenUrlHailIndex {
   #modified based on 
@@ -41,20 +36,17 @@ workflow VUMCBgenUrlHailIndex {
     String reference_genome = "GRCh38"
 
     String project_id
-    String? target_gcp_folder
   }
 
   call BgenHailIndex {
     input:
       input_bgen = input_bgen,
       reference_genome = reference_genome,
-      project_id = project_id,
-      target_gcp_folder = target_gcp_folder
+      project_id = project_id
   }
 
   output {
     String bgen_hail_index_gcp = BgenHailIndex.bgen_hail_index_gcp
-    File bgen_hail_index_local = BgenHailIndex.bgen_hail_index_local
   }
 }
 
@@ -65,7 +57,6 @@ task BgenHailIndex {
     String reference_genome
 
     String project_id
-    String? target_gcp_folder
 
     String docker = "shengqh/hail_gcp:20240211"
     Int memory_gb = 20
@@ -76,12 +67,7 @@ task BgenHailIndex {
 
   Int total_memory_gb = memory_gb + 2
 
-  Boolean output_to_gcp = defined(target_gcp_folder)
-  String gcs_output_dir = sub("~{target_gcp_folder}", "/+$", "")
-  String gcs_output_path = if output_to_gcp then gcs_output_dir else ""
-
-  String basename_input_bgen = basename(input_bgen)
-  String local_output_file = "~{basename_input_bgen}.idx2/metadata.json.gz"
+  String meta_output_file = "~{input_bgen}.idx2/metadata.json.gz"
 
   command <<<
 
@@ -91,6 +77,7 @@ export PYSPARK_SUBMIT_ARGS="--driver-java-options '-XX:hashCode=0' --conf 'spark
 mkdir -p tmp
 
 cat <<CODE > bgen_hail_index.py
+
 import logging
 import hail as hl
 
@@ -163,36 +150,19 @@ hl.index_bgen("~{input_bgen}",
                                 'MT': 'chrM',
                                 'PAR1': 'chrX',
                                 'PAR2': 'chrX'})
+
 CODE
 
 set -o pipefail
 
 python3 bgen_hail_index.py
 
-if [[ -f "~{local_output_file}" ]]; then
-  echo "Writing completed successfully."
-
-  if [[ "~{output_to_gcp}" == "true" ]]; then
-    echo "Copying MatrixTable to GCS..."
-    gsutil ~{"-u " + project_id} -m rsync -Cr ~{basename_input_bgen}.idx2 ~{gcs_output_path}/~{basename_input_bgen}.idx2
-
-    res=$?
-    if [[ $res -ne 0 ]]; then
-      echo "Copying to GCS failed."
-      exit $res
-    fi
-
-    echo "Copying to GCS succeed."
-    touch hail_copied_to_gcp.txt
+if gsutil -u ~{project_id} stat ~{meta_output_file} 2>/dev/null; then
+    echo "Writing index completed successfully."
     exit 0
-  else
-    echo "Compressing hail matrix index ..."
-    tar czf ~{basename_input_bgen}.idx2.tar.gz ~{basename_input_bgen}.idx2
-  fi
-
 else
-  echo "Writing failed."
-  exit 1
+    echo "Writing index failed."
+    exit 1
 fi
 
 >>>
@@ -205,7 +175,6 @@ fi
     memory: "~{total_memory_gb} GiB"
   }
   output {
-    String bgen_hail_index_gcp = if output_to_gcp then "~{gcs_output_path}~{basename_input_bgen}.idx2" else ""
-    File bgen_hail_index_local = if output_to_gcp then "hail_copied_to_gcp.txt" else "~{basename_input_bgen}.idx2.tar.gz"
+    String bgen_hail_index_gcp = "~{input_bgen}.idx2"
   }
 }
