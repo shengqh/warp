@@ -15,8 +15,8 @@ version 1.0
 ## 2. Optionally copies the resulting index files to a specified GCP folder
 ##
 ## ### Inputs:
-## - input_bgen: Input BGEN file to be indexed
-## - input_bgen_sample: Sample file associated with the BGEN file
+## - input_bgen: Input BGEN file to be indexed (gcp url)
+## - input_bgen_sample: Sample file associated with the BGEN file (gcp url)
 ## - reference_genome: Reference genome version (default: "GRCh38")
 ## - project_id: Optional GCP project ID for file copy operations
 ## - target_gcp_folder: Optional target GCP folder for the output files
@@ -37,18 +37,16 @@ workflow VUMCBgenUrlHailIndex {
  
   input {
     String input_bgen
-    String input_bgen_sample
 
     String reference_genome = "GRCh38"
 
-    String? project_id
+    String project_id
     String? target_gcp_folder
   }
 
   call BgenHailIndex {
     input:
       input_bgen = input_bgen,
-      input_bgen_sample = input_bgen_sample,
       reference_genome = reference_genome,
       project_id = project_id,
       target_gcp_folder = target_gcp_folder
@@ -63,11 +61,10 @@ workflow VUMCBgenUrlHailIndex {
 task BgenHailIndex {
   input {
     String input_bgen
-    String input_bgen_sample
 
     String reference_genome
 
-    String? project_id
+    String project_id
     String? target_gcp_folder
 
     String docker = "shengqh/hail_gcp:20240211"
@@ -101,6 +98,26 @@ logger = logging.getLogger('v2h')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)-8s - %(message)s')
 
 logger.info("Calling hl.init ...")
+
+def parse_gcs_url(gcs_url):
+    if not gcs_url.startswith('gs://'):
+        raise ValueError("URL must start with 'gs://'")
+
+    # Remove the 'gs://' prefix
+    gcs_url = gcs_url[5:]
+
+    # Split the remaining URL into bucket name and object key
+    parts = gcs_url.split('/', 1)
+    if len(parts) != 2:
+        raise ValueError("Invalid GCS URL format")
+
+    bucket_name = parts[0]
+
+    return bucket_name
+
+bucket_name = parse_gcs_url("~{input_bgen}")
+print(f"hail_bucket_name={bucket_name}")
+
 hl.init(tmp_dir='./tmp',
         master='local[*]',  # Use all available cores
         min_block_size=128,  # Minimum block size in MB
@@ -109,8 +126,12 @@ hl.init(tmp_dir='./tmp',
             'spark.driver.memory': '~{memory_gb}g',
             'spark.executor.memory': '~{memory_gb}g',
             'spark.network.timeout': '800s',
-            'spark.executor.heartbeatInterval': '400s'
-        })
+            'spark.executor.heartbeatInterval': '400s',
+            'spark.hadoop.fs.gs.requester.pays.mode': 'CUSTOM',
+            'spark.hadoop.fs.gs.requester.pays.buckets': bucket_name,
+            'spark.hadoop.fs.gs.requester.pays.project.id': "~{project_id}"
+        }, 
+        idempotent=True)
 
 logger.info("Index bgen file ...")
 hl.index_bgen("~{input_bgen}", 
