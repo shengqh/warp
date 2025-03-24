@@ -420,3 +420,7 @@ workflows:
   - name: VUMCBcftools
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCBcftools.wdl
+
+  - name: VUMCBgenUrlHailIndex
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCBgenUrlHailIndex.wdl
