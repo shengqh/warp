@@ -139,7 +139,7 @@ hl.index_bgen("~{input_bgen}",
                                 '22': 'chr22',
                                 'X': 'chrX',
                                 'Y': 'chrY',
-                                'MT': 'chrM'，
+                                'MT': 'chrM',
                                 'PAR1': 'chrX',
                                 'PAR2': 'chrX'})
 CODE
