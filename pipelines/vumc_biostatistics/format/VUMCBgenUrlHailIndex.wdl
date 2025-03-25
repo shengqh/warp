@@ -14,8 +14,7 @@ version 1.0
 ## 1. Uses Hail to create index files for the input BGEN file (gcp url)
 ##
 ## ### Inputs:
-## - input_bgen: Input BGEN file to be indexed (gcp url)
-## - input_bgen_sample: Sample file associated with the BGEN file (gcp url)
+## - input_bgen: Input BGEN file to be indexed (gcp url). The folder containing the BGEN file should have write permissions for the user.
 ## - reference_genome: Reference genome version (default: "GRCh38")
 ## - project_id: Optional GCP project ID for file copy operations
 ##
