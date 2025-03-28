@@ -7,39 +7,39 @@ workflow VUMCMoveSingleSampleWESResultLessQC {
     String target_bucket
     String? project_id
 
-    Array[File] quality_yield_metrics
+    Array[String] quality_yield_metrics
 
-    File read_group_alignment_summary_metrics
+    String read_group_alignment_summary_metrics
 
-    File calculate_read_group_checksum_md5
+    String calculate_read_group_checksum_md5
 
-    File agg_alignment_summary_metrics
-    File agg_bait_bias_detail_metrics
-    File agg_bait_bias_summary_metrics
-    File agg_insert_size_histogram_pdf
-    File agg_insert_size_metrics
-    File agg_pre_adapter_detail_metrics
-    File agg_pre_adapter_summary_metrics
-    File agg_quality_distribution_pdf 
-    File agg_quality_distribution_metrics 
-    File agg_error_summary_metrics 
+    String agg_alignment_summary_metrics
+    String agg_bait_bias_detail_metrics
+    String agg_bait_bias_summary_metrics
+    String agg_insert_size_histogram_pdf
+    String agg_insert_size_metrics
+    String agg_pre_adapter_detail_metrics
+    String agg_pre_adapter_summary_metrics
+    String agg_quality_distribution_pdf 
+    String agg_quality_distribution_metrics 
+    String agg_error_summary_metrics 
 
-    File duplicate_metrics 
-    File? output_bqsr_reports 
+    String duplicate_metrics 
+    String? output_bqsr_reports 
 
-    File gvcf_summary_metrics 
-    File gvcf_detail_metrics 
+    String gvcf_summary_metrics 
+    String gvcf_detail_metrics 
 
-    File hybrid_selection_metrics 
+    String hybrid_selection_metrics 
 
-    File output_cram 
-    File output_cram_index 
-    File output_cram_md5 
+    String output_cram 
+    String output_cram_index 
+    String output_cram_md5 
 
-    File validate_cram_file_report 
+    String validate_cram_file_report 
 
-    File output_vcf 
-    File output_vcf_index 
+    String output_vcf 
+    String output_vcf_index 
   }
 
   String gcs_output_dir = sub(target_bucket, "/+$", "")
@@ -197,10 +197,10 @@ task MoveResult {
     String output_cram_index
     String output_cram_md5
 
-    File validate_cram_file_report
+    String validate_cram_file_report
 
-    File output_vcf
-    File output_vcf_index
+    String output_vcf
+    String output_vcf_index
   }
 
   command <<<
