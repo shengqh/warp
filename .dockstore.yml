@@ -417,6 +417,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wes/VUMCExomeGermlineSingleSampleFromFastqLessQC.wdl
 
+  - name: VUMCMoveSingleSampleWESResultLessQC
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wes/VUMCMoveSingleSampleWESResultLessQC.wdl
+
   - name: VUMCBcftools
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCBcftools.wdl
