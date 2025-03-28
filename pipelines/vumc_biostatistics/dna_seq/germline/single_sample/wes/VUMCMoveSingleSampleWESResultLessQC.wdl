@@ -24,9 +24,6 @@ workflow VUMCMoveSingleSampleWESResultLessQC {
     File agg_quality_distribution_metrics 
     File agg_error_summary_metrics 
 
-    File? fingerprint_summary_metrics 
-    File? fingerprint_detail_metrics 
-
     File duplicate_metrics 
     File? output_bqsr_reports 
 
@@ -67,12 +64,6 @@ workflow VUMCMoveSingleSampleWESResultLessQC {
   String moved_agg_quality_distribution_pdf = "~{target_folder}/~{basename(agg_quality_distribution_pdf)}"
   String moved_agg_quality_distribution_metrics = "~{target_folder}/~{basename(agg_quality_distribution_metrics)}"
   String moved_agg_error_summary_metrics = "~{target_folder}/~{basename(agg_error_summary_metrics)}"
-
-  String old_fingerprint_summary_metrics = "~{fingerprint_summary_metrics}"
-  String moved_fingerprint_summary_metrics = if old_fingerprint_summary_metrics == "" then "" else "~{target_folder}/~{basename(old_fingerprint_summary_metrics)}"
-
-  String old_fingerprint_detail_metrics = "~{fingerprint_detail_metrics}"
-  String moved_fingerprint_detail_metrics = if old_fingerprint_detail_metrics == "" then "" else "~{target_folder}/~{basename(old_fingerprint_detail_metrics)}"
 
   String moved_duplicate_metrics = "~{target_folder}/~{basename(duplicate_metrics)}"
 
@@ -115,9 +106,6 @@ workflow VUMCMoveSingleSampleWESResultLessQC {
       agg_quality_distribution_metrics = agg_quality_distribution_metrics,
       agg_error_summary_metrics = agg_error_summary_metrics,
 
-      fingerprint_summary_metrics = fingerprint_summary_metrics,
-      fingerprint_detail_metrics = fingerprint_detail_metrics,
-
       duplicate_metrics = duplicate_metrics,
       output_bqsr_reports = output_bqsr_reports,
 
@@ -153,9 +141,6 @@ workflow VUMCMoveSingleSampleWESResultLessQC {
     String target_agg_quality_distribution_pdf = moved_agg_quality_distribution_pdf
     String target_agg_quality_distribution_metrics = moved_agg_quality_distribution_metrics
     String target_agg_error_summary_metrics = moved_agg_error_summary_metrics
-
-    String target_fingerprint_summary_metrics = moved_fingerprint_summary_metrics
-    String target_fingerprint_detail_metrics = moved_fingerprint_detail_metrics
 
     String target_duplicate_metrics = moved_duplicate_metrics
     String target_output_bqsr_reports = moved_output_bqsr_reports
@@ -200,9 +185,6 @@ task MoveResult {
     String agg_quality_distribution_metrics
     String agg_error_summary_metrics
 
-    String? fingerprint_summary_metrics
-    String? fingerprint_detail_metrics
-
     String duplicate_metrics
     String? output_bqsr_reports
 
@@ -238,8 +220,6 @@ gsutil -m ~{"-u " + project_id} mv ~{sep="" quality_yield_metrics} \
   ~{agg_quality_distribution_pdf} \
   ~{agg_quality_distribution_metrics} \
   ~{agg_error_summary_metrics} \
-  ~{fingerprint_summary_metrics} \
-  ~{fingerprint_detail_metrics} \
   ~{duplicate_metrics} \
   ~{output_bqsr_reports} \
   ~{gvcf_summary_metrics} \
