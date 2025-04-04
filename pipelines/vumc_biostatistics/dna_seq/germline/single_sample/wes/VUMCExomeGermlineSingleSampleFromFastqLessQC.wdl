@@ -31,17 +31,20 @@ version 1.0
 import "../../../../../../tasks/vumc_biostatistics/PairedFastQsToUnmappedBAM.wdl" as ToUnmappedBam
 import "./VUMCExomeGermlineSingleSample.wdl" as VUMCPipeline
 import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
+import "./VUMCMoveSingleSampleWESResultLessQC.wdl" as MoveResults
 
 # WORKFLOW DEFINITION
 workflow VUMCExomeGermlineSingleSampleFromFastqLessQC {
 
-  String pipeline_version = "3.1.10"
+  #String pipeline_version = "3.1.10"
 
   input {
     # Optional for VUMC pipeline
+    String? genoset
+
     String sample_name 
-    String fastq_1 
-    String fastq_2 
+    File fastq_1 
+    File fastq_2 
     String readgroup_name 
     String library_name 
     String platform_unit 
@@ -61,7 +64,8 @@ workflow VUMCExomeGermlineSingleSampleFromFastqLessQC {
     File bait_interval_list
     String bait_set_name
 
-    Boolean provide_bam_output = false
+    String? project_id
+    String? target_gcp_folder
   }
 
   # Convert pair of FASTQs to uBAM
@@ -88,6 +92,7 @@ workflow VUMCExomeGermlineSingleSampleFromFastqLessQC {
 
   call VUMCPipeline.VUMCExomeGermlineSingleSampleNoQC as broad {
     input:
+      cloud_provider = "gcp",
       papi_settings = papi_settings,
       sample_and_unmapped_bams = sample_and_unmapped_bams,
       references = references,
@@ -99,44 +104,85 @@ workflow VUMCExomeGermlineSingleSampleFromFastqLessQC {
       bait_set_name = bait_set_name,
   }
 
+  if(defined(target_gcp_folder)){
+    call MoveResults.VUMCMoveSingleSampleWESResultLessQC as mf {
+      input:
+        target_bucket = select_first([target_gcp_folder]),
+        project_id = project_id,
+        genoset = select_first([genoset]),
+        GRID = sample_name,
+
+        quality_yield_metrics = broad.quality_yield_metrics,
+
+        read_group_alignment_summary_metrics = broad.read_group_alignment_summary_metrics,
+
+        calculate_read_group_checksum_md5 = broad.calculate_read_group_checksum_md5,
+
+        agg_alignment_summary_metrics = broad.agg_alignment_summary_metrics,
+        agg_bait_bias_detail_metrics = broad.agg_bait_bias_detail_metrics,
+        agg_bait_bias_summary_metrics = broad.agg_bait_bias_summary_metrics,
+        agg_insert_size_histogram_pdf = broad.agg_insert_size_histogram_pdf,
+        agg_insert_size_metrics = broad.agg_insert_size_metrics,
+        agg_pre_adapter_detail_metrics = broad.agg_pre_adapter_detail_metrics,
+        agg_pre_adapter_summary_metrics = broad.agg_pre_adapter_summary_metrics,
+        agg_quality_distribution_pdf = broad.agg_quality_distribution_pdf,
+        agg_quality_distribution_metrics = broad.agg_quality_distribution_metrics,
+        agg_error_summary_metrics = broad.agg_error_summary_metrics,
+
+        duplicate_metrics = broad.duplicate_metrics,
+        output_bqsr_reports = broad.output_bqsr_reports,
+
+        gvcf_summary_metrics = broad.gvcf_summary_metrics,
+        gvcf_detail_metrics = broad.gvcf_detail_metrics,
+
+        hybrid_selection_metrics = broad.hybrid_selection_metrics,
+
+        output_cram = broad.output_cram,
+        output_cram_index = broad.output_cram_index,
+        output_cram_md5 = broad.output_cram_md5,
+
+        validate_cram_file_report = broad.validate_cram_file_report,
+
+        output_vcf = broad.output_vcf,
+        output_vcf_index = broad.output_vcf_index,
+    }
+  }
+
   # Outputs that will be retained when execution is complete
   output {
-    Array[File] quality_yield_metrics = broad.quality_yield_metrics
+    Array[File] quality_yield_metrics = select_first([mf.target_quality_yield_metrics, broad.quality_yield_metrics])
 
-    File read_group_alignment_summary_metrics = broad.read_group_alignment_summary_metrics
+    File read_group_alignment_summary_metrics = select_first([mf.target_read_group_alignment_summary_metrics, broad.read_group_alignment_summary_metrics])
 
-    File calculate_read_group_checksum_md5 = broad.calculate_read_group_checksum_md5
+    File calculate_read_group_checksum_md5 = select_first([mf.target_calculate_read_group_checksum_md5, broad.calculate_read_group_checksum_md5])
 
-    File agg_alignment_summary_metrics = broad.agg_alignment_summary_metrics
-    File agg_bait_bias_detail_metrics = broad.agg_bait_bias_detail_metrics
-    File agg_bait_bias_summary_metrics = broad.agg_bait_bias_summary_metrics
-    File agg_insert_size_histogram_pdf = broad.agg_insert_size_histogram_pdf
-    File agg_insert_size_metrics = broad.agg_insert_size_metrics
-    File agg_pre_adapter_detail_metrics = broad.agg_pre_adapter_detail_metrics
-    File agg_pre_adapter_summary_metrics = broad.agg_pre_adapter_summary_metrics
-    File agg_quality_distribution_pdf = broad.agg_quality_distribution_pdf
-    File agg_quality_distribution_metrics = broad.agg_quality_distribution_metrics
-    File agg_error_summary_metrics = broad.agg_error_summary_metrics
+    File agg_alignment_summary_metrics = select_first([mf.target_agg_alignment_summary_metrics, broad.agg_alignment_summary_metrics])
+    File agg_bait_bias_detail_metrics = select_first([mf.target_agg_bait_bias_detail_metrics, broad.agg_bait_bias_detail_metrics])
+    File agg_bait_bias_summary_metrics = select_first([mf.target_agg_bait_bias_summary_metrics, broad.agg_bait_bias_summary_metrics])
+    File agg_insert_size_histogram_pdf = select_first([mf.target_agg_insert_size_histogram_pdf, broad.agg_insert_size_histogram_pdf])
+    File agg_insert_size_metrics = select_first([mf.target_agg_insert_size_metrics, broad.agg_insert_size_metrics])
+    File agg_pre_adapter_detail_metrics = select_first([mf.target_agg_pre_adapter_detail_metrics, broad.agg_pre_adapter_detail_metrics])
+    File agg_pre_adapter_summary_metrics = select_first([mf.target_agg_pre_adapter_summary_metrics, broad.agg_pre_adapter_summary_metrics])
+    File agg_quality_distribution_pdf = select_first([mf.target_agg_quality_distribution_pdf, broad.agg_quality_distribution_pdf])
+    File agg_quality_distribution_metrics = select_first([mf.target_agg_quality_distribution_metrics, broad.agg_quality_distribution_metrics])
+    File agg_error_summary_metrics = select_first([mf.target_agg_error_summary_metrics, broad.agg_error_summary_metrics])
 
-    File? fingerprint_summary_metrics = broad.fingerprint_summary_metrics
-    File? fingerprint_detail_metrics = broad.fingerprint_detail_metrics
+    File duplicate_metrics = select_first([mf.target_duplicate_metrics, broad.duplicate_metrics])
+    File? output_bqsr_reports = select_first([mf.target_output_bqsr_reports, broad.output_bqsr_reports])
 
-    File duplicate_metrics = broad.duplicate_metrics
-    File? output_bqsr_reports = broad.output_bqsr_reports
+    File gvcf_summary_metrics = select_first([mf.target_gvcf_summary_metrics, broad.gvcf_summary_metrics])
+    File gvcf_detail_metrics = select_first([mf.target_gvcf_detail_metrics, broad.gvcf_detail_metrics])
 
-    File gvcf_summary_metrics = broad.gvcf_summary_metrics
-    File gvcf_detail_metrics = broad.gvcf_detail_metrics
+    File hybrid_selection_metrics = select_first([mf.target_hybrid_selection_metrics, broad.hybrid_selection_metrics])
 
-    File hybrid_selection_metrics = broad.hybrid_selection_metrics
+    File output_cram = select_first([mf.target_output_cram, broad.output_cram])
+    File output_cram_index = select_first([mf.target_output_cram_index, broad.output_cram_index])
+    File output_cram_md5 = select_first([mf.target_output_cram_md5, broad.output_cram_md5])
 
-    File output_cram = broad.output_cram
-    File output_cram_index = broad.output_cram_index
-    File output_cram_md5 = broad.output_cram_md5
+    File validate_cram_file_report = select_first([mf.target_validate_cram_file_report, broad.validate_cram_file_report])
 
-    File validate_cram_file_report = broad.validate_cram_file_report
-
-    File output_vcf = broad.output_vcf
-    File output_vcf_index = broad.output_vcf_index
+    File output_vcf = select_first([mf.target_output_vcf, broad.output_vcf])
+    File output_vcf_index = select_first([mf.target_output_vcf_index, broad.output_vcf_index])
   }
   meta {
     allowNestedInputs: true
