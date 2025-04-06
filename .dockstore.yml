@@ -428,3 +428,7 @@ workflows:
   - name: VUMCBgenUrlHailIndex
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCBgenUrlHailIndex.wdl
+
+  - name: VUMCCopyOrMoveFiles
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCCopyOrMoveFiles.wdl

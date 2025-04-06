@@ -347,3 +347,69 @@ done
     Array[String] outputFiles = read_lines("output_files.txt")
   }
 }
+
+task MoveOrCopyFiles {
+  input {
+    String? sub_folder
+
+    String source_file01
+    String? source_file02
+    String? source_file03
+    String? source_file04
+    String? source_file05
+    String? source_file06
+    String? source_file07
+    String? source_file08
+    String? source_file09
+    String? source_file10
+
+    Boolean is_move_file = false
+
+    String? project_id
+    String target_gcp_folder
+  }
+
+  String action = if (is_move_file) then "mv" else "cp"
+
+  String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
+
+  String sub_folder_path = if defined(sub_folder) then gcs_output_dir + "/" + select_first([sub_folder]) else gcs_output_dir
+
+  String new_file01 = "~{sub_folder_path}/~{basename(source_file01)}"
+  String new_file02 = if (defined(source_file02)) then "~{sub_folder_path}/~{basename(select_first([source_file02]))}" else ""
+  String new_file03 = if (defined(source_file03)) then "~{sub_folder_path}/~{basename(select_first([source_file03]))}" else ""
+  String new_file04 = if (defined(source_file04)) then "~{sub_folder_path}/~{basename(select_first([source_file04]))}" else ""
+  String new_file05 = if (defined(source_file05)) then "~{sub_folder_path}/~{basename(select_first([source_file05]))}" else ""
+  String new_file06 = if (defined(source_file06)) then "~{sub_folder_path}/~{basename(select_first([source_file06]))}" else ""
+  String new_file07 = if (defined(source_file07)) then "~{sub_folder_path}/~{basename(select_first([source_file07]))}" else ""
+  String new_file08 = if (defined(source_file08)) then "~{sub_folder_path}/~{basename(select_first([source_file08]))}" else ""
+  String new_file09 = if (defined(source_file09)) then "~{sub_folder_path}/~{basename(select_first([source_file09]))}" else ""
+  String new_file10 = if (defined(source_file10)) then "~{sub_folder_path}/~{basename(select_first([source_file10]))}" else ""
+
+  command <<<
+
+set -e
+
+gsutil -m ~{"-u " + project_id} ~{action} ~{source_file01} ~{source_file02} ~{source_file03} ~{source_file04} ~{source_file05} ~{source_file06} ~{source_file07} ~{source_file08} ~{source_file09} ~{source_file10} ~{sub_folder_path}/
+
+>>>
+
+  runtime {
+    docker: "google/cloud-sdk"
+    preemptible: 1
+    disks: "local-disk 10 HDD"
+    memory: "2 GiB"
+  }
+  output {
+    String output_file01 = new_file01
+    String output_file02 = new_file02
+    String output_file03 = new_file03
+    String output_file04 = new_file04
+    String output_file05 = new_file05
+    String output_file06 = new_file06
+    String output_file07 = new_file07
+    String output_file08 = new_file08
+    String output_file09 = new_file09
+    String output_file10 = new_file10
+  }
+}
