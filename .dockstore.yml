@@ -432,3 +432,7 @@ workflows:
   - name: VUMCCopyOrMoveFiles
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCCopyOrMoveFiles.wdl
+
+  - name: VUMCPgenExtractSamples
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPgenExtractSamples.wdl

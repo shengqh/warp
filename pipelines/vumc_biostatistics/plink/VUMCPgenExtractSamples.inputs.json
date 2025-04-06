@@ -1,0 +1,9 @@
+{
+  "VUMCPgenExtractSamples.keep_psam": "/nobackup/h_cqs/shengq2/biovu/AGD5000/data/agd5000.psam",
+  "VUMCPgenExtractSamples.plink2_filter_option": "--maf 0.00001",
+  "VUMCPgenExtractSamples.output_prefix": "agd163k_chrM",
+  "VUMCPgenExtractSamples.input_pgen": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/postproc-pgen/dragen.pgen",
+  "VUMCPgenExtractSamples.input_psam": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/postproc-pgen/dragen.psam",
+  "VUMCPgenExtractSamples.input_pvar": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/postproc-pgen/dragen.pvar"
+}
+
