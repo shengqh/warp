@@ -1,0 +1,9 @@
+{
+  "VUMCPlink2FilterPgen.keep_psam": "/nobackup/h_cqs/shengq2/biovu/AGD5000/data/agd5000.psam",
+  "VUMCPlink2FilterPgen.plink2_filter_option": "--maf 0.00001",
+  "VUMCPlink2FilterPgen.output_prefix": "agd163k_chrM",
+  "VUMCPlink2FilterPgen.input_pgen": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/postproc-pgen/dragen.pgen",
+  "VUMCPlink2FilterPgen.input_psam": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/postproc-pgen/dragen.psam",
+  "VUMCPlink2FilterPgen.input_pvar": "/nobackup/h_cqs/shengq2/biovu/agd163k/chrom-msvcf/chrom-25-M/postproc-pgen/dragen.pvar"
+}
+

@@ -433,6 +433,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCCopyOrMoveFiles.wdl
 
-  - name: VUMCPgenExtractSamples
+  - name: VUMCPlink2FilterPgen
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPgenExtractSamples.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2FilterPgen.wdl
