@@ -73,6 +73,7 @@ mkdir -p tmp
 
 cat <<CODE > bgen2hail.py
 
+import sys
 import logging
 import hail as hl
 
