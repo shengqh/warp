@@ -47,7 +47,7 @@ task BgenUrl2HailMatrix {
     String docker = "shengqh/hail_gcp:20240211"
     Int disk_size_factor = 3
     Int memory_gb = 64
-    Int preemptible = 0
+    Int preemptible = 3
     Int cpu = 4
     Int? disk_size_override
     Int boot_disk_gb = 25

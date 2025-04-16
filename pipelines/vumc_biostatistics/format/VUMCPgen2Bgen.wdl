@@ -79,7 +79,7 @@ plink2 ~{plink2_option} \
 
   runtime {
     docker: docker
-    preemptible: 1
+    preemptible: 3
     disks: "local-disk " + disk_size + " HDD"
     memory: memory_gb + " GiB"
   }

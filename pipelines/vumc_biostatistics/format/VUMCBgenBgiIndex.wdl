@@ -66,7 +66,7 @@ task BgenBgiIndex {
 
     String docker = "htgenomeanalysisunit/bgenix:2.2.0"
     Int memory_gb = 10
-    Int preemptible = 0
+    Int preemptible = 3
     Int cpu = 1
     Int boot_disk_gb = 25
   }
