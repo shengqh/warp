@@ -436,3 +436,7 @@ workflows:
   - name: VUMCPlink2FilterPgen
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2FilterPgen.wdl
+
+  - name: VUMCBgenUrl2HailMatrix
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCBgenUrl2HailMatrix.wdl
