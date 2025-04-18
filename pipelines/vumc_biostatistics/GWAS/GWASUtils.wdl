@@ -123,6 +123,7 @@ task Regenie4Step1FitModel {
 
     File covarFile
     String covarColList
+    String? catCovarColList
 
     # Regenie options
     # option "--loocv" is not in the recommendation of Regenie (https://rgcgithub.github.io/regenie/recommendations/)
@@ -199,7 +200,7 @@ regenie --step 1 \
   -p ~{phenoFile} \
   --phenoColList ~{phenoColList} \
   -c ~{covarFile} \
-  --covarColList ~{covarColList} \
+  --covarColList ~{covarColList} ~{"--catCovarList " + catCovarColList} \
   ~{step1_option} \
   --threads ~{cpu} \
   --out ~{output_prefix} \
@@ -245,6 +246,7 @@ task Regenie4Step2AssociationTest {
 
     File covarFile
     String covarColList
+    String? catCovarColList
 
     String step2_option = "--firth --approx --pThresh 0.01 --bsize 400"
 
@@ -286,7 +288,7 @@ regenie --step 2 \
   -p ~{phenoFile} \
   --phenoColList ~{phenoColList} \
   -c ~{covarFile} \
-  --covarColList ~{covarColList} \
+  --covarColList ~{covarColList} ~{"--catCovarList " + catCovarColList} \
   ~{step2_option} \
   --threads ~{cpu} \
   --pred pred.list \

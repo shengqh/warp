@@ -35,6 +35,7 @@ workflow VUMCRegenie4Task4Regenie {
 
     File covarFile
     String covarColList
+    String? catCovarColList 
 
     String output_prefix
 
@@ -107,6 +108,7 @@ workflow VUMCRegenie4Task4Regenie {
       is_binary_traits = is_binary_traits,
       covarFile = covarFile,
       covarColList = covarColList,
+      catCovarColList = catCovarColList,
       output_prefix = output_prefix,
       step1_option = step1_regenie_option,
       memory_gb = step1_memory_gb * 2 #Level 1 ridge and making predictions need much more memory than Level 0 ridge.
@@ -130,6 +132,7 @@ workflow VUMCRegenie4Task4Regenie {
         is_binary_traits = is_binary_traits,
         covarFile = covarFile,
         covarColList = covarColList,
+        catCovarColList = catCovarColList,
         output_prefix = "~{output_prefix}.~{step2_chromosome}",
         step2_option = step2_regenie_option,
         memory_gb = step1_memory_gb #chromosome level memory cost would be less than step1, use step1 memory here.
