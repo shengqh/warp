@@ -31,13 +31,19 @@ workflow VUMCRegenie4Task3PrepareModelPgen {
     String output_prefix
 
     #option of variants for model fitting
-    String step1_plink2_option="--mac 100 --geno 0.01 --maf 0.1 --max-maf 0.9 --hwe 1e-15 --snps-only --not-chr 23-27 --max-alleles 2"
+    #https://rgcgithub.github.io/regenie/recommendations/
+    #Based on UKBiobank recommendation, we suggest the following parameters for filtering.
+    String step1_plink2_option="--maf 0.01 --mac 100 --geno 0.1 --hwe 1e-15 --snps-only --not-chr 23-27 --max-alleles 2"
     Int step1_max_variants=500000
 
     #https://www.nature.com/articles/s41588-021-00870-7
     #LD pruning using a R2 threshold of 0.9 with a window size of 1,000 markers and a step size of 100 markers.
+    #Although the paper suggests using R2 0.9, in this AGD163K/250K dataset, too many variants passed the criteria and 
+    #the qqplot would be weird somehow. Decreasing the R2 threshold to 0.1 would keep the most independent variants in modeling.
+    #if the R2 is too strict for your dataset (after prune, very limit number of variants left), you can increase it.
+    #Hopefully, after prune, the number of variants is around 500K to 1M.
     Boolean step1_prune = true
-    String step1_prune_option="--indep-pairwise 1000 100 0.9"
+    String step1_prune_option="--indep-pairwise 1000 100 0.1"
 
     String? billing_gcp_project_id
     String? target_gcp_folder
