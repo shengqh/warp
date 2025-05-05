@@ -113,7 +113,7 @@ task FasterqDump {
     Int umcompressed_fastq_gb = 50
     Int machine_mem_gb = 4
     Int threads = 6
-    String? docker_image = "docker://ncbi/sra-tools:3.2.1"
+    String? docker_image = "ncbi/sra-tools:3.2.1"
   }
 
   Int disk_size_gb = ceil(size(input_sra) + umcompressed_fastq_gb * 1.5)
