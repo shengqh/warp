@@ -37,6 +37,7 @@ workflow VUMCSra2Fastq {
   input {
     String SRR
     File? ngc_file
+    File user_settings_file
 
     String? billing_gcp_project_id
     String? target_gcp_folder
@@ -46,11 +47,13 @@ workflow VUMCSra2Fastq {
     input:
       SRR = SRR,
       ngc_file = ngc_file,
+      user_settings_file = user_settings_file
   }
 
   call FasterqDump {
     input:
-      input_sra = Prefetch.output_sra
+      input_sra = Prefetch.output_sra,
+      user_settings_file = user_settings_file
   }
 
   if (defined(target_gcp_folder)) {
@@ -79,13 +82,24 @@ task Prefetch {
     File? ngc_file
     Int sra_gb = 20
     Int machine_mem_gb = 10
+    File user_settings_file
 
     String docker="uwgac/fetch-dbgap-files:0.3.0"
     String prefetch = "/opt/sratoolkit.3.2.1-ubuntu64/bin/prefetch"
   }
 
   command <<<
-  
+
+if [[ ! -s ${HOME}/.ncbi ]]; then
+  echo mkdir ${HOME}/.ncbi
+  mkdir ${HOME}/.ncbi
+fi
+
+if [[ ! -s ${HOME}/.ncbi/user-settings.mkfg ]]; then
+  echo cp user-settings.mkfg
+  cp ~{user_settings_file} ${HOME}/.ncbi/user-settings.mkfg
+fi
+
 ~{prefetch} ~{SRR} --max-size u ~{"--ngc " + ngc_file} -o ~{SRR}.sra
 
 >>>
@@ -110,6 +124,7 @@ task FasterqDump {
     Int umcompressed_fastq_gb = 100
     Int machine_mem_gb = 10
     Int threads = 1
+    File user_settings_file
 
     String docker="uwgac/fetch-dbgap-files:0.3.0"
     String fasterq = "/opt/sratoolkit.3.2.1-ubuntu64/bin/fasterq-dump"
@@ -119,7 +134,17 @@ task FasterqDump {
   String sra_name = basename(input_sra)
 
   command <<<
-  
+
+if [[ ! -s ${HOME}/.ncbi ]]; then
+  echo mkdir ${HOME}/.ncbi
+  mkdir ${HOME}/.ncbi
+fi
+
+if [[ ! -s ${HOME}/.ncbi/user-settings.mkfg ]]; then
+  echo cp user-settings.mkfg
+  cp ~{user_settings_file} ${HOME}/.ncbi/user-settings.mkfg
+fi
+
 ~{fasterq} -e ~{threads} -p ~{input_sra}
 
 status=$?
