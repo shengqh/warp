@@ -440,3 +440,7 @@ workflows:
   - name: VUMCBgenUrl2HailMatrix
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCBgenUrl2HailMatrix.wdl
+
+  - name: VUMCSra2Fastq
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCSra2Fastq.wdl
