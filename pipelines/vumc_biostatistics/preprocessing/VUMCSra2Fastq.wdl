@@ -94,7 +94,8 @@ prefetch ~{SRR} --max-size u ~{"--ngc " + ngc_file} -o ~{SRR}.sra
 >>>
 
   runtime {
-    docker: "ncbi/sra-tools:3.2.1"
+    #ncbi/sra-tools:3.2.1 doesn't support bash
+    docker: "uwgac/fetch-dbgap-files:0.3.0"
     preemptible: 3
     memory: machine_mem_gb + " GB"
     cpu: 1
@@ -132,7 +133,8 @@ gzip ~{sra_name}_1.fastq ~{sra_name}_2.fastq
 >>>
 
   runtime {
-    docker: "ncbi/sra-tools:3.2.1"
+    #ncbi/sra-tools:3.2.1 doesn't support bash
+    docker: "uwgac/fetch-dbgap-files:0.3.0"
     preemptible: 3
     memory: machine_mem_gb + " GB"
     cpu: threads
