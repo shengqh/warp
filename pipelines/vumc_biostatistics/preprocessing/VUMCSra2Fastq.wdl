@@ -85,7 +85,6 @@ task Prefetch {
     File? ngc_file
     Int sra_gb = 10
     Int machine_mem_gb = 4
-    String docker_image = "docker://ncbi/sra-tools:3.2.1"
   }
 
   command <<<
@@ -95,7 +94,7 @@ prefetch ~{SRR} --max-size u ~{"--ngc " + ngc_file} -o ~{SRR}.sra
 >>>
 
   runtime {
-    docker: docker_image
+    docker: "ncbi/sra-tools:3.2.1"
     preemptible: 3
     memory: machine_mem_gb + " GB"
     cpu: 1
@@ -113,7 +112,6 @@ task FasterqDump {
     Int umcompressed_fastq_gb = 50
     Int machine_mem_gb = 4
     Int threads = 1
-    String docker_image = "ncbi/sra-tools:3.2.1"
   }
 
   Int disk_size_gb = ceil(size(input_sra) + umcompressed_fastq_gb * 1.5)
@@ -134,7 +132,7 @@ gzip ~{sra_name}_1.fastq ~{sra_name}_2.fastq
 >>>
 
   runtime {
-    docker: docker_image
+    docker: "ncbi/sra-tools:3.2.1"
     preemptible: 3
     memory: machine_mem_gb + " GB"
     cpu: threads
