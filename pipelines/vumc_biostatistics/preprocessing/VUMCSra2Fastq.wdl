@@ -38,9 +38,6 @@ workflow VUMCSra2Fastq {
     String SRR
     File? ngc_file
 
-    Int sra_gb = 10
-    Int umcompressed_fastq_gb = 50
-
     String? billing_gcp_project_id
     String? target_gcp_folder
   }
@@ -49,14 +46,11 @@ workflow VUMCSra2Fastq {
     input:
       SRR = SRR,
       ngc_file = ngc_file,
-      sra_gb = sra_gb,
   }
 
   call FasterqDump {
     input:
-      input_sra = Prefetch.output_sra,
-      umcompressed_fastq_gb = umcompressed_fastq_gb,
-      threads = 6
+      input_sra = Prefetch.output_sra
   }
 
   if (defined(target_gcp_folder)) {
@@ -83,8 +77,8 @@ task Prefetch {
   input {
     String SRR
     File? ngc_file
-    Int sra_gb = 10
-    Int machine_mem_gb = 4
+    Int sra_gb = 20
+    Int machine_mem_gb = 10
   }
 
   command <<<
@@ -110,8 +104,8 @@ prefetch ~{SRR} --max-size u ~{"--ngc " + ngc_file} -o ~{SRR}.sra
 task FasterqDump {
   input {
     File input_sra
-    Int umcompressed_fastq_gb = 50
-    Int machine_mem_gb = 4
+    Int umcompressed_fastq_gb = 100
+    Int machine_mem_gb = 10
     Int threads = 1
   }
 
