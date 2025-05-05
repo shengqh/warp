@@ -79,17 +79,20 @@ task Prefetch {
     File? ngc_file
     Int sra_gb = 20
     Int machine_mem_gb = 10
+
+    String docker="uwgac/fetch-dbgap-files:0.3.0"
+    String prefetch = "/opt/sratoolkit.3.2.1-ubuntu64/bin/prefetch"
   }
 
   command <<<
   
-prefetch ~{SRR} --max-size u ~{"--ngc " + ngc_file} -o ~{SRR}.sra
+~{prefetch} ~{SRR} --max-size u ~{"--ngc " + ngc_file} -o ~{SRR}.sra
 
 >>>
 
   runtime {
     #ncbi/sra-tools:3.2.1 doesn't support bash
-    docker: "uwgac/fetch-dbgap-files:0.3.0"
+    docker: docker
     preemptible: 3
     memory: machine_mem_gb + " GB"
     cpu: 1
@@ -107,6 +110,9 @@ task FasterqDump {
     Int umcompressed_fastq_gb = 100
     Int machine_mem_gb = 10
     Int threads = 1
+
+    String docker="uwgac/fetch-dbgap-files:0.3.0"
+    String fasterq = "/opt/sratoolkit.3.2.1-ubuntu64/bin/fasterq-dump"
   }
 
   Int disk_size_gb = ceil(size(input_sra) + umcompressed_fastq_gb * 1.5)
@@ -114,7 +120,7 @@ task FasterqDump {
 
   command <<<
   
-fasterq-dump -e ~{threads} -p ~{input_sra}
+~{fasterq} -e ~{threads} -p ~{input_sra}
 
 status=$?
 if [ $status -ne 0 ]; then
@@ -128,7 +134,7 @@ gzip ~{sra_name}_1.fastq ~{sra_name}_2.fastq
 
   runtime {
     #ncbi/sra-tools:3.2.1 doesn't support bash
-    docker: "uwgac/fetch-dbgap-files:0.3.0"
+    docker: docker
     preemptible: 3
     memory: machine_mem_gb + " GB"
     cpu: threads
