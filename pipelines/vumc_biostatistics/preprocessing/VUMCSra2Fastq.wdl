@@ -112,7 +112,7 @@ task FasterqDump {
     File input_sra
     Int umcompressed_fastq_gb = 50
     Int machine_mem_gb = 4
-    Int threads = 6
+    Int threads = 1
     String docker_image = "ncbi/sra-tools:3.2.1"
   }
 
@@ -122,6 +122,14 @@ task FasterqDump {
   command <<<
   
 fasterq-dump -e ~{threads} -p ~{input_sra}
+
+status=$?
+if [ $status -ne 0 ]; then
+  echo "fasterq-dump failed with status $status"
+  exit $status
+fi
+
+gzip ~{sra_name}_1.fastq ~{sra_name}_2.fastq
 
 >>>
 
