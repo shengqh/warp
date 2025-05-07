@@ -444,3 +444,8 @@ workflows:
   - name: VUMCSra2Fastq
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCSra2Fastq.wdl
+
+  - name: VUMCStarFeaturecounts
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/rnaseq/VUMCStarFeaturecounts.wdl
+
