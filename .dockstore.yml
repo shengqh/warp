@@ -452,3 +452,7 @@ workflows:
   - name: VUMCStarFeaturecountsNoBam
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/rnaseq/VUMCStarFeaturecountsNoBam.wdl
+
+  - name: VUMCStarFusion
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/rnaseq/VUMCStarFusion.wdl

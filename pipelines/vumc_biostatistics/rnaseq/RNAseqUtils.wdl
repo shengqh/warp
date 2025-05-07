@@ -107,7 +107,7 @@ task STARFusion {
     File fastq_2
     String sample_name
 
-    String star_option = "--twopassMode Basic --outSAMmapqUnique 60 --outSAMprimaryFlag AllBestScore"
+    String star_fusion_option = ""
     
     File chrLength_txt
     File chrNameLength_txt
@@ -126,7 +126,7 @@ task STARFusion {
     File transcriptInfo_tab
 
     Int memory_gb = 40
-    Float disk_size_factor = 2.5
+    Float disk_size_factor = 4
     Int additional_disk_size_gb = 10
     Int threads = 8
   }
@@ -139,7 +139,8 @@ set -euo pipefail
 star_index_folder_name=$(dirname ~{Genome})
 echo "star_index_folder_name: $star_index_folder_name"
 
-STAR-Fusion --genome_lib_dir $star_index_folder_name \
+STAR-Fusion ~{star_fusion_option} \
+  --genome_lib_dir $star_index_folder_name \
   --left_fq ~{fastq_1} \
   --right_fq ~{fastq_2} \
   --output_dir . \
