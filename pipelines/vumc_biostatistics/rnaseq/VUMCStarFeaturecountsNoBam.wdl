@@ -25,7 +25,6 @@ version 1.0
 ## - target_gcp_folder: Optional target GCP folder for the output files
 ##
 ## ### Outputs:
-## - output_star_chromosome_count: STAR chromosome count
 ## - output_star_summary: STAR alignment summary
 ## - output_count: FeatureCounts gene count file
 ## - output_count_summary: FeatureCounts summary file
@@ -37,7 +36,7 @@ version 1.0
 ## - File copy operation to GCP is optional and only executed if a target folder is provided
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
-import "./RNAseqUtils.wdl" as RNAseqUtils
+import "./VUMCStarFeaturecounts.wdl" as VUMCStarFeaturecounts
 
 workflow VUMCStarFeaturecountsNoBam {
   input {
@@ -67,7 +66,7 @@ workflow VUMCStarFeaturecountsNoBam {
     String? target_gcp_folder
   }
 
-  call RNAseqUtils.STAR {
+  call VUMCStarFeaturecounts.VUMCStarFeaturecounts {
     input:
       fastq_1 = fastq_1,
       fastq_2 = fastq_2,
@@ -86,34 +85,24 @@ workflow VUMCStarFeaturecountsNoBam {
       sjdbInfo_txt = sjdbInfo_txt,
       sjdbList_fromGTF_out_tab = sjdbList_fromGTF_out_tab,
       sjdbList_out_tab = sjdbList_out_tab,
-      transcriptInfo_tab = transcriptInfo_tab
-  }
-
-  call RNAseqUtils.FeatureCounts {
-    input:
-      bam = STAR.output_bam,
-      bam_index = STAR.output_bam_index,
-      sample_name = sample_name,
-      gtf = gtf
+      transcriptInfo_tab = transcriptInfo_tab,
+      gtf = gtf,
   }
 
   if (defined(target_gcp_folder)) {
-    call GcpUtils.MoveOrCopyFourFiles as CopyFile6 {
+    call GcpUtils.MoveOrCopyThreeFiles as CopyFile {
       input:
-        source_file1 = STAR.output_star_chromosome_count,
-        source_file2 = STAR.output_star_summary,
-        source_file3 = FeatureCounts.output_count,
-        source_file4 = FeatureCounts.output_count_summary,
+        source_file1 = VUMCStarFeaturecounts.output_star_summary,
+        source_file2 = VUMCStarFeaturecounts.output_count,
+        source_file3 = VUMCStarFeaturecounts.output_count_summary,
         is_move_file = false,
         project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }
-  # Outputs that will be retained when execution is complete
   output {
-    File output_star_chromosome_count = select_first([CopyFile6.output_file1, STAR.output_star_chromosome_count])
-    File output_star_summary = select_first([CopyFile6.output_file2, STAR.output_star_summary])
-    File output_count = select_first([CopyFile6.output_file3, FeatureCounts.output_count])
-    File output_count_summary = select_first([CopyFile6.output_file4, FeatureCounts.output_count_summary])
+    String output_star_summary = select_first([CopyFile.output_file1, VUMCStarFeaturecounts.output_star_summary])
+    String output_count = select_first([CopyFile.output_file2, VUMCStarFeaturecounts.output_count])
+    String output_count_summary = select_first([CopyFile.output_file3, VUMCStarFeaturecounts.output_count_summary])
   }
 }

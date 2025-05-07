@@ -1,6 +1,6 @@
 version 1.0
 
-task STAR {
+task STAR_Unsorted {
   input {
     File fastq_1
     File fastq_2
@@ -45,10 +45,7 @@ STAR ~{star_option} \
   --readFilesIn ~{fastq_1} ~{fastq_2} \
   --readFilesCommand zcat \
   --outFileNamePrefix ~{sample_name}_ \
-  --outSAMtype BAM SortedByCoordinate
-
-samtools index ~{sample_name}_Aligned.sortedByCoord.out.bam
-samtools idxstats ~{sample_name}_Aligned.sortedByCoord.out.bam > ~{sample_name}_Aligned.sortedByCoord.out.bam.chromosome.count
+  --outSAMtype BAM Unsorted
 
   >>>
 
@@ -61,10 +58,8 @@ samtools idxstats ~{sample_name}_Aligned.sortedByCoord.out.bam > ~{sample_name}_
   }
 
   output {
-    File output_bam = "~{sample_name}_Aligned.sortedByCoord.out.bam"
-    File output_bam_index = "~{sample_name}_Aligned.sortedByCoord.out.bam.bai"
+    File output_bam = "~{sample_name}_Aligned.out.bam"
     File output_star_summary = "~{sample_name}_Log.final.out"
-    File output_star_chromosome_count = "~{sample_name}_Aligned.sortedByCoord.out.bam.chromosome.count"
   }
 }
 

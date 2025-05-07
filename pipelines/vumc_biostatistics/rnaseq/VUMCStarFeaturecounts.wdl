@@ -12,8 +12,9 @@ version 1.0
 ##
 ## ### Workflow Steps:
 ## 1. STAR: Align paired-end FASTQ files to reference genome
-## 2. FeatureCounts: Quantify gene expression from aligned BAM files
-## 3. Optionally copy output files to a specified GCP folder
+## 2. SortSam: Sort and index the aligned BAM files
+## 3. FeatureCounts: Quantify gene expression from sorted BAM files
+## 4. Optionally copy output files to a specified GCP folder
 ##
 ## ### Inputs:
 ## - fastq_1, fastq_2: Paired-end FASTQ files
@@ -26,7 +27,6 @@ version 1.0
 ## ### Outputs:
 ## - output_bam: Aligned BAM file
 ## - output_bam_index: BAM index file
-## - output_star_chromosome_count: STAR chromosome count
 ## - output_star_summary: STAR alignment summary
 ## - output_count: FeatureCounts gene count file
 ## - output_count_summary: FeatureCounts summary file
@@ -37,6 +37,7 @@ version 1.0
 ## - File copy operation to GCP is optional and only executed if a target folder is provided
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
+import "../../../tasks/broad/BamProcessing.wdl" as Processing
 import "./RNAseqUtils.wdl" as RNAseqUtils
 
 workflow VUMCStarFeaturecounts {
@@ -67,7 +68,7 @@ workflow VUMCStarFeaturecounts {
     String? target_gcp_folder
   }
 
-  call RNAseqUtils.STAR {
+  call RNAseqUtils.STAR_Unsorted {
     input:
       fastq_1 = fastq_1,
       fastq_2 = fastq_2,
@@ -89,23 +90,30 @@ workflow VUMCStarFeaturecounts {
       transcriptInfo_tab = transcriptInfo_tab
   }
 
+  call Processing.SortSam {
+    input:
+      input_bam = STAR_Unsorted.output_bam,
+      output_bam_basename = sample_name + "_Aligned.sortedByCoord.out",
+      compression_level = 2,
+      preemptible_tries = 3
+  }
+
   call RNAseqUtils.FeatureCounts {
     input:
-      bam = STAR.output_bam,
-      bam_index = STAR.output_bam_index,
+      bam = SortSam.output_bam,
+      bam_index = SortSam.output_bam_index,
       sample_name = sample_name,
       gtf = gtf
   }
 
   if (defined(target_gcp_folder)) {
-    call GcpUtils.MoveOrCopySixFiles as CopyFile6 {
+    call GcpUtils.MoveOrCopyFiveFiles as CopyFile {
       input:
-        source_file1 = STAR.output_bam,
-        source_file2 = STAR.output_bam_index,
-        source_file3 = STAR.output_star_chromosome_count,
-        source_file4 = STAR.output_star_summary,
-        source_file5 = FeatureCounts.output_count,
-        source_file6 = FeatureCounts.output_count_summary,
+        source_file1 = SortSam.output_bam,
+        source_file2 = SortSam.output_bam_index,
+        source_file3 = STAR_Unsorted.output_star_summary,
+        source_file4 = FeatureCounts.output_count,
+        source_file5 = FeatureCounts.output_count_summary,
         is_move_file = false,
         project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
@@ -113,11 +121,10 @@ workflow VUMCStarFeaturecounts {
   }
   # Outputs that will be retained when execution is complete
   output {
-    File output_bam = select_first([CopyFile6.output_file1, STAR.output_bam])
-    File output_bam_index = select_first([CopyFile6.output_file2, STAR.output_bam_index])
-    File output_star_chromosome_count = select_first([CopyFile6.output_file3, STAR.output_star_chromosome_count])
-    File output_star_summary = select_first([CopyFile6.output_file4, STAR.output_star_summary])
-    File output_count = select_first([CopyFile6.output_file5, FeatureCounts.output_count])
-    File output_count_summary = select_first([CopyFile6.output_file6, FeatureCounts.output_count_summary])
+    String output_bam = select_first([CopyFile.output_file1, SortSam.output_bam])
+    String output_bam_index = select_first([CopyFile.output_file2, SortSam.output_bam_index])
+    String output_star_summary = select_first([CopyFile.output_file3, STAR_Unsorted.output_star_summary])
+    String output_count = select_first([CopyFile.output_file4, FeatureCounts.output_count])
+    String output_count_summary = select_first([CopyFile.output_file5, FeatureCounts.output_count_summary])
   }
 }
