@@ -1,8 +1,9 @@
 version 1.0
 
-## VUMC RNA-Seq Analysis Workflow with STAR and FeatureCounts
+## VUMC RNA-Seq Analysis Workflow with STAR and FeatureCounts (NoBam version)
 ##
-## This workflow processes RNA-Seq data using STAR alignment and FeatureCounts quantification.
+## This workflow processes RNA-Seq data using STAR alignment and FeatureCounts quantification,
+## without preserving BAM files in the final outputs to save storage space.
 ## Developed by VUMC/VANGARD team for efficient processing of RNA-Seq data.
 ## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
 ## 
@@ -24,8 +25,6 @@ version 1.0
 ## - target_gcp_folder: Optional target GCP folder for the output files
 ##
 ## ### Outputs:
-## - output_bam: Aligned BAM file
-## - output_bam_index: BAM index file
 ## - output_star_chromosome_count: STAR chromosome count
 ## - output_star_summary: STAR alignment summary
 ## - output_count: FeatureCounts gene count file
@@ -34,12 +33,13 @@ version 1.0
 ## ### Notes:
 ## - Utilizes STAR for efficient spliced alignments
 ## - FeatureCounts for accurate gene-level quantification
+## - BAM files are used internally but not preserved in final outputs
 ## - File copy operation to GCP is optional and only executed if a target folder is provided
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "./RNAseqUtils.wdl" as RNAseqUtils
 
-workflow VUMCStarFeaturecounts {
+workflow VUMCStarFeaturecountsNoBam {
   input {
     File fastq_1
     File fastq_2
@@ -98,14 +98,12 @@ workflow VUMCStarFeaturecounts {
   }
 
   if (defined(target_gcp_folder)) {
-    call GcpUtils.MoveOrCopySixFiles as CopyFile6 {
+    call GcpUtils.MoveOrCopyFourFiles as CopyFile6 {
       input:
-        source_file1 = STAR.output_bam,
-        source_file2 = STAR.output_bam_index,
-        source_file3 = STAR.output_star_chromosome_count,
-        source_file4 = STAR.output_star_summary,
-        source_file5 = FeatureCounts.output_count,
-        source_file6 = FeatureCounts.output_count_summary,
+        source_file1 = STAR.output_star_chromosome_count,
+        source_file2 = STAR.output_star_summary,
+        source_file3 = FeatureCounts.output_count,
+        source_file4 = FeatureCounts.output_count_summary,
         is_move_file = false,
         project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
@@ -113,11 +111,9 @@ workflow VUMCStarFeaturecounts {
   }
   # Outputs that will be retained when execution is complete
   output {
-    File output_bam = select_first([CopyFile6.output_file1, STAR.output_bam])
-    File output_bam_index = select_first([CopyFile6.output_file2, STAR.output_bam_index])
-    File output_star_chromosome_count = select_first([CopyFile6.output_file3, STAR.output_star_chromosome_count])
-    File output_star_summary = select_first([CopyFile6.output_file4, STAR.output_star_summary])
-    File output_count = select_first([CopyFile6.output_file5, FeatureCounts.output_count])
-    File output_count_summary = select_first([CopyFile6.output_file6, FeatureCounts.output_count_summary])
+    File output_star_chromosome_count = select_first([CopyFile6.output_file1, STAR.output_star_chromosome_count])
+    File output_star_summary = select_first([CopyFile6.output_file2, STAR.output_star_summary])
+    File output_count = select_first([CopyFile6.output_file3, FeatureCounts.output_count])
+    File output_count_summary = select_first([CopyFile6.output_file4, FeatureCounts.output_count_summary])
   }
 }

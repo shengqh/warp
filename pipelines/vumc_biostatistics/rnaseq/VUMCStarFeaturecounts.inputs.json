@@ -17,7 +17,6 @@
   "VUMCStarFeaturecounts.sjdbList_fromGTF_out_tab": "/data/cqs/references/gencode/GRCh38.p13/STAR_index_2.7.8a_v38_sjdb100/sjdbList.fromGTF.out.tab",
   "VUMCStarFeaturecounts.sjdbList_out_tab": "/data/cqs/references/gencode/GRCh38.p13/STAR_index_2.7.8a_v38_sjdb100/sjdbList.out.tab",
   "VUMCStarFeaturecounts.transcriptInfo_tab": "/data/cqs/references/gencode/GRCh38.p13/STAR_index_2.7.8a_v38_sjdb100/transcriptInfo.tab",
-  "VUMCStarFeaturecounts.gtf": "/data/cqs/references/gencode/GRCh38.p13/gencode.v38.annotation.gtf",
-  "VUMCStarFeaturecounts.output_bam": "true"
+  "VUMCStarFeaturecounts.gtf": "/data/cqs/references/gencode/GRCh38.p13/gencode.v38.annotation.gtf"
 }
 

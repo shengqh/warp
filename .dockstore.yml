@@ -449,3 +449,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/rnaseq/VUMCStarFeaturecounts.wdl
 
+  - name: VUMCStarFeaturecountsNoBam
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/rnaseq/VUMCStarFeaturecountsNoBam.wdl
