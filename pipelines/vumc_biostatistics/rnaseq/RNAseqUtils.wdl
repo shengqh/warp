@@ -5,6 +5,8 @@ task STAR {
     File fastq_1
     File fastq_2
     String sample_name
+
+    String star_option = "--twopassMode Basic --outSAMmapqUnique 60 --outSAMprimaryFlag AllBestScore"
     
     File chrLength_txt
     File chrNameLength_txt
@@ -31,10 +33,7 @@ set -euo pipefail
 star_index_folder_name=$(dirname ~{Genome})
 echo "star_index_folder_name: $star_index_folder_name"
 
-STAR \
-  --twopassMode Basic \
-  --outSAMmapqUnique 60 \
-  --outSAMprimaryFlag AllBestScore \
+STAR ~{star_option} \
   --outSAMattrRGline ID:~{sample_name} SM:~{sample_name} LB:~{sample_name} PL:ILLUMINA PU:ILLUMINA \
   --runThreadN ~{threads} \
   --genomeDir $star_index_folder_name \
@@ -66,6 +65,7 @@ samtools idxstats ~{sample_name}_Aligned.sortedByCoord.out.bam > ~{sample_name}_
 
 task FeatureCounts {
   input {
+    String featureCounts_option = "-g gene_id -t exon -p --countReadPairs"
     File bam
     File bam_index
     File gtf
@@ -77,7 +77,7 @@ task FeatureCounts {
 
 set -euo pipefail
 
-featureCounts \
+featureCounts ~{featureCounts_option} \
   -g gene_id \
   -t exon \
   -p \
