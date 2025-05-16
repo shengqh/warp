@@ -1,0 +1,5 @@
+{
+  "VUMCExtractSnpGenotypes.output_prefix": "request",
+  "VUMCExtractSnpGenotypes.input_rsid_file": "/nobackup/h_cqs/shengq2/biovu/20241107_snp_filter_request/request.txt"
+}
+

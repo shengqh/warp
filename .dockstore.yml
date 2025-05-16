@@ -428,3 +428,7 @@ workflows:
   - name: VUMCBgenUrlHailIndex
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCBgenUrlHailIndex.wdl
+
+  - name: VUMCExtractSnpGenotypes
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractSnpGenotypes.wdl
