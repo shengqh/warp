@@ -1,22 +1,43 @@
 version 1.0
 
-import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils
+## VUMC Regenie GWAS Workflow - Task 3: Prepare Model PGEN
+##
+## This workflow handles the preparation of PGEN files for model fitting in Regenie GWAS analysis.
+## Developed by VUMC Biostatistics for population-specific GWAS studies.
+## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
+##
+## ### Workflow Purpose:
+## This pipeline prepares input data for Regenie model fitting by performing QC filtering, 
+## LD pruning, and optional variant sampling on PGEN/PVAR/PSAM files.
+##
+## ### Workflow Steps:
+## 1. Filter chromosomes (optionally using autosomal chromosomes only)
+## 2. QC filter and optionally prune variants per chromosome
+## 3. Merge filtered chromosomes if multiple are provided
+## 4. Optional sampling of variants if the total count exceeds threshold
+## 5. Optionally copy output files to a specified GCP folder
+##
+## ### Inputs:
+## - chromosomes: List of chromosomes to process
+## - use_autosomal_chromosome_only: Flag to use only autosomal chromosomes
+## - test_pgen/pvar/psam_files: Input PGEN/PVAR/PSAM files for each chromosome
+## - output_prefix: Prefix for output files
+## - step1_plink2_option: QC filtering options for PLINK2
+## - step1_max_variants: Maximum number of variants to include in the model
+## - step1_prune: Flag to perform LD pruning
+## - step1_prune_option: LD pruning parameters if pruning is enabled
+## - billing_gcp_project_id: Optional GCP project ID for file copy operations
+## - target_gcp_folder: Optional target GCP folder for the output files
+##
+## ### Outputs:
+## - model_plink2_option: QC filtering options used
+## - model_prune_option: LD pruning options used (if applicable)
+## - model_pgen/pvar/psam_file: Final prepared PGEN/PVAR/PSAM files
+## - model_num_variants: Number of variants in the final dataset
+
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
 import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
-import "../../../tasks/vumc_biostatistics/order_files_by_strings.wdl" as order_files_by_strings
-
-/**
- * Workflow: VUMCRegenie4Task3PrepareModelPgen
- * 
- * Description:
- * This workflow prepares the model PGEN files for Regenie step 1. 
- * It performs QC filtering on the input PGEN files using specified PLINK2 options.
- * The filtered files are then optionally copied to a specified GCP folder.
- *
- * Author:
- * Quanhu Sheng, quanhu.sheng.1@vumc.org
- */
 
 workflow VUMCRegenie4Task3PrepareModelPgen {
   input {
@@ -31,13 +52,20 @@ workflow VUMCRegenie4Task3PrepareModelPgen {
     String output_prefix
 
     #option of variants for model fitting
-    String step1_plink2_option="--mac 100 --geno 0.01 --maf 0.1 --max-maf 0.9 --hwe 1e-15 --snps-only --not-chr 23-27 --max-alleles 2"
+    #https://rgcgithub.github.io/regenie/recommendations/
+    #Based on UKBiobank recommendation, we suggest the following parameters for filtering.
+    String step1_plink2_option="--maf 0.01 --mac 100 --geno 0.1 --hwe 1e-15 --mind 0.1 --snps-only --not-chr 23-27 --max-alleles 2"
     Int step1_max_variants=500000
 
     #https://www.nature.com/articles/s41588-021-00870-7
-    #LD pruning using a R2 threshold of 0.9 with a window size of 1,000 markers and a step size of 100 markers.
+    # LD pruning settings
+    # Default R2 threshold of 0.1 with window size of 1000 markers and step size of 100
+    # While literature suggests R2 of 0.9, lower threshold (0.1) retains more independent variants 
+    # for better model performance in large datasets like AGD163K/250K
+    # Adjust R2 threshold if too few variants remain after pruning
+    # Target: ~500K-1M variants post-pruning for optimal results
     Boolean step1_prune = true
-    String step1_prune_option="--indep-pairwise 1000 100 0.9"
+    String step1_prune_option="--indep-pairwise 1000 100 0.1"
 
     String? billing_gcp_project_id
     String? target_gcp_folder

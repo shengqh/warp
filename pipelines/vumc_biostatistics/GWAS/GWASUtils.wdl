@@ -10,7 +10,7 @@ task Regenie4MemoryEstimation {
     Int num_ridge_l0 = 5
     Int block_size = 1000
 
-    String docker = "shengqh/report:20241126"
+    String docker = "shengqh/report:20250415"
   }
 
   command <<<
@@ -123,6 +123,7 @@ task Regenie4Step1FitModel {
 
     File covarFile
     String covarColList
+    String? catCovarColList
 
     # Regenie options
     # option "--loocv" is not in the recommendation of Regenie (https://rgcgithub.github.io/regenie/recommendations/)
@@ -199,7 +200,7 @@ regenie --step 1 \
   -p ~{phenoFile} \
   --phenoColList ~{phenoColList} \
   -c ~{covarFile} \
-  --covarColList ~{covarColList} \
+  --covarColList ~{covarColList} ~{"--catCovarList " + catCovarColList} \
   ~{step1_option} \
   --threads ~{cpu} \
   --out ~{output_prefix} \
@@ -245,6 +246,7 @@ task Regenie4Step2AssociationTest {
 
     File covarFile
     String covarColList
+    String? catCovarColList
 
     String step2_option = "--firth --approx --pThresh 0.01 --bsize 400"
 
@@ -286,7 +288,7 @@ regenie --step 2 \
   -p ~{phenoFile} \
   --phenoColList ~{phenoColList} \
   -c ~{covarFile} \
-  --covarColList ~{covarColList} \
+  --covarColList ~{covarColList} ~{"--catCovarList " + catCovarColList} \
   ~{step2_option} \
   --threads ~{cpu} \
   --pred pred.list \
@@ -414,9 +416,10 @@ task RegeniePlots {
   input {
     File regenie_file
     String output_prefix
+    String? title
 
     # Runtime
-    String docker = "shengqh/report:20241126"
+    String docker = "shengqh/report:20250415"
     Float memory = 16.0
     Int? disk_size_override
     Int cpu = 1
@@ -425,26 +428,51 @@ task RegeniePlots {
   }
   Float regenie_files_size = size(regenie_file, "GiB")
   Int disk_size = select_first([disk_size_override, ceil(10.0 + regenie_files_size)])
+  String figure_title = select_first([title, output_prefix])
 
   command <<<
 set -euo pipefail
 
 cat <<EOF > script.r
 
-library(data.table)
-library(qqman)
+library("dplyr")
+library('data.table')
+library("fastman")
 
-regenie_output <- fread("~{regenie_file}")
+regenie_output <- fread("~{regenie_file}", data.table=FALSE)
 
 regenie_output = regenie_output[!is.na(regenie_output\$LOG10P),]
+regenie_output\$pvalue = 10 ^ (-1 * regenie_output\$LOG10P)
+regenie_output\$SNP = paste0(regenie_output\$CHROM, regenie_output\$POS, sep="_")
 
-p = 10 ^ (-1 * regenie_output\$LOG10P)
-png("~{output_prefix}.qqplot.png", width=5, height=5, units="in", res=300)
-print(qq(p))
+png("~{output_prefix}.manhattan.png", width=16, height=6, units="in", res=300, pointsize=23)
+fastman(regenie_output, 
+        main="~{figure_title}", 
+        cex.main=0.3, 
+        cex.text=0.3,
+        chr="CHROM",
+        bp="GENPOS",
+        snp="SNP",
+        p="pvalue",
+        suggestiveline = -log10(5e-6),
+        genomewideline = -log10(5e-8),
+        logp=TRUE, 
+        speedup=TRUE, 
+        maxP=80,
+        annotatePval = 5e-8,
+        annotateTop = F,
+        annotationWinMb = 10,
+        annotationAngle = 30,
+        annotationCol = 'black')
 dev.off()
 
-png("~{output_prefix}.manhattan.png", width=10, height=5, units="in", res=300)
-print(manhattan(regenie_output, chr="CHROM", bp="GENPOS", snp="ID", p="LOG10P", logp=FALSE, annotatePval = 1E-5))
+png("~{output_prefix}.qqplot.png", width=8, height=8,units="in", res=300)
+fastqq( regenie_output\$pvalue, 
+        main="~{figure_title}", 
+        maxP=80, 
+        lambda = TRUE,
+        xlab=expression(Expected ~ ~-log[10](italic(p))),
+        ylab=expression(Observed ~ ~-log[10](italic(p))))
 dev.off()
 
 EOF

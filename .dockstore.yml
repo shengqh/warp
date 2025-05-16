@@ -429,6 +429,34 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCBgenUrlHailIndex.wdl
 
+  - name: VUMCCopyOrMoveFiles
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCCopyOrMoveFiles.wdl
+
+  - name: VUMCPlink2FilterPgen
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2FilterPgen.wdl
+
+  - name: VUMCBgenUrl2HailMatrix
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCBgenUrl2HailMatrix.wdl
+
+  - name: VUMCSra2Fastq
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCSra2Fastq.wdl
+
+  - name: VUMCStarFeaturecounts
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/rnaseq/VUMCStarFeaturecounts.wdl
+
+  - name: VUMCStarFeaturecountsNoBam
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/rnaseq/VUMCStarFeaturecountsNoBam.wdl
+
+  - name: VUMCStarFusion
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/rnaseq/VUMCStarFusion.wdl
+
   - name: VUMCExtractSnpGenotypes
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractSnpGenotypes.wdl

@@ -1,22 +1,51 @@
 version 1.0
 
+## VUMC Regenie GWAS Workflow - Task 4: Run Regenie
+##
+## This workflow performs the Regenie GWAS analysis, including model fitting and association testing.
+## Developed by VUMC Biostatistics for genome-wide association studies.
+## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
+##
+## ### Workflow Purpose:
+## This pipeline performs a two-step Regenie GWAS analysis, fitting prediction models in step 1
+## and conducting association testing across specified chromosomes in step 2.
+##
+## ### Workflow Steps:
+## 1. Count samples and variants in model files
+## 2. Estimate memory requirements based on data dimensions
+## 3. Run Regenie Step 1 to fit prediction models
+## 4. Run Regenie Step 2 for association testing per chromosome
+## 5. Merge chromosome-level results for each phenotype
+## 6. Generate QQ and Manhattan plots for each phenotype
+## 7. Optionally copy output files to a specified GCP folder
+##
+## ### Inputs:
+## - chromosomes: List of chromosomes to analyze
+## - test_pgen/pvar/psam_files: Testing data for association analysis
+## - model_pgen/pvar/psam_file: Data for model fitting
+## - phenoFile: Phenotype data file
+## - phenoColList: Comma-separated list of phenotype columns
+## - is_binary_traits: Flag indicating if traits are binary
+## - covarFile: Covariates data file
+## - covarColList: Comma-separated list of covariate columns
+## - catCovarColList: Optional categorical covariates list
+## - step1/2_regenie_option: Command line options for Regenie steps
+## - billing_gcp_project_id: Optional GCP project ID for file operations
+## - target_gcp_folder: Optional target GCP folder for output files
+##
+## ### Outputs:
+## - pred_list_file: Regenie prediction list file
+## - pred_loco_files: Leave-one-chromosome-out prediction files
+## - phenotype_regenie_files: Final association results for each phenotype
+## - phenotype_qqplot_png: QQ plots for each phenotype
+## - phenotype_manhattan_png: Manhattan plots for each phenotype
+
 import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../../../tasks/vumc_biostatistics/order_files_by_strings.wdl" as order_files_by_strings
 
 import "./GWASUtils.wdl" as GWASUtils
 
-/**
- * Workflow: VUMCRegenie4Task4Regenie
- * 
- * Description:
- * This workflow performs the both step1 and step2 the Regenie since both of them require phenotype and covariate files. 
- * It fits the model using the training data and then tests the model using the testing data.
- * The results are then merged and plotted and are then optionally copied to a specified GCP folder.
- *
- * Author:
- * Quanhu Sheng, quanhu.sheng.1@vumc.org
- */
 workflow VUMCRegenie4Task4Regenie {
   input {
     Array[String] chromosomes
@@ -35,6 +64,7 @@ workflow VUMCRegenie4Task4Regenie {
 
     File covarFile
     String covarColList
+    String? catCovarColList 
 
     String output_prefix
 
@@ -107,6 +137,7 @@ workflow VUMCRegenie4Task4Regenie {
       is_binary_traits = is_binary_traits,
       covarFile = covarFile,
       covarColList = covarColList,
+      catCovarColList = catCovarColList,
       output_prefix = output_prefix,
       step1_option = step1_regenie_option,
       memory_gb = step1_memory_gb * 2 #Level 1 ridge and making predictions need much more memory than Level 0 ridge.
@@ -130,6 +161,7 @@ workflow VUMCRegenie4Task4Regenie {
         is_binary_traits = is_binary_traits,
         covarFile = covarFile,
         covarColList = covarColList,
+        catCovarColList = catCovarColList,
         output_prefix = "~{output_prefix}.~{step2_chromosome}",
         step2_option = step2_regenie_option,
         memory_gb = step1_memory_gb #chromosome level memory cost would be less than step1, use step1 memory here.

@@ -1,27 +1,41 @@
 version 1.0
 
-import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
+## VUMC Regenie GWAS Workflow - Task 1: Create Cohort PSAM
+##
+## This workflow handles the creation of cohort PSAM file for Regenie GWAS analysis.
+## Developed by VUMC Biostatistics for population-specific GWAS studies.
+## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
+##
+## ### Workflow Purpose:
+## This pipeline prepares input cohort PSAM file for Regenie GWAS, 
+## with options for ancestry filtering and sample selection.
+##
+## ### Workflow Steps:
+## 1. CreateCohortPsam: Create a cohort PSAM file with optional ancestry filtering
+## 2. Optionally copy output files to a specified GCP folder
+##
+## ### Inputs:
+## - input_psam: Input PSAM file
+## - input_grid: Optional grid file for sample selection
+## - input_ancestry: Optional ancestry specification
+## - input_ancestry_file: Optional file containing ancestry information
+## - output_prefix: Prefix for output files
+## - billing_gcp_project_id: Optional GCP project ID for file copy operations
+## - target_gcp_folder: Optional target GCP folder for the output files
+##
+## ### Outputs:
+## - ancestry: Selected ancestry (if specified)
+## - output_psam: Final PSAM file
+## - output_sample_count: Number of samples in the cohort
+##
+## ### Notes:
+## - Uses AgdUtils for cohort creation functionality
+## - Supports ancestry-specific analyses
+## - File copy operation to GCP is optional and only executed if a target folder is provided
 
+import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../agd/AgdUtils.wdl" as AgdUtils
 
-/**
- * Workflow: VUMCRegenie4Task1CreateCohortPsam
- * 
- * Description:
- * This workflow creates a cohort PSAM file for use in the VUMC Regenie GWAS pipeline.
- * It takes an input PSAM file and optionally a grid file and ancestry information.
- * The output is a PSAM file with the specified output prefix.
- * Current in AGD163K cohort, the ancestry information is as below:
- * ANCESTRY	count
- * EUR	      ~120000
- * AFR	      ~30000
- * AMR	      ~4500
- * EAS	      ~2500
- * SAS	      ~500
- *
- * Author:
- * Quanhu Sheng, quanhu.sheng.1@vumc.org
- */
 workflow VUMCRegenie4Task1CreateCohortPsam {
   input {
     File input_psam

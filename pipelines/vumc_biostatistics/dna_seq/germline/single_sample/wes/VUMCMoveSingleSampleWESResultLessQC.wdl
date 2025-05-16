@@ -203,11 +203,13 @@ task MoveResult {
     String output_vcf_index
   }
 
+  String gcs_output_dir = sub(target_folder, "/+$", "")
+
   command <<<
 
 set -e
 
-gsutil -m ~{"-u " + project_id} mv ~{sep="" quality_yield_metrics} \
+gsutil -m ~{"-u " + project_id} mv ~{sep=" " quality_yield_metrics} \
   ~{read_group_alignment_summary_metrics} \
   ~{calculate_read_group_checksum_md5} \
   ~{agg_alignment_summary_metrics} \
@@ -231,7 +233,7 @@ gsutil -m ~{"-u " + project_id} mv ~{sep="" quality_yield_metrics} \
   ~{validate_cram_file_report} \
   ~{output_vcf} \
   ~{output_vcf_index} \
-  ~{target_folder}/
+  ~{gcs_output_dir}/
 
 >>>
 

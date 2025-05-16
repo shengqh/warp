@@ -1,20 +1,45 @@
 version 1.0
 
+## VUMC Regenie GWAS Workflow - Task 2: Prepare Test Pgen Files
+##
+## This workflow prepares test Pgen files for Regenie GWAS analysis.
+## Developed by VUMC Biostatistics for population-specific GWAS studies.
+## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
+##
+## ### Workflow Purpose:
+## This pipeline prepares test Pgen files for Regenie GWAS step 2,
+## with options for QC filtering of genetic data.
+##
+## ### Workflow Steps:
+## 1. QCFilterPgen: Filter Pgen files with specified QC parameters for each chromosome
+## 2. Optionally copy output files to a specified GCP folder
+##
+## ### Inputs:
+## - chromosomes: Array of chromosome identifiers
+## - input_pgen_files: Array of input Pgen files
+## - input_pvar_files: Array of input Pvar files
+## - input_psam_files: Array of input Psam files
+## - filter_psam_file: Optional Psam file for sample filtering
+## - output_prefix: Prefix for output files
+## - step2_plink2_option: Plink2 options for QC filtering
+## - billing_gcp_project_id: Optional GCP project ID for file copy operations
+## - target_gcp_folder: Optional target GCP folder for output files
+##
+## ### Outputs:
+## - test_pgen_files: Filtered Pgen files
+## - test_psam_files: Filtered Psam files
+## - test_pvar_files: Filtered Pvar files
+## - test_plink2_option: Plink2 options used for filtering
+## - test_num_variants: Total number of variants after filtering
+##
+## ### Notes:
+## - Processes each chromosome separately in parallel
+## - File copy operations to GCP are optional and only executed if a target folder is provided
+
 import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
 
-/**
- * Workflow: VUMCRegenie4Task1CreateCohortPsam
- * 
- * Description:
- * This workflow prepares test PGEN files for Regenie step 2. 
- * It performs QC filtering on the input PGEN files using specified PLINK2 options.
- * The filtered files are then optionally copied to a specified GCP folder.
- *
- * Author:
- * Quanhu Sheng, quanhu.sheng.1@vumc.org
- */
 workflow VUMCRegenie4Task2PrepareTestPgen {
   input {
     Array[String] chromosomes

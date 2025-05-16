@@ -117,7 +117,9 @@ mt = hl.import_plink( bed="~{input_bed}",
                         '22': 'chr22',
                         'X': 'chrX',
                         'Y': 'chrY',
-                        'MT': 'chrM'})
+                        'MT': 'chrM',
+                        'PAR1': 'chrX',
+                        'PAR2': 'chrX'})
 
 logger.info("Writing MatrixTable to ~{output_prefix} ...")
 mt.write("~{output_prefix}", overwrite=True)
