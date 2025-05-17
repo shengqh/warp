@@ -1,8 +1,8 @@
 version 1.0
 
-import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
 import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
+import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../annotation/VUMCAnnovar.wdl" as VUMCAnnovar
 
 workflow VUMCExtractSnpGenotypes {
@@ -14,8 +14,8 @@ workflow VUMCExtractSnpGenotypes {
 
     Array[String] chromosomes
     Array[File] input_pgen_files
-    Array[File] input_pvar_files
     Array[File] input_psam_files
+    Array[File] input_pvar_files
 
     String? billing_gcp_project_id
     String? target_gcp_folder    
@@ -83,25 +83,26 @@ workflow VUMCExtractSnpGenotypes {
 
   call VUMCAnnovar.Annovar {
     input:
-      input_vcf_file = Pgen2Vcf.output_vcf,
-      output_prefix = output_prefix + ".snp",
+      input_vcf = Pgen2Vcf.output_vcf,
+      target_prefix = output_prefix + ".snp",
   }
 
   call FormatResult {
     input:
       input_bed_file = ConvertRsidToBed.output_bed,
       input_vcf_file = Pgen2Vcf.output_vcf,
-      input_annovar_file = VUMCAnnovar.annovar_file,
+      input_annovar_file = Annovar.annovar_file,
       output_prefix = output_prefix + ".snp",
   }
 
   if (defined(target_gcp_folder)) {
-    call GcpUtils.MoveOrCopyFourFiles {
+    call GcpUtils.MoveOrCopyFiveFiles {
       input:
         source_file1 = ConvertRsidToBed.output_bed,
         source_file2 = select_first([MergePgenFiles.output_pgen, only_pgen]),
         source_file3 = select_first([MergePgenFiles.output_pvar, only_pvar]),
         source_file4 = select_first([MergePgenFiles.output_psam, only_psam]),
+        source_file5 = FormatResult.output_genotype_csv,
         is_move_file = false,
         project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
@@ -109,10 +110,11 @@ workflow VUMCExtractSnpGenotypes {
   }
 
   output {
-    File output_bed = select_first([MoveOrCopyFourFiles.output_file1, ConvertRsidToBed.output_bed])
-    File output_pgen = select_first([MoveOrCopyFourFiles.output_file2, MergePgenFiles.output_pgen, only_pgen])
-    File output_pvar = select_first([MoveOrCopyFourFiles.output_file3, MergePgenFiles.output_pvar, only_pvar])
-    File output_psam = select_first([MoveOrCopyFourFiles.output_file4, MergePgenFiles.output_psam, only_psam])
+    File output_bed = select_first([MoveOrCopyFiveFiles.output_file1, ConvertRsidToBed.output_bed])
+    File output_pgen = select_first([MoveOrCopyFiveFiles.output_file2, MergePgenFiles.output_pgen, only_pgen])
+    File output_pvar = select_first([MoveOrCopyFiveFiles.output_file3, MergePgenFiles.output_pvar, only_pvar])
+    File output_psam = select_first([MoveOrCopyFiveFiles.output_file4, MergePgenFiles.output_psam, only_psam])
+    File output_genotype_csv = select_first([MoveOrCopyFiveFiles.output_file5, FormatResult.output_genotype_csv])
     Int output_num_variants = select_first([MergePgenFiles.num_variants, only_num_variants])
   }
 }
@@ -123,6 +125,7 @@ task FormatResult {
     File input_vcf_file
     File input_annovar_file
     String output_prefix
+    String docker = "shengqh/report:20241120"
   }
 
   Int disk_size = ceil(size([input_bed_file, input_vcf_file, input_annovar_file], "GB")) + 10
@@ -130,8 +133,9 @@ task FormatResult {
   command <<<
 
 zcat ~{input_vcf_file} | grep -v "^##" | cut -f7- > request.clean
+zcat ~{input_annovar_file} > annovar.clean
 
-paste ~{input_annovar_file} request.clean > request.annovar.final.tsv
+paste annovar.clean request.clean > request.annovar.final.tsv
 
 cat > transpose.r << 'EOF'
 
@@ -140,15 +144,30 @@ annovar_file="request.annovar.final.tsv"
 output_file="~{output_prefix}.annovar.final.transposed.csv"
 
 library(data.table)
+library(dplyr)
 
-fdat=fread(input_file, data.table=FALSE)
-fdat$Start=as.character(as.numeric(fdat$Start))
-fdat$End=as.character(as.numeric(fdat$End))
+fbed=fread(bed_file, sep="\t", data.table=FALSE) |>
+  dplyr::rename(
+    Chr=V1,
+    Start=V2,
+    End=V3,
+    Rsid=V4
+  ) |>
+  dplyr::mutate(
+    Start=Start + 1,
+    Locus= paste0(Chr, ":", Start)
+  ) |>
+  dplyr::select(Locus, Rsid)
 
-mdat=t(fdat)
-colnames(mdat)=fdat$avsnp150
+fdat=fread(annovar_file, sep="\t", data.table=FALSE) |>
+  dplyr::mutate(Chr=paste0("chr", Chr),
+                Locus= paste0(Chr, ":", Start)) 
 
-mdat=mdat[c(1:7, 49:nrow(mdat)),]
+fcomb = merge(fdat, fbed, by="Locus", all.x=TRUE) |> 
+  dplyr::select(-Locus, -GeneDetail.refGene, -ExonicFunc.refGene, -AAChange.refGene, -FILTER, -INFO, -FORMAT) |>
+  tibble::column_to_rownames("Rsid") 
+
+mdat=t(fcomb)
 
 write.csv(mdat, output_file, row.names=TRUE)
 
@@ -159,13 +178,13 @@ R -f transpose.r
   >>>
 
   runtime {
-    docker: "ubuntu:20.04"
+    docker: docker
     preemptible: 1
     disks: "local-disk " + disk_size + " HDD"
     memory: "10 GiB"
   }
 
   output {
-    File output_csv = "~{output_prefix}.annovar.final.transposed.csv"
+    File output_genotype_csv = "~{output_prefix}.annovar.final.transposed.csv"
   }
 }

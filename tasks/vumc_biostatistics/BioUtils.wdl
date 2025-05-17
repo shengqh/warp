@@ -364,46 +364,26 @@ task ConvertRsidToBed {
     String? input_rsids
     String dbSnp155_bb_file = "http://hgdownload.soe.ucsc.edu/gbdb/hg38/snp/dbSnp155.bb"
     String output_prefix
-    String docker = "shengqh/ucsctools:latest"
+    String docker = "shengqh/ucsctools:20250516"
   }
 
   command {
-    if [[ "~{input_rsids}" != "" ]]; then
-      echo "~{input_rsids}" >> rsid.txt
-    fi
+    
+if [[ "~{input_rsids}" != "" ]]; then
+  echo "~{input_rsids}" >> rsid.txt
+fi
 
-    if [[ "~{input_rsid_file}" != "" ]]; then
-      cat "~{input_rsid_file}" >> rsid.txt
-    fi
+if [[ "~{input_rsid_file}" != "" ]]; then
+  cat "~{input_rsid_file}" >> rsid.txt
+fi
 
-    bigBedNamedItems -nameFile ~{dbSnp155_bb_file} rsid.txt request.tmp.bed
-    grep -v "_alt" request.tmp.bed > ~{output_prefix}.bed
-    rm -f request.tmp.bed dbSnp155.bb
+bigBedNamedItems -nameFile ~{dbSnp155_bb_file} rsid.txt request.tmp.bed
+grep -v "_alt" request.tmp.bed > ~{output_prefix}.bed
+rm -f request.tmp.bed dbSnp155.bb
+
   }
   runtime {
     docker: docker
-    preemptible: 1
-    disks: "local-disk 10 HDD"
-    memory: "5 GiB"
-  }
-  output {
-    File output_bed = "~{output_prefix}.bed"
-  }
-}
-task ConvertRsidToBed {
-  input {
-    File input_rsid_file
-    String dbSnp155_bb_file = "http://hgdownload.soe.ucsc.edu/gbdb/hg38/snp/dbSnp155.bb"
-    String output_prefix
-  }
-
-  command {
-    bigBedNamedItems -nameFile ~{dbSnp155_bb_file} ~{input_rsid_file} request.tmp.bed
-    grep -v "_alt" request.tmp.bed > ~{output_prefix}.bed
-    rm -f request.tmp.bed dbSnp155.bb
-  }
-  runtime {
-    docker: "shengqh/ucsctools:latest"
     preemptible: 1
     disks: "local-disk 10 HDD"
     memory: "5 GiB"
