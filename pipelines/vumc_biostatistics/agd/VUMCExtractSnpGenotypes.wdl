@@ -5,41 +5,41 @@ import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../annotation/VUMCAnnovar.wdl" as VUMCAnnovar
 
-/// This workflow extracts SNP genotypes from VUMC pgen files based on a list of rsids
-/// and generates a CSV file with the genotype information.
-/// The workflow performs the following steps:
-/// 1. Convert the input rsid file or rsids to a BED file.
-/// 2. Get the chromosome indices for the input chromosomes.
-/// 3. Filter the pgen files based on the BED file.
-/// 4. Merge the filtered pgen files if there are multiple chromosomes.
-/// 5. Filter samples without SNV.
-/// 6. Convert the filtered pgen files to VCF format.
-/// 7. Annotate the VCF file using Annovar.
-/// 8. Format the results into a CSV file.
-/// 9. Optionally move the output files to a specified GCP folder.
-/// 10. Outputs the final files including the BED, VCF, and CSV files.
-///
-/// Input parameters:
-/// - input_rsid_file: A file containing rsids, one per line.
-/// - input_rsids: A string containing rsids separated by spaces.
-/// - output_prefix: The prefix for the output files.
-/// - chromosomes: An array of chromosomes to process.
-/// - input_pgen_files: An array of input pgen files.
-/// - input_psam_files: An array of input psam files.
-/// - input_pvar_files: An array of input pvar files.
-/// - billing_gcp_project_id: The GCP project ID for billing.
-/// - target_gcp_folder: The GCP folder to move the output files to.
-/// Output files:
-/// - output_bed: The output BED file.
-/// - output_pgen: The output PGEN file.
-/// - output_pvar: The output PVAR file.
-/// - output_psam: The output PSAM file.
-/// - output_genotype_csv: The output CSV file containing genotype information.
-/// - output_num_variants: The number of variants in the output PGEN file.
-/// - output_num_samples: The number of samples in the output PGEN file.
-/// Note: The workflow uses the Plink2Utils and BioUtils tasks for filtering and converting pgen files.
-/// The Annovar task is used for annotating the VCF file.
-/// The GcpUtils task is used for moving files to GCP.
+# This workflow extracts SNP genotypes from VUMC pgen files based on a list of rsids
+# and generates a CSV file with the genotype information.
+# The workflow performs the following steps:
+# 1. Convert the input rsid file or rsids to a BED file.
+# 2. Get the chromosome indices for the input chromosomes.
+# 3. Filter the pgen files based on the BED file.
+# 4. Merge the filtered pgen files if there are multiple chromosomes.
+# 5. Filter samples without SNV.
+# 6. Convert the filtered pgen files to VCF format.
+# 7. Annotate the VCF file using Annovar.
+# 8. Format the results into a CSV file.
+# 9. Optionally move the output files to a specified GCP folder.
+# 10. Outputs the final files including the BED, VCF, and CSV files.
+#
+# Input parameters:
+# - input_rsid_file: A file containing rsids, one per line.
+# - input_rsids: A string containing rsids separated by spaces.
+# - output_prefix: The prefix for the output files.
+# - chromosomes: An array of chromosomes to process.
+# - input_pgen_files: An array of input pgen files.
+# - input_psam_files: An array of input psam files.
+# - input_pvar_files: An array of input pvar files.
+# - billing_gcp_project_id: The GCP project ID for billing.
+# - target_gcp_folder: The GCP folder to move the output files to.
+# Output files:
+# - output_bed: The output BED file.
+# - output_pgen: The output PGEN file.
+# - output_pvar: The output PVAR file.
+# - output_psam: The output PSAM file.
+# - output_genotype_csv: The output CSV file containing genotype information.
+# - output_num_variants: The number of variants in the output PGEN file.
+# - output_num_samples: The number of samples in the output PGEN file.
+# Note: The workflow uses the Plink2Utils and BioUtils tasks for filtering and converting pgen files.
+# The Annovar task is used for annotating the VCF file.
+# The GcpUtils task is used for moving files to GCP.
 
 workflow VUMCExtractSnpGenotypes {
   input {
