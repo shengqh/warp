@@ -345,3 +345,147 @@ task GetAutosomalChromosomeIndecies {
     Array[Int] autosomal_chromosome_indecies = read_lines("autosomal_chromosomes.txt")
   }
 }
+
+# This task converts a list of rsIDs to BED format using UCSC tools
+# 
+# The task uses the UCSC bigBedNamedItems tool to extract genomic position information
+# for given rsIDs from the dbSnp155 database, resulting in a standard BED file
+# that can be used for downstream genomic analyses.
+#
+# Inputs:
+#   - File containing list of rsIDs, one per line
+#   - Path to the dbSnp155 bigBed file
+#
+# Outputs:
+#   - BED format file with positions for the input rsIDs
+task ConvertRsidToBed {
+  input {
+    File? input_rsid_file
+    String? input_rsids
+    String dbSnp155_bb_file = "http://hgdownload.soe.ucsc.edu/gbdb/hg38/snp/dbSnp155.bb"
+    String output_prefix
+    String docker = "shengqh/ucsctools:latest"
+  }
+
+  command {
+    if [[ "~{input_rsids}" != "" ]]; then
+      echo "~{input_rsids}" >> rsid.txt
+    fi
+
+    if [[ "~{input_rsid_file}" != "" ]]; then
+      cat "~{input_rsid_file}" >> rsid.txt
+    fi
+
+    bigBedNamedItems -nameFile ~{dbSnp155_bb_file} rsid.txt request.tmp.bed
+    grep -v "_alt" request.tmp.bed > ~{output_prefix}.bed
+    rm -f request.tmp.bed dbSnp155.bb
+  }
+  runtime {
+    docker: docker
+    preemptible: 1
+    disks: "local-disk 10 HDD"
+    memory: "5 GiB"
+  }
+  output {
+    File output_bed = "~{output_prefix}.bed"
+  }
+}
+task ConvertRsidToBed {
+  input {
+    File input_rsid_file
+    String dbSnp155_bb_file = "http://hgdownload.soe.ucsc.edu/gbdb/hg38/snp/dbSnp155.bb"
+    String output_prefix
+  }
+
+  command {
+    bigBedNamedItems -nameFile ~{dbSnp155_bb_file} ~{input_rsid_file} request.tmp.bed
+    grep -v "_alt" request.tmp.bed > ~{output_prefix}.bed
+    rm -f request.tmp.bed dbSnp155.bb
+  }
+  runtime {
+    docker: "shengqh/ucsctools:latest"
+    preemptible: 1
+    disks: "local-disk 10 HDD"
+    memory: "5 GiB"
+  }
+  output {
+    File output_bed = "~{output_prefix}.bed"
+  }
+}
+
+# This task contains a task to find the corresponding index of a chromosome
+# in a given chromosome list from an input BED file.
+#
+# The task is useful for genomic analyses where chromosome identification and
+# indexing are required, such as for alignment, variant calling, or other
+# bioinformatics operations that need to reference chromosomes consistently.
+#
+# Inputs:
+#   - BED file containing chromosome information
+#   - List of chromosomes to use as reference
+#
+# Outputs:
+#   - Index of chromosomes from the BED file in the reference chromosome list
+task GetChromosomeIndecies {
+  input {
+    Array[String] input_chromosomes
+    File input_bed_file
+    String docker = "shengqh/hail_gcp:20241127"
+  }
+
+  command <<<
+
+#!/bin/bash
+
+set -e
+
+# Create Python script
+cat > get_chrom_indices.py << 'EOF'
+import pandas as pd
+import sys
+
+def get_chrom_indices(chrom_list, bed_file):
+  # Read the bed file (assuming standard BED format: chrom start end ...)
+  bed_df = pd.read_csv(bed_file, sep='\t', header=None)
+  
+  # Extract unique chromosomes from the bed file
+  bed_chroms = set(bed_df[0].astype(str))
+  
+  # Find indices of chromosomes that are in the bed file
+  indices = []
+  for i, chrom in enumerate(chrom_list):
+    if chrom in bed_chroms:
+      indices.append(i)
+  
+  return indices
+
+if __name__ == "__main__":
+  # Read chromosomes from environment variable
+  chrom_list = sys.argv[1].split(",")
+  bed_file = sys.argv[2]
+  
+  indices = get_chrom_indices(chrom_list, bed_file)
+  
+  # Write indices to output file
+  with open("chromosomes.txt", "w") as f:
+    for idx in indices:
+      f.write(f"{idx}\n")
+EOF
+
+# Run the Python script
+python3 get_chrom_indices.py ~{sep="," input_chromosomes} ~{input_bed_file}
+
+>>>
+
+  runtime {
+    cpu: 1
+    docker: docker
+    preemptible: 1
+    disks: "local-disk 5 HDD"
+    memory: "1 GiB"
+  }
+
+  output {
+    Array[Int] chromosome_indecies = read_lines("chromosomes.txt")
+  }
+}

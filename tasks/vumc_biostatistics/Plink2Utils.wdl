@@ -340,3 +340,46 @@ grep -v "^#" ~{target_pvar} | wc -l | cut -d ' ' -f 1 > num_variants.txt
     Int num_variants = read_int("num_variants.txt")
   }
 }
+
+task Pgen2Vcf {
+  input {
+    File input_pgen
+    File input_pvar
+    File input_psam
+    
+    String? plink2_option
+
+    String output_prefix
+    
+    String docker = "shengqh/plink_1.9_2.0:20250304"
+    Int? memory_gb_override
+    Int? disk_size_override
+  }
+
+  Int pgen_file_size = ceil(size([input_pgen, input_pvar, input_psam], "GB"))
+  Int disk_size = select_first([disk_size_override, pgen_file_size * 3 + 20])
+  Int memory_gb = select_first([memory_gb_override, pgen_file_size * 3])
+
+  String target_vcf = output_prefix + ".vcf.gz"
+
+  command <<<
+
+plink2 ~{plink2_option} \
+  --pgen ~{input_pgen} \
+  --pvar ~{input_pvar} \
+  --psam ~{input_psam} \
+  --export vcf bgz id-paste=iid \
+  --out ~{output_prefix} 
+
+>>>
+
+  runtime {
+    docker: docker
+    preemptible: 3
+    disks: "local-disk " + disk_size + " HDD"
+    memory: memory_gb + " GiB"
+  }
+  output {
+    File output_vcf = "~{output_prefix}.vcf.gz"
+  }
+}

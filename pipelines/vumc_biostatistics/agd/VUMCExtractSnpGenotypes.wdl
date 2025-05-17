@@ -2,10 +2,14 @@ version 1.0
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
+import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
+import "../annotation/VUMCAnnovar.wdl" as VUMCAnnovar
 
 workflow VUMCExtractSnpGenotypes {
   input {
-    File input_rsid_file
+    File? input_rsid_file
+    String? input_rsids
+
     String output_prefix
 
     Array[String] chromosomes
@@ -17,13 +21,14 @@ workflow VUMCExtractSnpGenotypes {
     String? target_gcp_folder    
   }
 
-  call ConvertRsidToBed {
+  call BioUtils.ConvertRsidToBed {
     input:
       input_rsid_file = input_rsid_file,
+      input_rsids = input_rsids,
       output_prefix = output_prefix
   }
 
-  call GetChromosomeIndecies {
+  call BioUtils.GetChromosomeIndecies {
     input:
       input_chromosomes = chromosomes,
       input_bed_file = ConvertRsidToBed.output_bed
@@ -68,6 +73,28 @@ workflow VUMCExtractSnpGenotypes {
 
   Int cur_num_variants = select_first([MergePgenFiles.num_variants, only_num_variants])
 
+  call Plink2Utils.Pgen2Vcf {
+    input:
+      input_pgen = select_first([MergePgenFiles.output_pgen, only_pgen]),
+      input_pvar = select_first([MergePgenFiles.output_pvar, only_pvar]),
+      input_psam = select_first([MergePgenFiles.output_psam, only_psam]),
+      output_prefix = output_prefix + ".snp",
+  }
+
+  call VUMCAnnovar.Annovar {
+    input:
+      input_vcf_file = Pgen2Vcf.output_vcf,
+      output_prefix = output_prefix + ".snp",
+  }
+
+  call FormatResult {
+    input:
+      input_bed_file = ConvertRsidToBed.output_bed,
+      input_vcf_file = Pgen2Vcf.output_vcf,
+      input_annovar_file = VUMCAnnovar.annovar_file,
+      output_prefix = output_prefix + ".snp",
+  }
+
   if (defined(target_gcp_folder)) {
     call GcpUtils.MoveOrCopyFourFiles {
       input:
@@ -90,89 +117,55 @@ workflow VUMCExtractSnpGenotypes {
   }
 }
 
-task ConvertRsidToBed {
+task FormatResult {
   input {
-    File input_rsid_file
-    String dbSnp155_bb_file = "http://hgdownload.soe.ucsc.edu/gbdb/hg38/snp/dbSnp155.bb"
+    File input_bed_file
+    File input_vcf_file
+    File input_annovar_file
     String output_prefix
   }
 
-  command {
-    bigBedNamedItems -nameFile ~{dbSnp155_bb_file} ~{input_rsid_file} request.tmp.bed
-    grep -v "_alt" request.tmp.bed > ~{output_prefix}.bed
-    rm -f request.tmp.bed dbSnp155.bb
-  }
-  runtime {
-    docker: "shengqh/ucsctools:latest"
-    preemptible: 1
-    disks: "local-disk 10 HDD"
-    memory: "5 GiB"
-  }
-  output {
-    File output_bed = "~{output_prefix}.bed"
-  }
-}
-
-task GetChromosomeIndecies {
-  input {
-    Array[String] input_chromosomes
-    File input_bed_file
-    String docker = "shengqh/hail_gcp:20241127"
-  }
+  Int disk_size = ceil(size([input_bed_file, input_vcf_file, input_annovar_file], "GB")) + 10
 
   command <<<
 
-#!/bin/bash
+zcat ~{input_vcf_file} | grep -v "^##" | cut -f7- > request.clean
 
-set -e
+paste ~{input_annovar_file} request.clean > request.annovar.final.tsv
 
-# Create Python script
-cat > get_chrom_indices.py << 'EOF'
-import pandas as pd
-import sys
+cat > transpose.r << 'EOF'
 
-def get_chrom_indices(chrom_list, bed_file):
-  # Read the bed file (assuming standard BED format: chrom start end ...)
-  bed_df = pd.read_csv(bed_file, sep='\t', header=None)
-  
-  # Extract unique chromosomes from the bed file
-  bed_chroms = set(bed_df[0].astype(str))
-  
-  # Find indices of chromosomes that are in the bed file
-  indices = []
-  for i, chrom in enumerate(chrom_list):
-    if chrom in bed_chroms:
-      indices.append(i)
-  
-  return indices
+bed_file="~{input_bed_file}"
+annovar_file="request.annovar.final.tsv"
+output_file="~{output_prefix}.annovar.final.transposed.csv"
 
-if __name__ == "__main__":
-  # Read chromosomes from environment variable
-  chrom_list = sys.argv[1].split(",")
-  bed_file = sys.argv[2]
-  
-  indices = get_chrom_indices(chrom_list, bed_file)
-  
-  # Write indices to output file
-  with open("chromosomes.txt", "w") as f:
-    for idx in indices:
-      f.write(f"{idx}\n")
+library(data.table)
+
+fdat=fread(input_file, data.table=FALSE)
+fdat$Start=as.character(as.numeric(fdat$Start))
+fdat$End=as.character(as.numeric(fdat$End))
+
+mdat=t(fdat)
+colnames(mdat)=fdat$avsnp150
+
+mdat=mdat[c(1:7, 49:nrow(mdat)),]
+
+write.csv(mdat, output_file, row.names=TRUE)
+
 EOF
 
-# Run the Python script
-python3 get_chrom_indices.py ~{sep="," input_chromosomes} ~{input_bed_file}
+R -f transpose.r
 
->>>
+  >>>
 
   runtime {
-    cpu: 1
-    docker: docker
+    docker: "ubuntu:20.04"
     preemptible: 1
-    disks: "local-disk 5 HDD"
-    memory: "1 GiB"
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "10 GiB"
   }
 
   output {
-    Array[Int] chromosome_indecies = read_lines("chromosomes.txt")
+    File output_csv = "~{output_prefix}.annovar.final.transposed.csv"
   }
 }
