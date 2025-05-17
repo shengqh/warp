@@ -122,6 +122,8 @@ task MergePgenFiles {
 
     String output_prefix
 
+    String? plink2_option
+
     Int memory_gb = 20
     Int cpu = 8
 
@@ -146,7 +148,7 @@ cat ~{write_lines(input_psam_files)} > psam.list
 
 paste pgen.list pvar.list psam.list > merge.list
 
-plink2 --pmerge-list merge.list --make-pgen --out ~{output_prefix} --threads ~{cpu}
+plink2 ~{plink2_option} --pmerge-list merge.list --make-pgen --out ~{output_prefix} --threads ~{cpu}
 
 rm -f ~{target_pgen} ~{target_pvar} ~{target_psam}
 
@@ -360,8 +362,6 @@ task Pgen2Vcf {
   Int disk_size = select_first([disk_size_override, pgen_file_size * 3 + 20])
   Int memory_gb = select_first([memory_gb_override, pgen_file_size * 3])
 
-  String target_vcf = output_prefix + ".vcf.gz"
-
   command <<<
 
 plink2 ~{plink2_option} \
@@ -381,5 +381,86 @@ plink2 ~{plink2_option} \
   }
   output {
     File output_vcf = "~{output_prefix}.vcf.gz"
+  }
+}
+
+task FilterSamplesWithoutSNV {
+  input {
+    File input_pgen
+    File input_pvar
+    File input_psam
+
+    String output_prefix
+
+    String? plink2_option
+
+    Int memory_gb = 20
+
+    String docker = "shengqh/plink_1.9_2.0:20250304"
+  }
+
+  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 20
+
+  String target_pgen = output_prefix + ".pgen"
+  String target_pvar = output_prefix + ".pvar"
+  String target_psam = output_prefix + ".psam"
+
+  command <<<
+
+grep -v "^#" ~{input_pvar} | wc -l | cut -d ' ' -f 1 > init_num_variants.txt
+
+plink2 \
+  --pgen ~{input_pgen} \
+  --pvar ~{input_pvar} \
+  --psam ~{input_psam} \
+  --het --out filtered
+
+cat > filter.py << 'EOF'
+import pandas as pd
+
+import pandas as pd
+
+with open("init_num_variants.txt", "r") as f:
+  init_num_variants = int(f.read().strip())
+
+# Load the gcount file
+het = pd.read_csv("filtered.het", sep="\t")
+
+# Calculate minor allele count: heterozygous + 2 * homozygous minor
+all_hom=het[het['O(HOM)'] == init_num_variants][['#FID', 'IID']]
+
+# Save to file
+all_hom.to_csv("all_hom.txt", index=False, header=True, sep="\t")
+
+EOF
+
+python3 filter.py
+
+plink2 ~{plink2_option} \
+  --pgen ~{input_pgen} \
+  --pvar ~{input_pvar} \
+  --psam ~{input_psam} \
+  --remove all_hom.txt \
+  --make-pgen \
+  --out ~{output_prefix}
+
+grep -v "^#" ~{target_psam} | wc -l | cut -d ' ' -f 1 > num_samples.txt
+grep -v "^#" ~{target_pvar} | wc -l | cut -d ' ' -f 1 > num_variants.txt
+
+>>>
+
+  runtime {
+    docker: docker
+    preemptible: 1
+    disks: "local-disk " + disk_size + " HDD"
+    memory: memory_gb + " GiB"
+  }
+  output {
+    File output_pgen = target_pgen
+    File output_pvar = target_pvar
+    File output_psam = target_psam
+
+    Int output_num_samples = read_int("num_samples.txt")
+    Int output_num_variants = read_int("num_variants.txt")
   }
 }
