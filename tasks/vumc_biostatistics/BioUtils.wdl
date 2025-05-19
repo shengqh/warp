@@ -367,21 +367,24 @@ task ConvertRsidToBed {
     String docker = "shengqh/ucsctools:20250516"
   }
 
-  command {
-    
+  command <<<
+
 if [[ "~{input_rsids}" != "" ]]; then
-  echo "~{input_rsids}" >> rsid.txt
+  echo "~{input_rsids}" >> rsid.tmp.txt
 fi
 
 if [[ "~{input_rsid_file}" != "" ]]; then
-  cat "~{input_rsid_file}" >> rsid.txt
+  cat "~{input_rsid_file}" >> rsid.tmp.txt
 fi
+
+#remove rsid in case it is used as header
+grep -v "rsid" rsid.tmp.txt > rsid.txt 
 
 bigBedNamedItems -nameFile ~{dbSnp155_bb_file} rsid.txt request.tmp.bed
 grep -v "_alt" request.tmp.bed > ~{output_prefix}.bed
 rm -f request.tmp.bed dbSnp155.bb
 
-  }
+  >>>
   runtime {
     docker: docker
     preemptible: 1
