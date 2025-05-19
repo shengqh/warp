@@ -73,8 +73,7 @@ task ExtractVariantBigQuery {
     String input_rsid_url
     String output_prefix
 
-    #String docker = "us.gcr.io/broad-dsp-gcr-public/terra-jupyter-hail:1.1.14"
-    String docker = "shengqh/hail_gcp:20250519"
+    String docker = "us.gcr.io/broad-dsp-gcr-public/terra-jupyter-hail:1.1.14"
   }
 
   # using `~{annovar_url}` will fail. "`" would cause problem.
