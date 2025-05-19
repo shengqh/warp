@@ -457,17 +457,17 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/rnaseq/VUMCStarFusion.wdl
 
-  - name: VUMCExtractVariantBigQuery
+  - name: VUMCConvertRsidToBed
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractVariantBigQuery.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCConvertRsidToBed.wdl
+
+  - name: VUMCFindAgdVariantsByRsid
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCFindAgdVariantsByRsid.wdl
 
   - name: VUMCExtractSnpGenotypes
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractSnpGenotypes.wdl
-
-  - name: VUMCExtractSnpGenotypesBigQuery
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractSnpGenotypesBigQuery.wdl
 
 
     
