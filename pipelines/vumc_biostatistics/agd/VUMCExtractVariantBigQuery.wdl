@@ -77,6 +77,7 @@ task ExtractVariantBigQuery {
     String docker = "shengqh/hail_gcp:20250519"
   }
 
+  # using `~{annovar_url}` will fail. "`" would cause problem.
   command <<<
 
 cat <<EOF > query_table.py
@@ -110,7 +111,14 @@ res = client.query(query, job_config=job_config).result().to_dataframe()  # Make
 print(res.shape)
 res.head()
 
-query = "SELECT\n  anno.* \nFROM\n  `" + annovar_url + "` as anno,\n  " + table_id + " as g\nWHERE\n  anno.avsnp150 = g.RSID"
+query = f"""SELECT
+  anno.*
+FROM
+  {annovar_url} as anno,
+  {table_id} as g
+WHERE
+  anno.avsnp150 = g.RSID
+"""
 print(query)
 
 anno_res = client.query(query, job_config=job_config).result().to_dataframe()  # Make an API request.
