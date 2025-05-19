@@ -96,7 +96,7 @@ assert external_config.csv_options is not None
 external_config.csv_options.skip_leading_rows = 1
 
 annovar_url = "~{annovar_url}"
-print("annovar_url: {annovar_url}")
+print(f"annovar_url: {annovar_url}")
 
 table_id = "rsid_tbl"
 job_config = bigquery.QueryJobConfig(table_definitions={table_id: external_config})
@@ -108,12 +108,7 @@ res = client.query(query, job_config=job_config).result().to_dataframe()  # Make
 print(res.shape)
 res.head()
 
-query = f"""
-SELECT anno.*
-FROM `{annovar_url}` as anno,
-    {table_id} as g
-WHERE anno.avsnp150 = g.RSID
-"""
+query = "SELECT anno.* FROM `" + annovar_url + "` as anno, ", table_id + " as g WHERE anno.avsnp150 = g.RSID"
 print(query)
 
 anno_res = client.query(query, job_config=job_config).result().to_dataframe()  # Make an API request.
