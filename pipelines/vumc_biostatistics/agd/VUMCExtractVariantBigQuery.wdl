@@ -108,7 +108,7 @@ res.head()
 
 query = f"""
 SELECT DISTINCT anno.Chr, anno.Start, anno.End, anno.avsnp150, anno.Ref, anno.Alt
-FROM `{annovar_url}` as anno,
+FROM {annovar_url} as anno,
     {table_id} as g
 WHERE anno.avsnp150 = g.RSID
 """
