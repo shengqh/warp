@@ -1,28 +1,29 @@
 version 1.0
 
-## VUMC Extract Variant BigQuery Workflow
+## VUMC Find AGD Variants By RSID Workflow
 ##
-## This workflow handles the extraction of variant information from BigQuery using RSID inputs.
+## This workflow handles the extraction of variant information from AGD BigQuery database using RSID inputs.
 ## Developed by VUMC Biostatistics for genetic analysis projects.
 ## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
 ##
 ## ### Workflow Purpose:
-## This pipeline queries a BigQuery Annovar table to extract variant information based on input RSIDs,
-## and produces a BED format output file.
+## This pipeline queries a BigQuery Annovar table to extract AGD variant information based on input RSIDs,
+## and produces both a BED format and detailed variant annotation output files.
 ##
 ## ### Workflow Steps:
-## 1. ExtractVariantBigQuery: Query BigQuery Annovar table using input RSIDs
+## 1. FindAgdVariantsByRsid: Query BigQuery Annovar table using input RSIDs
 ## 2. Optionally copy output files to a specified GCP folder
 ##
 ## ### Inputs:
-## - annovar_url: BigQuery table URL for Annovar data
-## - input_rsid_url: File containing RSIDs to query, with column name "rsid"
+## - annovar_url: BigQuery table URL for Annovar data (default: working-set-385118.agd250k.annovar)
+## - input_rsid_url: GCS path to file containing RSIDs to query, with column name "RSID"
 ## - output_prefix: Prefix for output files
 ## - billing_gcp_project_id: Optional GCP project ID for file copy operations
 ## - target_gcp_folder: Optional target GCP folder for the output files
 ##
 ## ### Outputs:
 ## - output_variant_bed: Path to the output BED file containing extracted variant information
+## - output_variant_txt: Path to the output text file containing complete Annovar annotations
 ##
 ## ### Notes:
 ## - Uses GcpUtils for file copy operations
@@ -31,7 +32,7 @@ version 1.0
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
-workflow VUMCExtractVariantBigQuery {
+workflow VUMCFindAgdVariantsByRsid {
   input {
     String annovar_url='working-set-385118.agd250k.annovar'
 
@@ -42,7 +43,7 @@ workflow VUMCExtractVariantBigQuery {
     String? target_gcp_folder
   }
 
-  call ExtractVariantBigQuery {
+  call FindAgdVariantsByRsid {
     input:
       annovar_url = annovar_url,
       input_rsid_url = input_rsid_url,
@@ -52,8 +53,8 @@ workflow VUMCExtractVariantBigQuery {
   if(defined(target_gcp_folder)){
     call GcpUtils.MoveOrCopyTwoFiles as CopyFile {
       input:
-        source_file1 = ExtractVariantBigQuery.output_variant_bed,
-        source_file2 = ExtractVariantBigQuery.output_variant_txt,
+        source_file1 = FindAgdVariantsByRsid.output_variant_bed,
+        source_file2 = FindAgdVariantsByRsid.output_variant_txt,
         is_move_file = false,
         project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
@@ -61,12 +62,12 @@ workflow VUMCExtractVariantBigQuery {
   }
 
   output {
-    String output_variant_bed = select_first([CopyFile.output_file1 , ExtractVariantBigQuery.output_variant_bed])
-    String output_variant_txt = select_first([CopyFile.output_file2 , ExtractVariantBigQuery.output_variant_txt])
+    String output_variant_bed = select_first([CopyFile.output_file1 , FindAgdVariantsByRsid.output_variant_bed])
+    String output_variant_txt = select_first([CopyFile.output_file2 , FindAgdVariantsByRsid.output_variant_txt])
   }
 }
 
-task ExtractVariantBigQuery {
+task FindAgdVariantsByRsid {
   input {
     String annovar_url
 
