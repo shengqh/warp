@@ -16,7 +16,7 @@ version 1.0
 ##
 ## ### Inputs:
 ## - annovar_url: BigQuery table URL for Annovar data
-## - input_rsid_file: File containing RSIDs to query, with column name "rsid"
+## - input_rsid_url: File containing RSIDs to query, with column name "rsid"
 ## - output_prefix: Prefix for output files
 ## - billing_gcp_project_id: Optional GCP project ID for file copy operations
 ## - target_gcp_folder: Optional target GCP folder for the output files
@@ -35,7 +35,7 @@ workflow VUMCExtractVariantBigQuery {
   input {
     String annovar_url='vangard-workflow-data.agd250k.annovar'
 
-    File input_rsid_file
+    String input_rsid_url
     String output_prefix
 
     String? billing_gcp_project_id
@@ -45,7 +45,7 @@ workflow VUMCExtractVariantBigQuery {
   call ExtractVariantBigQuery {
     input:
       annovar_url = annovar_url,
-      input_rsid_file = input_rsid_file,
+      input_rsid_url = input_rsid_url,
       output_prefix = output_prefix
   }
 
@@ -86,7 +86,7 @@ client = bigquery.Client()
 # Configure the external data source and query job.
 external_config = bigquery.ExternalConfig("CSV")
 external_config.source_uris = [
-    "~{input_rsid_file}"
+    "~{input_rsid_url}"
 ]
 external_config.schema = [
     bigquery.SchemaField("RSID", "STRING"),
