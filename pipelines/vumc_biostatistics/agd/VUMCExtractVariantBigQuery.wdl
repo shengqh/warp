@@ -94,6 +94,7 @@ external_config.schema = [
 assert external_config.csv_options is not None
 external_config.csv_options.skip_leading_rows = 1
 
+annovar_url = "~{annovar_url}"
 table_id = "rsid_tbl"
 job_config = bigquery.QueryJobConfig(table_definitions={table_id: external_config})
 
@@ -106,7 +107,7 @@ res.head()
 
 query = f"""
 SELECT DISTINCT anno.Chr, anno.Start, anno.End, anno.avsnp150, anno.Ref, anno.Alt
-FROM `~{annovar_url}` as anno,
+FROM `{annovar_url}` as anno,
     {table_id} as g
 WHERE anno.avsnp150 = g.RSID
 """
