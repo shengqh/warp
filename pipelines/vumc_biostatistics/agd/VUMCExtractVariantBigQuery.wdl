@@ -33,7 +33,7 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCExtractVariantBigQuery {
   input {
-    String annovar_url='vangard-workflow-data.agd250k.annovar'
+    String annovar_url='working-set-385118.agd250k.annovar'
 
     String input_rsid_url
     String output_prefix
