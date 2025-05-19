@@ -464,3 +464,10 @@ workflows:
   - name: VUMCExtractSnpGenotypes
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractSnpGenotypes.wdl
+
+  - name: VUMCExtractSnpGenotypesBigQuery
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractSnpGenotypesBigQuery.wdl
+
+
+    
