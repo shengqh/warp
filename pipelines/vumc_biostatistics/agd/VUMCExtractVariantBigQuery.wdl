@@ -108,7 +108,7 @@ print(res.shape)
 res.head()
 
 query = f"""
-SELECT DISTINCT anno.Chr, anno.Start, anno.End, anno.avsnp150, anno.Ref, anno.Alt
+SELECT anno.*
 FROM ~{annovar_url} as anno,
     {table_id} as g
 WHERE anno.avsnp150 = g.RSID
@@ -120,7 +120,7 @@ print(anno_res.shape)
 anno_res= anno_res.sort_values(by=['Chr', 'Start'])
 anno_res
 
-anno_res.to_csv("~{output_prefix}.bed", sep="\t", index=False, header=False)
+anno_res.to_csv("~{output_prefix}.annovar.txt", sep="\t", index=False, header=True)
 
 anno_res.Start=anno_res.Start-1
 anno_res['Name'] = anno_res['avsnp150'] + ":" + anno_res['Ref'] + ":" + anno_res['Alt']
@@ -144,6 +144,7 @@ python3 query_table.py
   }
 
   output {
+    File output_variant_txt = "~{output_prefix}.annovar.txt"
     File output_variant_bed = "~{output_prefix}.bed"
   }
 }
