@@ -71,7 +71,7 @@ task ExtractVariantBigQuery {
     String input_rsid_url
     String output_prefix
 
-    String docker = "shengqh/hail_gcp:20241120"
+    String docker = "us.gcr.io/broad-dsp-gcr-public/terra-jupyter-hail:1.1.14" #"shengqh/hail_gcp:20241120"
   }
 
   command <<<
