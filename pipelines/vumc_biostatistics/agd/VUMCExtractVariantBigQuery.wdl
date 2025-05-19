@@ -68,7 +68,7 @@ task ExtractVariantBigQuery {
   input {
     String annovar_url
 
-    File input_rsid_file
+    File input_rsid_url
     String output_prefix
 
     String docker = "shengqh/hail_gcp:20241120"
