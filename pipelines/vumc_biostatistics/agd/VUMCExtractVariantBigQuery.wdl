@@ -119,14 +119,14 @@ print(query)
 anno_res = client.query(query, job_config=job_config).result().to_dataframe()  # Make an API request.
 print(anno_res.shape)
 anno_res= anno_res.sort_values(by=['Chr', 'Start'])
-anno_res
+anno_res.head()
 
 anno_res.to_csv("~{output_prefix}.annovar.txt", sep="\t", index=False, header=True)
 
 anno_res.Start=anno_res.Start-1
 anno_res['Name'] = anno_res['avsnp150'] + ":" + anno_res['Ref'] + ":" + anno_res['Alt']
 anno_res=anno_res[['Chr', 'Start', 'End', 'Name']]
-anno_res
+anno_res.head()
 
 anno_res.to_csv("~{output_prefix}.bed", sep="\t", index=False, header=False)
 
