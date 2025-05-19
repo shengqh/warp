@@ -50,9 +50,10 @@ workflow VUMCExtractVariantBigQuery {
   }
 
   if(defined(target_gcp_folder)){
-    call GcpUtils.MoveOrCopyOneFile as CopyFile {
+    call GcpUtils.MoveOrCopyTwoFiles as CopyFile {
       input:
-        source_file = ExtractVariantBigQuery.output_variant_bed,
+        source_file1 = ExtractVariantBigQuery.output_variant_bed,
+        source_file2 = ExtractVariantBigQuery.output_variant_txt,
         is_move_file = false,
         project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
@@ -60,7 +61,8 @@ workflow VUMCExtractVariantBigQuery {
   }
 
   output {
-    String output_variant_bed = select_first([CopyFile.output_file , ExtractVariantBigQuery.output_variant_bed])
+    String output_variant_bed = select_first([CopyFile.output_file1 , ExtractVariantBigQuery.output_variant_bed])
+    String output_variant_txt = select_first([CopyFile.output_file2 , ExtractVariantBigQuery.output_variant_txt])
   }
 }
 
