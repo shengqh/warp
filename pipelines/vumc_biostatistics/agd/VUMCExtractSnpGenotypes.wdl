@@ -194,25 +194,34 @@ fbed=fread(bed_file, sep="\t", data.table=FALSE) |>
   ) |>
   dplyr::mutate(
     Start=Start + 1,
-    Locus= paste0(Chr, ":", Start)
+    Locus= paste0(Chr, ":", Start, "-", End)
   ) |>
   dplyr::select(Locus, Rsid)
 
 fdat=fread(annovar_file, sep="\t", data.table=FALSE) |>
   dplyr::mutate(Chr=paste0("chr", Chr),
-                Locus= paste0(Chr, ":", Start)) 
+                Locus= paste0(Chr, ":", Start, "-", End))
 
-fcomb = merge(fdat, fbed, by="Locus", all.x=TRUE) |> 
+fcomb = merge(fdat, fbed, by="Locus") |> 
   dplyr::select(-Locus, -GeneDetail.refGene, -ExonicFunc.refGene, -AAChange.refGene, -FILTER, -INFO, -FORMAT) |>
-  tibble::column_to_rownames("Rsid") 
+  dplyr::select(Rsid, everything())  
+
+stopifnot(all(!is.na(fcomb$Rsid)))
+
+fcomb = fcomb[,!grepl("HG", colnames(fcomb))] #remove all HG samples
+fcomb = fcomb[,!grepl("_INVALID", colnames(fcomb))] #remove all invalid samples
+
+fdata=fcomb[,c(9:ncol(fcomb))] #remove all non-genotype columns
 
 #remove all samples with all 0/0 genotypes
-refcount=apply(fcomb, 2, function(x) sum(x=="0/0" | x=="./." | x=="0|0" | x==".|."))
-ffiltered=fcomb[,refcount<nrow(fcomb)]
+refcount=apply(fdata, 2, function(x) sum(x=="0/0" | x=="./." | x=="0|0" | x==".|." | x=="0"))
+ffiltered_cols=colnames(fdata)[refcount<nrow(fcomb)]
+
+ffiltered=fcomb[,c(colnames(fcomb)[1:8], ffiltered_cols)]
 
 mdat=t(ffiltered)
 
-write.csv(mdat, output_file, row.names=TRUE)
+write.table(mdat, output_file, sep=",", row.names=TRUE, col.names=FALSE, quote=F)
 
 EOF
 
