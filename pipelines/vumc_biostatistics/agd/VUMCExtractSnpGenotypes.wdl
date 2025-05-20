@@ -67,9 +67,10 @@ workflow VUMCExtractSnpGenotypes {
       output_prefix = output_prefix
   }
 
-  call BioUtils.GetChromosomeIndecies {
+  call BioUtils.GetChromosomeIndeciesWithVariants as GetChromosomeIndecies {
     input:
       input_chromosomes = chromosomes,
+      input_pvar_files = input_pvar_files,
       input_bed_file = ConvertRsidToBed.output_bed
   }
 

@@ -1,9 +1,9 @@
 {
   "VUMCExtractSnpGenotypes.output_prefix": "request",
-  "VUMCExtractSnpGenotypes.input_rsids": "rs892560375 rs752214014",
-  "VUMCExtractSnpGenotypes.chromosomes": ["chr21", "chr22"],
-  "VUMCExtractSnpGenotypes.input_pgen_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/primary_pass_pgen/chr21.primary_pass.pgen", "/nobackup/h_cqs/shengq2/biovu/agd35k/primary_pass_pgen/chr22.primary_pass.pgen"],
-  "VUMCExtractSnpGenotypes.input_psam_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/primary_pass_pgen/chr21.primary_pass.psam", "/nobackup/h_cqs/shengq2/biovu/agd35k/primary_pass_pgen/chr22.primary_pass.psam"],
-  "VUMCExtractSnpGenotypes.input_pvar_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/primary_pass_pgen/chr21.primary_pass.pvar", "/nobackup/h_cqs/shengq2/biovu/agd35k/primary_pass_pgen/chr22.primary_pass.pvar"]
+  "VUMCExtractSnpGenotypes.input_rsid_file": "/nobackup/h_cqs/shengq2/program/collaborations/biovu/20250519_urgent_rsid_genotype/rsid.txt",
+  "VUMCExtractSnpGenotypes.chromosomes": ["chr8", "chr20"],
+  "VUMCExtractSnpGenotypes.input_pgen_files": ["/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chr8.primary_pass.pgen", "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chr20.primary_pass.pgen" ],
+  "VUMCExtractSnpGenotypes.input_psam_files": ["/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chr8.primary_pass.psam", "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chr20.primary_pass.psam"],
+  "VUMCExtractSnpGenotypes.input_pvar_files": ["/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chr8.primary_pass.pvar", "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chr20.primary_pass.pvar"]
 }
 

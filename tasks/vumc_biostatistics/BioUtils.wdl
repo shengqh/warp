@@ -396,7 +396,7 @@ rm -f request.tmp.bed dbSnp155.bb
   }
 }
 
-# This task contains a task to find the corresponding index of a chromosome
+# This task finds the corresponding index of a chromosome
 # in a given chromosome list from an input BED file.
 #
 # The task is useful for genomic analyses where chromosome identification and
@@ -466,6 +466,94 @@ python3 get_chrom_indices.py ~{sep="," input_chromosomes} ~{input_bed_file}
     preemptible: 1
     disks: "local-disk 5 HDD"
     memory: "1 GiB"
+  }
+
+  output {
+    Array[Int] chromosome_indecies = read_lines("chromosomes.txt")
+  }
+}
+
+task GetChromosomeIndeciesWithVariants {
+  input {
+    Array[String] input_chromosomes
+    Array[File] input_pvar_files
+    File input_bed_file
+    String docker = "shengqh/hail_gcp:20241127"
+  }
+  Int disk_size = ceil(size(input_pvar_files, "GB")) + 5
+  command <<<
+#!/bin/bash
+
+set -e
+
+# Create Python script
+cat > get_chrom_indices.py << 'EOF'
+import pandas as pd
+import sys
+
+chrom_list = "~{sep=',' input_chromosomes}".split(",")
+bed_file = "~{input_bed_file}"
+pvar_files = "~{sep=',' input_pvar_files}".split(",")
+
+# Read the bed file (assuming standard BED format: chrom start end ...)
+bed_df = pd.read_csv(bed_file, sep='\t', header=None)
+
+# Group bed file entries by chromosome
+bed_by_chrom = {}
+for _, row in bed_df.iterrows():
+    chrom = str(row[0])
+    if chrom.startswith("chr"):
+        chrom = chrom[3:]
+
+    pos = int(row[1])
+    if chrom not in bed_by_chrom:
+        bed_by_chrom[chrom] = set()
+    bed_by_chrom[chrom].add(pos)
+
+# Check which chromosomes have matching SNVs in both bed and pvar
+indices = []
+for i, (chrom, pvar_file) in enumerate(zip(chrom_list, pvar_files)):
+    if chrom.startswith("chr"):
+        chrom = chrom[3:]
+    print(f"Checking chromosome: {chrom} with pvar file: {pvar_file}")
+    if chrom in bed_by_chrom:
+        pos_set = bed_by_chrom[chrom]
+        # Check if any SNV in this chromosome's pvar file matches positions in bed
+        found_match = False
+        with open(pvar_file, 'r') as f:
+            for line in f:
+                if line.startswith('#'):
+                    continue
+                fields = line.strip().split('\t', 2)
+                pos = int(fields[1])
+                if pos in pos_set:
+                    print(f"Found match at position: {line}")
+                    found_match = True
+                    break
+        
+        if found_match:
+            indices.append(i)
+  
+# Write indices to output file
+with open("chromosomes.txt", "w") as f:
+  for idx in indices:
+    f.write(f"{idx}\n")
+
+print(f"Indices of matching chromosomes: {indices}")
+
+EOF
+
+# Run the Python script
+python3 get_chrom_indices.py 
+
+>>>
+
+  runtime {
+    cpu: 1
+    docker: docker
+    preemptible: 1
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "10 GiB"
   }
 
   output {
