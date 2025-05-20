@@ -1,5 +1,7 @@
 version 1.0
 
+
+import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WdlUtils
 import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
 import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
@@ -67,17 +69,26 @@ workflow VUMCExtractSnpGenotypes {
       output_prefix = output_prefix
   }
 
-  call BioUtils.GetChromosomeIndeciesWithVariants as GetChromosomeIndecies {
-    input:
-      input_chromosomes = chromosomes,
-      input_pvar_files = input_pvar_files,
-      input_bed_file = ConvertRsidToBed.output_bed
+  Int num_all_chromsome = length(chromosomes)
+
+  scatter(all_chrom_ind in range(num_all_chromsome)){
+    call BioUtils.CheckOverlapVariants as CheckOverlapVariants {
+      input:
+        chromosome = chromosomes[all_chrom_ind],
+        input_pgen_pvar = input_pvar_files[all_chrom_ind],
+        input_ucsc_bed = ConvertRsidToBed.output_bed
+    }
   }
 
-  Int num_valid_chromsome = length(GetChromosomeIndecies.chromosome_indecies)
+  call WdlUtils.get_index_of_true {
+    input:
+      values = CheckOverlapVariants.has_variant
+  }
+
+  Int num_valid_chromsome = length(get_index_of_true.indices)
 
   scatter(chrom_ind in range(num_valid_chromsome)){
-    Int old_ind = GetChromosomeIndecies.chromosome_indecies[chrom_ind]
+    Int old_ind = get_index_of_true.indices[chrom_ind]
     File pgen_file = input_pgen_files[old_ind]
     File pvar_file = input_pvar_files[old_ind]
     File psam_file = input_psam_files[old_ind]
