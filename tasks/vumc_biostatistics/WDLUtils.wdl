@@ -158,3 +158,40 @@ mv ~{tmp_file} ~{output_file_name}
     memory: "1 GiB"
   }
 }
+
+task get_index_of_true {
+  input {
+    Array[Boolean] values
+  }
+
+  command <<<
+
+cat <<EOF > script.py
+# Convert WDL Boolean array to Python list
+input_bools_str = "~{sep=',' values}"
+input_bools = [x.lower() == 'true' for x in input_bools_str.split(',')]
+
+# Find indices of True values
+true_indices = [str(i) for i, value in enumerate(input_bools) if value]
+
+# Write indices to file
+with open("indices.txt", "w") as f:
+  f.write("\n".join(true_indices))
+EOF
+
+python script.py
+
+>>>
+
+  output {
+    Array[Int] indices = read_lines("indices.txt")
+  }
+
+  runtime {
+    cpu: 1
+    docker: "python:3.9-slim"
+    preemptible: 1
+    disks: "local-disk 5 HDD"
+    memory: "1 GiB"
+  }
+}
