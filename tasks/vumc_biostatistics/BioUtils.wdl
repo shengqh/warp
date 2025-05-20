@@ -602,21 +602,24 @@ for _, row in bed_df.iterrows():
 if pvar_chrom.startswith("chr"):
     pvar_chrom = pvar_chrom[3:]
 
-print(f"Checking chromosome: {pvar_chrom} with pvar file: {pvar_file}")
-pos_set = bed_by_chrom[pvar_chrom]
-
-# Check if any SNV in this chromosome's pvar file matches positions in bed
 found_match = False
-with open(pvar_file, 'r') as f:
-    for line in f:
-        if line.startswith('#'):
-            continue
-        fields = line.strip().split('\t', 2)
-        pos = int(fields[1])
-        if pos in pos_set:
-            print(f"Found match at position: {line}")
-            found_match = True
-            break
+if pvar_chrom in bed_by_chrom:
+  print(f"Checking chromosome: {pvar_chrom} with pvar file: {pvar_file}")
+  pos_set = bed_by_chrom[pvar_chrom]
+
+  # Check if any SNV in this chromosome's pvar file matches positions in bed
+  with open(pvar_file, 'r') as f:
+      for line in f:
+          if line.startswith('#'):
+              continue
+          fields = line.strip().split('\t', 2)
+          pos = int(fields[1])
+          if pos in pos_set:
+              print(f"Found match at position: {line}")
+              found_match = True
+              break
+else:
+  print(f"Chromosome {pvar_chrom} not found in bed file.")
         
 # Write indices to output file
 with open("has_match.txt", "w") as f:
