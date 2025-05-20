@@ -560,3 +560,87 @@ python3 get_chrom_indices.py
     Array[Int] chromosome_indecies = read_lines("chromosomes.txt")
   }
 }
+
+task CheckOverlapVariants {
+  input {
+    String chromosome
+    File input_pgen_pvar
+    File input_ucsc_bed
+    String docker = "shengqh/hail_gcp:20241127"
+  }
+  Int disk_size = ceil(size([input_pgen_pvar, input_ucsc_bed], "GB")) + 5
+  command <<<
+#!/bin/bash
+
+set -e
+
+# Create Python script
+cat > get_chrom_indices.py << 'EOF'
+import pandas as pd
+import sys
+
+bed_file = "~{input_ucsc_bed}"
+
+pvar_chrom = "~{chromosome}"
+pvar_file = "~{input_pgen_pvar}"
+
+# Read the bed file (assuming standard BED format: chrom start end ...)
+bed_df = pd.read_csv(bed_file, sep='\t', header=None)
+
+# Group bed file entries by chromosome
+bed_by_chrom = {}
+for _, row in bed_df.iterrows():
+    chrom = str(row[0])
+    if chrom.startswith("chr"):
+        chrom = chrom[3:]
+
+    pos = int(row[1])
+    if chrom not in bed_by_chrom:
+        bed_by_chrom[chrom] = set()
+    bed_by_chrom[chrom].add(pos)
+
+if pvar_chrom.startswith("chr"):
+    pvar_chrom = pvar_chrom[3:]
+
+print(f"Checking chromosome: {chrom} with pvar file: {pvar_file}")
+pos_set = bed_by_chrom[pvar_chrom]
+
+# Check if any SNV in this chromosome's pvar file matches positions in bed
+found_match = False
+with open(pvar_file, 'r') as f:
+    for line in f:
+        if line.startswith('#'):
+            continue
+        fields = line.strip().split('\t', 2)
+        pos = int(fields[1])
+        if pos in pos_set:
+            print(f"Found match at position: {line}")
+            found_match = True
+            break
+        
+# Write indices to output file
+with open("has_match.txt", "w") as f:
+  if found_match:
+    f.write("true\n")
+  else:
+    f.write("false\n")
+
+EOF
+
+# Run the Python script
+python3 get_chrom_indices.py 
+
+>>>
+
+  runtime {
+    cpu: 1
+    docker: docker
+    preemptible: 1
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "10 GiB"
+  }
+
+  output {
+    Boolean has_variant = read_boolean("has_match.txt")
+  }
+}
