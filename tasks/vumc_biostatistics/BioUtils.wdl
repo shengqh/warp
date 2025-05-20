@@ -602,7 +602,7 @@ for _, row in bed_df.iterrows():
 if pvar_chrom.startswith("chr"):
     pvar_chrom = pvar_chrom[3:]
 
-print(f"Checking chromosome: {chrom} with pvar file: {pvar_file}")
+print(f"Checking chromosome: {pvar_chrom} with pvar file: {pvar_file}")
 pos_set = bed_by_chrom[pvar_chrom]
 
 # Check if any SNV in this chromosome's pvar file matches positions in bed
