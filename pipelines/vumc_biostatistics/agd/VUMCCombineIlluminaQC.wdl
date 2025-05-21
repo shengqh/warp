@@ -37,6 +37,8 @@ task CombineIlluminaQC {
     String project_id
     File qc_list_file
     String output_prefix
+    String grid_column = "PRIMARY_GRID"
+    String url_column = "URL"
     String docker = "shengqh/hail_gcp:20241127"
   }
 
@@ -53,6 +55,8 @@ pd.options.mode.chained_assignment = None
 
 sclient = storage.Client()
 google_project = "~{project_id}"
+grid_column = "~{grid_column}"
+url_column = "~{url_column}"
 
 fs = gcsfs.GCSFileSystem(project=google_project, requester_pays=True)
 
@@ -94,8 +98,8 @@ with open(output_file, "wt") as fout:
         if index % 100 == 0 and index != 0:
             print(f"{index} / {qcfiles.shape[0]}, {missed} missed ...")
             
-        grid = row['GRID']
-        qc_file = row['URL']
+        grid = row[grid_column].replace("_INVALID","")
+        qc_file = row[url_column]
         
         if not gcp_file_exists(qc_file, sclient, google_project):
             missed = missed + 1
