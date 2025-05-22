@@ -40,6 +40,7 @@ task CombineIlluminaQC {
     String grid_column = "PRIMARY_GRID"
     String url_column = "URL"
     String docker = "shengqh/hail_gcp:20241127"
+    Int disk_size = 20
   }
 
   command <<<
@@ -119,7 +120,7 @@ python3 combine.py
   runtime {
     docker: docker
     memory: 10 + " GiB"
-    disks: "local-disk " + 10 + " HDD"
+    disks: "local-disk " + disk_size + " HDD"
     cpu: 1
     preemptible: 1
   }
