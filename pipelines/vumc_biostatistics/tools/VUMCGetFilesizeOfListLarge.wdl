@@ -106,6 +106,8 @@ def gcp_file_size(url, storage_client, google_project):
         return(blob.size)
 
 output_file = "~{output_prefix}.size.csv"
+grid_column = "~{grid_column}"
+url_column = "~{url_column}"
 
 with open(output_file, "wt") as fout:
     fout.write(f"GRID,URL,FileSize\n")
