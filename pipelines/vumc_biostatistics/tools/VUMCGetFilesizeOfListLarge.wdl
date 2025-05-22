@@ -51,6 +51,8 @@ task GetFileSizeInArray {
   input {
     String project_id
     File qc_list_file
+    String grid_column = "PRIMARY_GRID"
+    String url_column = "URL"
     String output_prefix
     String docker = "shengqh/hail_gcp:20241127"
   }
@@ -113,8 +115,8 @@ with open(output_file, "wt") as fout:
         if index % 100 == 0 and index != 0:
             print(f"{index} / {qcfiles.shape[0]}, {missed} missed ...")
             
-        grid = row['GRID']
-        qc_file = row['URL']
+        grid = row[grid_column]
+        qc_file = row[url_column]
         
         if not gcp_file_exists(qc_file, sclient, google_project):
             missed = missed + 1
