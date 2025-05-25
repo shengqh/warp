@@ -68,10 +68,11 @@ task BgenBgiIndex {
     Int memory_gb = 10
     Int preemptible = 3
     Int cpu = 1
+    Int? disk_size_override
     Int boot_disk_gb = 25
   }
 
-  Int disk_size = ceil(size(input_bgen, "GB")) + boot_disk_gb + 20
+  Int disk_size = select_first([disk_size_override, ceil(size(input_bgen, "GB")) + 100])
   Int total_memory_gb = memory_gb + 2
 
   String basename_bgen = basename(input_bgen)
