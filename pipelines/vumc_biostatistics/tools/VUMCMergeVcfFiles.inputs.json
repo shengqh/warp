@@ -1,0 +1,6 @@
+{
+  "VUMCMergeVcfFiles.input_vcfs": ["/nobackup/h_cqs/shengq2/biovu/agd250k/shard/shard-95_subshard-64.primary_pass.vcf.gz", "/nobackup/h_cqs/shengq2/biovu/agd250k/shard/shard-95_subshard-63.primary_pass.vcf.gz"],
+  "VUMCMergeVcfFiles.input_vcf_indexes": ["/nobackup/h_cqs/shengq2/biovu/agd250k/shard/shard-95_subshard-64.primary_pass.vcf.gz.tbi", "/nobackup/h_cqs/shengq2/biovu/agd250k/shard/shard-95_subshard-63.primary_pass.vcf.gz.tbi"],
+  "VUMCMergeVcfFiles.input_vcf_startpos": [20, 10],
+  "VUMCMergeVcfFiles.output_prefix": "agd250-chrX"
+}

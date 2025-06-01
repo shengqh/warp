@@ -473,5 +473,7 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCGetGenomeRangeFromPvar.wdl
 
-
+  - name: VUMCMergeVcfFiles
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCMergeVcfFiles.wdl
     
