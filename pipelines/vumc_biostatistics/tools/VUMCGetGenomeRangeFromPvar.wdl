@@ -85,6 +85,7 @@ task ExtractGenomeRange {
   runtime {
     memory: "~{memory_gb} GB"
     disk: "~{disk_space_gb} GB"
+    preemptible: 3
     cpu: cpu
     docker: "ubuntu:20.04"
   }
