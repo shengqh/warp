@@ -73,6 +73,7 @@ task PrepareAgdVcf {
     Int cpu = 3
     Int machine_mem_gb = 4
     Int addtional_disk_space_gb = 10
+    Int preemptible = 0 # for shard vcf, we can use preemptible node, but for whole chromosome vcf, we should not use preemptible node
   }
 
   Int bgzip_thread = cpu - 2 #one cpu for zcat, one cpu for agd_vcf and other cpu for bgzip
@@ -96,7 +97,7 @@ echo `date`: done.
   runtime{
     cpu: cpu
     docker: bcftools_docker
-    preemptible: 0
+    preemptible: preemptible
     memory: machine_mem_gb + " GB"
     disks: "local-disk " + disk_size + " HDD"
   }
