@@ -469,5 +469,9 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractSnpGenotypes.wdl
 
+  - name: VUMCGetGenomeRangeFromPvar
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCGetGenomeRangeFromPvar.wdl
+
 
     
