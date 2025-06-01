@@ -43,9 +43,10 @@ task ExtractGenomeRange {
   input {
     File pvar_file
     Int memory_gb = 4
-    Int disk_space_gb = 10
     Int cpu = 1
   }
+
+  Int disk_space_gb = size(pvar_file, "GB") + 5
 
   command <<<
     # Skip header lines that start with # and extract chromosome, position information
