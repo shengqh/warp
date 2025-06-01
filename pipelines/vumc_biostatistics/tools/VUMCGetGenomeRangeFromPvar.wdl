@@ -29,8 +29,8 @@ workflow VUMCGetGenomeRangeFromPvar {
 
   output {
     String chromosome = ExtractGenomeRange.chromosome
-    Int start_position = ExtractGenomeRange.start_position
-    Int end_position = ExtractGenomeRange.end_position
+    Int chromosome_start = ExtractGenomeRange.start_position
+    Int chromosome_end = ExtractGenomeRange.end_position
   }
 
   meta {
