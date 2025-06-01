@@ -61,15 +61,16 @@ task ExtractGenomeRange {
         if (min_pos==-1) {
           first_chrom = $1;
           min_pos = $2;
+          print("chr=", first_chrom, "min_pos=", min_pos);
         }
         max_pos = $2;
-        print("chr=", $1, "min_pos=", min_pos, "max_pos=", max_pos);
       }
       END {
         if (length(chroms) > 1) {
           print "Error: Multiple chromosomes found in pvar file. Expected only one chromosome." > "/dev/stderr";
           exit 1;
         }
+        print("chr=", first_chrom, "min_pos=", min_pos, "max_pos=", max_pos);
         print first_chrom > "chromosome.txt";
         print min_pos > "start_position.txt";
         print max_pos > "end_position.txt";
