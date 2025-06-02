@@ -26,7 +26,6 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 workflow VUMCMergeVcfFiles {
   input {
     Array[File] input_vcfs
-    Array[File] input_vcf_indexes
     Array[Int] input_vcf_startpos
     String output_prefix
 
@@ -37,7 +36,6 @@ workflow VUMCMergeVcfFiles {
   call MergeVcfFiles {
     input:
       input_vcfs = input_vcfs,
-      input_vcf_indexes = input_vcf_indexes,
       input_vcf_startpos = input_vcf_startpos,
       output_prefix = output_prefix
   }
@@ -64,7 +62,6 @@ workflow VUMCMergeVcfFiles {
 task MergeVcfFiles {
   input {
     Array[File] input_vcfs
-    Array[File] input_vcf_indexes
     Array[Int] input_vcf_startpos
     String output_prefix
 
@@ -76,7 +73,7 @@ task MergeVcfFiles {
     Int cpu = 1
   }
 
-  Int disk_size = ceil((size(input_vcfs, "GB") + size(input_vcf_indexes, "GB")) * disk_size_multiplier) + addtional_disk_space_gb
+  Int disk_size = ceil(size(input_vcfs, "GB") * disk_size_multiplier) + addtional_disk_space_gb
 
   String target_vcf = "~{output_prefix}.vcf.gz"
   String target_vcf_index = "~{output_prefix}.vcf.gz.tbi"
@@ -97,7 +94,7 @@ task MergeVcfFiles {
     docker: bcftools_docker
     memory: "~{machine_mem_gb} GB"
     disks: "local-disk ~{disk_size} HDD"
-    cpu: machine_mem_gb
+    cpu: cpu
   }
 
   output {
