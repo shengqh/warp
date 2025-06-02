@@ -56,6 +56,9 @@ task ExtractGenomeRange {
         min_pos = -1;
       }
       !/^#/ {
+        if ($1 == "PAR1" || $1 == "PAR2") {
+          $1 = "X";  # Treat PAR1 and PAR2 as chromosome X
+        }
         chroms[$1] = 1;
 
         if (min_pos==-1) {
