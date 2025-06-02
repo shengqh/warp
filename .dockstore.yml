@@ -481,6 +481,7 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCMergeVcfFiles.wdl
 
-  - name: VUMCMergeVcfFilesUrl
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCMergeVcfFilesUrl.wdl
+  # Failed, need authentication
+  # - name: VUMCMergeVcfFilesUrl
+  #   subclass: WDL
+  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCMergeVcfFilesUrl.wdl
