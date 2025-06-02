@@ -2,14 +2,24 @@ version 1.0
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
-# This workflow will do prepare the AGD VCF file for release
-# 1) Replace the GRID used in the AGD with the primary GRID based on ID map file
-# 2) Keep PASS variants only
-# 
-# Since prepare vcf cost a lot of space and not in preemptible node which cost a lot of money, 
-# the task PrepareAgdVcf would generate vcf and the task VcfIndexAndInfo would generate index and get inforamtion.
-# Since the VCF and index would be genreated by two tasks, target_gcp_folder would be highly recommended for put those 
-# two files together.
+# This workflow prepares AGD VCF files by processing input VCF with ID mapping.
+# The workflow performs the following steps:
+# 1. Processes input VCF file using AGD tool with ID mapping file.
+# 2. Indexes the processed VCF file and extracts sample/variant information.
+# 3. Optionally copies the processed VCF file and index to a GCP folder.
+#
+# Input parameters:
+# - input_vcf: The input VCF file to be processed.
+# - id_map_file: File containing ID mappings for AGD processing.
+# - output_prefix: Prefix for the output processed VCF file.
+# - project_id: Optional GCP project ID.
+# - target_gcp_folder: Optional GCP folder to copy processed files to.
+#
+# Output parameters:
+# - output_vcf: The merged VCF file.
+# - output_vcf_index: The index file for the merged VCF.
+#
+# Note: The workflow uses bcftools concat with --naive option for merging files.
 
 workflow VUMCPrepareAgdVcf {
   input {
