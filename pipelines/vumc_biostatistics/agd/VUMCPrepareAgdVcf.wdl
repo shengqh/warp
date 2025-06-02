@@ -14,7 +14,6 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 workflow VUMCPrepareAgdVcf {
   input {
     File input_vcf
-    File input_vcf_index
 
     File id_map_file
 
@@ -27,7 +26,6 @@ workflow VUMCPrepareAgdVcf {
   call PrepareAgdVcf {
     input: 
       input_vcf = input_vcf,
-      input_vcf_index = input_vcf_index,
       id_map_file = id_map_file,
       output_prefix = output_prefix + ".primary_pass"
   }
@@ -62,7 +60,6 @@ workflow VUMCPrepareAgdVcf {
 task PrepareAgdVcf {
   input{
     File input_vcf
-    File input_vcf_index
 
     File id_map_file
 
