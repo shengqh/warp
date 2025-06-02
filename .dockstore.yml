@@ -329,6 +329,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCPrepareAgdVcf.wdl
 
+  - name: VUMCPrepareAgdVcfNoIndex
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCPrepareAgdVcfNoIndex.wdl
+
   - name: VUMCPrepareAgdPgen
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCPrepareAgdPgen.wdl
