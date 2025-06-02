@@ -56,6 +56,7 @@ workflow VUMCMergeVcfFiles {
   output {
     File output_vcf = select_first([CopyFile.output_file1, MergeVcfFiles.output_vcf])
     File output_vcf_index = select_first([CopyFile.output_file2, MergeVcfFiles.output_vcf_index])
+    Int output_vcf_num_variants = MergeVcfFiles.output_vcf_num_variants
   }
 }
 
@@ -80,13 +81,20 @@ task MergeVcfFiles {
 
   command <<<
 
-    # Sort vcf files based on start positions
-    paste ~{write_lines(input_vcfs)} ~{write_lines(input_vcf_startpos)} | sort -k2,2n | cut -f1 > sorted_vcfs.txt
+# Sort vcf files based on start positions
+paste ~{write_lines(input_vcfs)} ~{write_lines(input_vcf_startpos)} | sort -k2,2n | cut -f1 > sorted_vcfs.txt
 
-    # Concat VCF files using the list file
-    bcftools concat -f sorted_vcfs.txt --naive -o ~{target_vcf} --threads ~{cpu}
+# Concat VCF files using the list file
+echo `date`: bcftools concat ...
+bcftools concat -f sorted_vcfs.txt --naive -o ~{target_vcf} --threads ~{cpu}
 
-    tabix -@ ~{cpu} -p vcf ~{target_vcf}
+echo `date`: tabix ...
+tabix -@ ~{cpu} -p vcf ~{target_vcf}
+
+echo `date`: bcftools query number of variants ...
+bcftools index -n ~{target_vcf} > num_variants.txt
+
+echo `date`: done.
 
   >>>
 
@@ -100,5 +108,6 @@ task MergeVcfFiles {
   output {
     File output_vcf = target_vcf
     File output_vcf_index = target_vcf_index
+    Int output_vcf_num_variants = read_int("num_variants.txt")
   }
 }
