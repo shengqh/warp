@@ -21,6 +21,7 @@ version 1.0
 #
 # Note: The workflow uses bcftools concat with --naive option for merging files.
 
+import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCMergeVcfFiles {
@@ -40,9 +41,14 @@ workflow VUMCMergeVcfFiles {
       output_prefix = output_prefix
   }
   
+  call BioUtils.VcfIndexAndInfo {
+    input: 
+      input_vcf = MergeVcfFiles.output_vcf
+  }
+
   if(defined(target_gcp_folder)){
     String merged_vcf = "~{MergeVcfFiles.output_vcf}"
-    String merged_vcf_index = "~{MergeVcfFiles.output_vcf_index}"
+    String merged_vcf_index = "~{VcfIndexAndInfo.output_vcf_index}"
 
     call GcpUtils.MoveOrCopyTwoFiles as CopyFile {
       input:
@@ -55,8 +61,8 @@ workflow VUMCMergeVcfFiles {
   }
   output {
     File output_vcf = select_first([CopyFile.output_file1, MergeVcfFiles.output_vcf])
-    File output_vcf_index = select_first([CopyFile.output_file2, MergeVcfFiles.output_vcf_index])
-    Int output_vcf_num_variants = MergeVcfFiles.output_vcf_num_variants
+    File output_vcf_index = select_first([CopyFile.output_file2, VcfIndexAndInfo.output_vcf_index])
+    Int output_vcf_num_variants = VcfIndexAndInfo.num_variants
   }
 }
 
@@ -77,7 +83,6 @@ task MergeVcfFiles {
   Int disk_size = ceil(size(input_vcfs, "GB") * disk_size_multiplier) + addtional_disk_space_gb
 
   String target_vcf = "~{output_prefix}.vcf.gz"
-  String target_vcf_index = "~{output_prefix}.vcf.gz.tbi"
 
   command <<<
 
@@ -87,12 +92,6 @@ paste ~{write_lines(input_vcfs)} ~{write_lines(input_vcf_startpos)} | sort -k2,2
 # Concat VCF files using the list file
 echo `date`: bcftools concat ...
 bcftools concat -f sorted_vcfs.txt --naive -o ~{target_vcf} --threads ~{cpu}
-
-echo `date`: tabix ...
-tabix -@ ~{cpu} -p vcf ~{target_vcf}
-
-echo `date`: bcftools query number of variants ...
-bcftools index -n ~{target_vcf} > num_variants.txt
 
 echo `date`: done.
 
@@ -107,7 +106,5 @@ echo `date`: done.
 
   output {
     File output_vcf = target_vcf
-    File output_vcf_index = target_vcf_index
-    Int output_vcf_num_variants = read_int("num_variants.txt")
   }
 }
