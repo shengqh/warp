@@ -1,5 +1,6 @@
 version 1.0
 
+import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 # This workflow prepares AGD VCF files by processing input VCF with ID mapping.
@@ -40,7 +41,7 @@ workflow VUMCPrepareAgdVcf {
       output_prefix = output_prefix + ".primary_pass"
   }
 
-  call VcfIndexAndInfo {
+  call BioUtils.VcfIndexAndInfo {
     input: 
       input_vcf = PrepareAgdVcf.output_vcf
   }
@@ -113,54 +114,3 @@ echo `date`: done.
     File output_vcf = "~{target_vcf}"
   }
 }
-
-task VcfIndexAndInfo {
-  input{
-    File input_vcf
-
-    String bcftools_docker = "shengqh/samtools_bcftools_tabix:v1.21"
-
-    Int cpu = 4
-    Int machine_mem_gb = 4
-    Int addtional_disk_space_gb = 5
-  }
-
-  Int disk_size = ceil(size(input_vcf, "GB")) + addtional_disk_space_gb
-
-  String target_vcf = basename(input_vcf)
-  String output_sample_file = "samples.txt"
-
-  command <<<
-
-ln -s ~{input_vcf} ~{target_vcf}
-
-echo `date`: tabix ...
-tabix -@ ~{cpu} -p vcf ~{target_vcf}
-
-echo `date`: bcftools query number of samples ...
-bcftools query -l ~{target_vcf} > ~{output_sample_file}
-
-cat ~{output_sample_file} | wc -l > num_samples.txt
-
-echo `date`: bcftools query number of variants ...
-bcftools index -n ~{target_vcf} > num_variants.txt
-
-echo `date`: done.
-
-  >>>
-
-  runtime{
-    cpu: cpu
-    docker: bcftools_docker
-    preemptible: 1
-    memory: machine_mem_gb + " GB"
-    disks: "local-disk " + disk_size + " HDD"
-  }
-
-  output{
-    File output_vcf_index = "~{target_vcf}.tbi"
-    Int num_samples = read_int("num_samples.txt")
-    Int num_variants = read_int("num_variants.txt")
-  }
-}
-
