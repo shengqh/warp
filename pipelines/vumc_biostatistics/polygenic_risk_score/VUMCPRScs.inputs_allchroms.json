@@ -1,0 +1,32 @@
+{
+  "VUMCPRScs.input_bim": "/data/h_gelbard_lab/projects/20250605_PRS/20200518_biallelic_mega_recalled.chr1-22.grid.EU.filt1.r2corrected.maf.005.IBD.filtered.PI_HAT.0.2_subset6152_DansGRIDS.bim",
+  "VUMCPRScs.n_gwas": "19268",
+  "VUMCPRScs.input_sst": "/data/h_gelbard_lab/projects/20250605_PRS/berg_bmrq13sstnoagebysex_050625_for_prs.txt",
+  "VUMCPRScs.ld_files": [
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr1.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr2.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr3.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr4.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr5.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr6.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr7.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr8.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr9.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr10.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr11.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr12.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr13.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr14.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr15.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr16.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr17.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr18.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr19.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr20.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr21.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr22.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/snpinfo_ukbb_hm3"],
+  "VUMCPRScs.chromosomes": "21,22",
+  "VUMCPRScs.output_prefix": "bmrq13prs"
+}
+

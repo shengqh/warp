@@ -1,0 +1,13 @@
+{
+  "VUMCPRScs.input_bim": "/data/h_gelbard_lab/projects/20250605_PRS/20200518_biallelic_mega_recalled.chr1-22.grid.EU.filt1.r2corrected.maf.005.IBD.filtered.PI_HAT.0.2_subset6152_DansGRIDS.bim",
+  "VUMCPRScs.n_gwas": "19268",
+  "VUMCPRScs.input_sst": "/data/h_gelbard_lab/projects/20250605_PRS/berg_bmrq13sstnoagebysex_050625_for_prs.txt",
+  "VUMCPRScs.ld_files": [
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr21.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/ldblk_ukbb_chr22.hdf5",
+    "/data/h_gelbard_lab/projects/20250605_PRS/ldblk_ukbb_eur/snpinfo_ukbb_hm3"],
+  "VUMCPRScs.ld_folder": "ldblk_ukbb_eur",
+  "VUMCPRScs.chromosomes": "21,22",
+  "VUMCPRScs.output_prefix": "bmrq13prs"
+}
+
