@@ -195,3 +195,24 @@ python script.py
     memory: "1 GiB"
   }
 }
+
+task concat_files {
+  input {
+    Array[File] input_files
+    String output_file
+  }
+  Int disk_size = ceil(size(input_files, "GB")) + 2
+  command <<<
+    cat ~{sep=' ' input_files} > ~{output_file}
+  >>>
+  runtime {
+    cpu: 1
+    docker: "ubuntu:20.04"
+    preemptible: 1
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "2 GiB"
+  }
+  output {
+    File concat_file = "~{output_file}"
+  }
+}
