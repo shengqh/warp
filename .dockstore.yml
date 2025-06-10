@@ -490,6 +490,12 @@ workflows:
   #   subclass: WDL
   #   primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCMergeVcfFilesUrl.wdl
 
+  - name: VUMCPRScs
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/polygenic_risk_score/VUMCPRScs.wdl
+
   - name: VUMCPlink2PolygenicRiskScore
     subclass: WDL
-    primaryDescriptorPath: pipelines/vumc_biostatistics/plink/VUMCPlink2PolygenicRiskScore.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2PolygenicRiskScore.wdl
+
+
