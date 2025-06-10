@@ -1,0 +1,9 @@
+{
+  "VUMCPlink2PolygenicRiskScore.input_pgen": "/nobackup/h_cqs/shengq2/biovu/agd35k/AGD35K_RegenieSubset/AFR/AGD35K_wgsubset_AFR.pgen",
+  "VUMCPlink2PolygenicRiskScore.input_psam": "/nobackup/h_cqs/shengq2/biovu/agd35k/AGD35K_RegenieSubset/AFR/AGD35K_wgsubset_AFR.psam",
+  "VUMCPlink2PolygenicRiskScore.input_pvar": "/nobackup/h_cqs/shengq2/biovu/agd35k/AGD35K_RegenieSubset/AFR/AGD35K_wgsubset_AFR.pvar",
+  "VUMCPlink2PolygenicRiskScore.input_score": "/data/h_gelbard_lab/projects/20250605_PRS/berg_bmrq13noagebysex053025_prs_biovumusicans.renamed.txt",
+  "VUMCPlink2PolygenicRiskScore.input_score_columns": "2 4 6",
+  "VUMCPlink2PolygenicRiskScore.output_prefix": "berg_bmrq13noagebysex053025_PRS"
+}
+
