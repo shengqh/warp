@@ -8,6 +8,9 @@ workflow VUMCPlink2PolygenicRiskScore {
     File input_pvar
     File input_psam
 
+    # if is_pgen is false, then input_pgen should be a .bed file
+    Boolean is_pgen = true
+
     File input_score
 
     # for example, "2 4 6", 2:Variant IDs, 4:allele codes, 6:coefficients
@@ -25,6 +28,7 @@ workflow VUMCPlink2PolygenicRiskScore {
       input_pgen = input_pgen,
       input_pvar = input_pvar,
       input_psam = input_psam,
+      is_pgen = is_pgen,
       input_score = input_score,
       input_score_columns = input_score_columns,
       output_prefix = output_prefix
@@ -51,6 +55,8 @@ task Plink2PolygenicRiskScore {
     File input_pvar
     File input_psam
 
+    Boolean is_pgen = true
+
     File input_score
     String input_score_columns
 
@@ -66,12 +72,20 @@ task Plink2PolygenicRiskScore {
   Int disk_size = ceil(size([input_pgen, input_psam, input_pvar], "GB")) + addtional_disk_space_gb
 
   command <<<
-    plink2 \
-      --pgen ~{input_pgen} \
-      --pvar ~{input_pvar} \
-      --psam ~{input_psam} \
-      --score ~{input_score} ~{input_score_columns} \
-      --out ~{output_prefix}
+    if [[ "~{is_pgen}" == "true" ]]; then
+      plink2 \
+        --pgen ~{input_pgen} \
+        --pvar ~{input_pvar} \
+        --psam ~{input_psam} \
+        --score ~{input_score} ~{input_score_columns} \
+        --out ~{output_prefix}
+    else
+      bed_prefix="${input_pgen%.bed}"
+      plink2 \
+        --bfile $bed_prefix \
+        --score ~{input_score} ~{input_score_columns} \
+        --out ~{output_prefix}
+    fi
   >>>
 
   runtime{
