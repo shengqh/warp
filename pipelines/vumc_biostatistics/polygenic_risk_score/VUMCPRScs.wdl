@@ -84,7 +84,7 @@ task PRScs {
     String PRSsc_script = "/opt/PRScs/PRScs.py"
 
     Int preemptible=3
-    Int memory_gb = 40
+    Int memory_gb = 10
     Int addtional_disk_space_gb = 10
   }
 
