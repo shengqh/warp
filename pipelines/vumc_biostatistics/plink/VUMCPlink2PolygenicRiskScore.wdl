@@ -69,7 +69,7 @@ task Plink2PolygenicRiskScore {
     String docker = "shengqh/plink_1.9_2.0:20250304"
 
     Int preemptible=3
-    Int memory_gb = 40
+    Int memory_gb = 10
     Int addtional_disk_space_gb = 10
   }
 
