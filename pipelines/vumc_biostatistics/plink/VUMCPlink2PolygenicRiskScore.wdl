@@ -4,12 +4,16 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCPlink2PolygenicRiskScore {
   input {
-    File input_pgen
-    File input_pvar
-    File input_psam
+    Boolean is_pgen = true
 
     # if is_pgen is false, then input_pgen should be a .bed file
-    Boolean is_pgen = true
+    File input_pgen
+
+    # if is_pgen is false, then input_pvar should be a .bim file
+    File input_pvar
+
+    # if is_pgen is false, then input_psam should be a .fam file
+    File input_psam
 
     File input_score
 
