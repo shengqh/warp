@@ -120,6 +120,6 @@ task PRScs {
    }
 
   output {
-    File output_effort_file = "~{output_prefix}_pst_eff_a1_b0.5_phiauto_chr~{chromosome}txt"
+    File output_effort_file = "~{output_prefix}_pst_eff_a1_b0.5_phiauto_chr~{chromosome}.txt"
   }
 }
