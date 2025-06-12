@@ -47,7 +47,7 @@ workflow VUMCPRScs {
   call WDLUtils.concat_files {
     input:
       input_files = PRScs.output_effort_file,
-      output_file = output_prefix + ".effort.txt"
+      output_file = output_prefix + ".effect.txt"
   }
 
   if(defined(target_gcp_folder)){
@@ -61,7 +61,7 @@ workflow VUMCPRScs {
   }
 
   output {
-    String output_effort_file = select_first([CopyFile.output_file, concat_files.concat_file])
+    String output_effect_file = select_first([CopyFile.output_file, concat_files.concat_file])
   }
 }
 
