@@ -1,0 +1,18 @@
+{
+  "VUMCExtractVariantGenotypeByLocus.input_bed": "/nobackup/h_cqs/shengq2/biovu/20250519_red_gates_fundation_snv_extraction/locus_star2/gene.annovar.0-based.star2.bed",
+  "VUMCExtractVariantGenotypeByLocus.input_psam_files": [
+    "/nobackup/h_cqs/shengq2/biovu/agd35k/primary_pass_pgen/chr21.primary_pass.psam",
+    "/nobackup/h_cqs/shengq2/biovu/agd35k/primary_pass_pgen/chr22.primary_pass.psam"
+  ],
+  "VUMCExtractVariantGenotypeByLocus.input_pvar_files": [
+    "/nobackup/h_cqs/shengq2/biovu/agd35k/primary_pass_pgen/chr21.primary_pass.pvar",
+    "/nobackup/h_cqs/shengq2/biovu/agd35k/primary_pass_pgen/chr22.primary_pass.pvar"
+  ],
+  "VUMCExtractVariantGenotypeByLocus.output_prefix": "star2",
+  "VUMCExtractVariantGenotypeByLocus.chromosomes": ["chr21","chr22"],
+  "VUMCExtractVariantGenotypeByLocus.input_pgen_files": [
+    "/nobackup/h_cqs/shengq2/biovu/agd35k/primary_pass_pgen/chr21.primary_pass.pgen",
+    "/nobackup/h_cqs/shengq2/biovu/agd35k/primary_pass_pgen/chr22.primary_pass.pgen"
+  ]
+}
+

@@ -132,12 +132,13 @@ workflow VUMCExtractVariantGenotypeByLocus {
   }
 
   if (defined(target_gcp_folder)) {
-    call GcpUtils.MoveOrCopyFourFiles as CopyFile {
+    call GcpUtils.MoveOrCopyFiveFiles as CopyFile {
       input:
         source_file1 = FilterSamplesWithoutSNV.output_pgen,
         source_file2 = FilterSamplesWithoutSNV.output_pvar,
         source_file3 = FilterSamplesWithoutSNV.output_psam,
         source_file4 = FormatResult.output_genotype_csv,
+        source_file5 = Annovar.annovar_file,
         is_move_file = false,
         project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
@@ -149,6 +150,7 @@ workflow VUMCExtractVariantGenotypeByLocus {
     File output_pvar = select_first([CopyFile.output_file2, FilterSamplesWithoutSNV.output_pvar])
     File output_psam = select_first([CopyFile.output_file3, FilterSamplesWithoutSNV.output_psam])
     File output_genotype_csv = select_first([CopyFile.output_file4, FormatResult.output_genotype_csv])
+    File output_annovar_file = select_first([CopyFile.output_file5, Annovar.annovar_file])
     Int output_num_variants = FilterSamplesWithoutSNV.output_num_variants
     Int output_num_samples = FilterSamplesWithoutSNV.output_num_samples
   }
@@ -182,38 +184,36 @@ library(data.table)
 library(dplyr)
 
 fbed=fread(bed_file, sep="\t", data.table=FALSE) |>
-  dplyr::rename(
-    Chr=V1,
-    Start=V2,
-    End=V3,
-    Rsid=V4
-  ) |>
-  dplyr::mutate(
-    Start=Start + 1,
-    Locus= paste0(Chr, ":", Start, "-", End)
-  ) |>
-  dplyr::select(Locus, Rsid)
+  dplyr::rename( Name=V4 ) |>
+  dplyr::select(-V1,-V2,-V3)
 
-fdat=fread(annovar_file, sep="\t", data.table=FALSE) |>
+fdat=fread(annovar_file, sep="\t", data.table=FALSE)
+samples=colnames(fdat)[14:ncol(fdat)]
+
+fdat = fdat |>
   dplyr::mutate(Chr=paste0("chr", Chr),
-                Locus= paste0(Chr, ":", Start, "-", End))
+                Position=Start-1,
+                Name=paste0(Chr, ":", Position, ":", Ref, ":", Alt)) |>
+  dplyr::select(-Position)
 
-fcomb = merge(fdat, fbed, by="Locus") |> 
-  dplyr::select(-Locus, -GeneDetail.refGene, -ExonicFunc.refGene, -AAChange.refGene, -FILTER, -INFO, -FORMAT) |>
-  dplyr::select(Rsid, everything())  
-
-stopifnot(all(!is.na(fcomb$Rsid)))
+fcomb = merge(fbed, fdat, by="Name") |> 
+  dplyr::select(-GeneDetail.refGene, -ExonicFunc.refGene, -AAChange.refGene, -FILTER, -INFO, -FORMAT) |>
+  dplyr::select(Name, everything())  
 
 fcomb = fcomb[,!grepl("HG", colnames(fcomb))] #remove all HG samples
 fcomb = fcomb[,!grepl("_INVALID", colnames(fcomb))] #remove all invalid samples
 
-fdata=fcomb[,c(9:ncol(fcomb))] #remove all non-genotype columns
+samples=samples[!grepl("HG", samples) & !grepl("_INVALID", samples)]
+
+fdata=fcomb[,samples] #remove all non-genotype columns
 
 #remove all samples with all 0/0 genotypes
-refcount=apply(fdata, 2, function(x) sum(x=="0/0" | x=="./." | x=="0|0" | x==".|." | x=="0"))
-ffiltered_cols=colnames(fdata)[refcount<nrow(fcomb)]
+snv_count=nrow(fcomb) - apply(fdata, 2, function(x) sum(x=="0/0" | x=="./." | x=="0|0" | x==".|." | x=="0"))
+table(snv_count)
 
-ffiltered=fcomb[,c(colnames(fcomb)[1:8], ffiltered_cols)]
+ffiltered_cols=colnames(fdata)[snv_count == 0]
+
+ffiltered=fcomb[,!colnames(fcomb) %in% ffiltered_cols]
 
 mdat=t(ffiltered)
 
