@@ -174,7 +174,7 @@ zcat ~{input_annovar_file} > annovar.clean
 
 paste annovar.clean request.clean > request.annovar.final.tsv
 
-cat > transpose.r << 'EOF'
+cat <<EOF > transpose.r 
 
 bed_file="~{input_bed_file}"
 annovar_file="request.annovar.final.tsv"
