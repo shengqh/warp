@@ -415,8 +415,7 @@ plink2 \
   --psam ~{input_psam} \
   --het --out filtered
 
-cat > filter.py << 'EOF'
-import pandas as pd
+cat <<EOF> filter.py
 
 import pandas as pd
 
