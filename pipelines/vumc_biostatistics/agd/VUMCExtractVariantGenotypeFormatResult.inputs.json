@@ -1,0 +1,7 @@
+{
+  "VUMCExtractVariantGenotypeFormatResult.input_bed_file": "/nobackup/h_cqs/shengq2/biovu/20250519_red_gates_fundation_snv_extraction/locus_star2/gene.annovar.0-based.star2.bed",
+  "VUMCExtractVariantGenotypeFormatResult.input_vcf_file": "/nobackup/h_cqs/shengq2/biovu/20250519_red_gates_fundation_snv_extraction/locus_star2/gene_clinvar_star2.vcf.gz",
+  "VUMCExtractVariantGenotypeFormatResult.input_annovar_file": "/nobackup/h_cqs/shengq2/biovu/20250519_red_gates_fundation_snv_extraction/locus_star2/gene_clinvar_star2.annovar.hg38_multianno.txt.gz",
+  "VUMCExtractVariantGenotypeFormatResult.output_prefix": "star2"
+}
+

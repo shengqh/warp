@@ -1,44 +1,40 @@
 version 1.0
 
-
 import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WdlUtils
 import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
 import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../annotation/VUMCAnnovar.wdl" as VUMCAnnovar
 
-# This workflow extracts SNP genotypes from VUMC pgen files based on a ucsc bed file
-# and generates a CSV file with the genotype information.
-# The workflow performs the following steps:
-# 1. Get the chromosome indices for the input chromosomes.
-# 2. Filter the pgen files based on the BED file.
-# 3. Merge the filtered pgen files if there are multiple chromosomes.
-# 4. Filter samples without SNV.
-# 5. Convert the filtered pgen files to VCF format.
-# 6. Annotate the VCF file using Annovar.
-# 7. Format the results into a CSV file.
-# 8. Optionally move the output files to a specified GCP folder.
-# 9. Outputs the final files including the BED, VCF, and CSV files.
+# This workflow extracts variant genotypes from PLINK2 files based on genomic loci defined in a BED file
+# and performs variant annotation using Annovar.
 #
-# Input parameters:
-# - input_bed: A file containing snv coordinates in ucsc bed format
-# - output_prefix: The prefix for the output files.
-# - chromosomes: An array of chromosomes to process.
-# - input_pgen_files: An array of input pgen files.
-# - input_psam_files: An array of input psam files.
-# - input_pvar_files: An array of input pvar files.
-# - billing_gcp_project_id: The GCP project ID for billing.
-# - target_gcp_folder: The GCP folder to move the output files to.
-# Output files:
-# - output_pgen: The output PGEN file.
-# - output_pvar: The output PVAR file.
-# - output_psam: The output PSAM file.
-# - output_genotype_csv: The output CSV file containing genotype information.
-# - output_num_variants: The number of variants in the output PGEN file.
-# - output_num_samples: The number of samples in the output PGEN file.
-# Note: The workflow uses the Plink2Utils and BioUtils tasks for filtering and converting pgen files.
-# The Annovar task is used for annotating the VCF file.
-# The GcpUtils task is used for moving files to GCP.
+# Workflow steps:
+# 1. Identify chromosomes with variants overlapping the input BED regions
+# 2. Extract variants within those regions from PGEN files 
+# 3. Merge filtered PGEN files across valid chromosomes if needed
+# 4. Remove samples without any variants
+# 5. Convert PGEN to VCF format
+# 6. Annotate variants using Annovar
+# 7. Optionally copy results to a GCP storage location
+#
+# Inputs:
+# - input_bed: BED file specifying target genomic regions
+# - output_prefix: Prefix for all output files
+# - chromosomes: List of chromosomes to process
+# - input_pgen_files: PGEN files (one per chromosome)
+# - input_psam_files: PSAM files (one per chromosome)
+# - input_pvar_files: PVAR files (one per chromosome)
+# - billing_gcp_project_id: Optional GCP billing project
+# - target_gcp_folder: Optional GCP destination for result files
+#
+# Outputs:
+# - output_pgen: Final filtered PGEN file path
+# - output_pvar: Final filtered PVAR file path  
+# - output_psam: Final filtered PSAM file path
+# - output_annovar_file: Path to Annovar annotation results
+# - output_num_variants: Number of variants in final result
+# - output_num_samples: Number of samples in final result
 
 workflow VUMCExtractVariantGenotypeByLocus {
   input {
@@ -123,22 +119,13 @@ workflow VUMCExtractVariantGenotypeByLocus {
       target_prefix = output_prefix,
   }
 
-  call FormatResult {
-    input:
-      input_bed_file = input_bed,
-      input_vcf_file = Pgen2Vcf.output_vcf,
-      input_annovar_file = Annovar.annovar_file,
-      output_prefix = output_prefix,
-  }
-
   if (defined(target_gcp_folder)) {
-    call GcpUtils.MoveOrCopyFiveFiles as CopyFile {
+    call GcpUtils.MoveOrCopyFourFiles as CopyFile {
       input:
         source_file1 = FilterSamplesWithoutSNV.output_pgen,
         source_file2 = FilterSamplesWithoutSNV.output_pvar,
         source_file3 = FilterSamplesWithoutSNV.output_psam,
-        source_file4 = FormatResult.output_genotype_csv,
-        source_file5 = Annovar.annovar_file,
+        source_file4 = Annovar.annovar_file,
         is_move_file = false,
         project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
@@ -146,98 +133,11 @@ workflow VUMCExtractVariantGenotypeByLocus {
   }
 
   output {
-    File output_pgen = select_first([CopyFile.output_file1, FilterSamplesWithoutSNV.output_pgen])
-    File output_pvar = select_first([CopyFile.output_file2, FilterSamplesWithoutSNV.output_pvar])
-    File output_psam = select_first([CopyFile.output_file3, FilterSamplesWithoutSNV.output_psam])
-    File output_genotype_csv = select_first([CopyFile.output_file4, FormatResult.output_genotype_csv])
-    File output_annovar_file = select_first([CopyFile.output_file5, Annovar.annovar_file])
+    String output_pgen = select_first([CopyFile.output_file1, FilterSamplesWithoutSNV.output_pgen])
+    String output_pvar = select_first([CopyFile.output_file2, FilterSamplesWithoutSNV.output_pvar])
+    String output_psam = select_first([CopyFile.output_file3, FilterSamplesWithoutSNV.output_psam])
+    String output_annovar_file = select_first([CopyFile.output_file4, Annovar.annovar_file])
     Int output_num_variants = FilterSamplesWithoutSNV.output_num_variants
     Int output_num_samples = FilterSamplesWithoutSNV.output_num_samples
-  }
-}
-
-task FormatResult {
-  input {
-    File input_bed_file
-    File input_vcf_file
-    File input_annovar_file
-    String output_prefix
-    String docker = "shengqh/report:20241120"
-  }
-
-  Int disk_size = ceil(size([input_bed_file, input_vcf_file, input_annovar_file], "GB")) + 10
-
-  command <<<
-
-zcat ~{input_vcf_file} | grep -v "^##" | cut -f7- > request.clean
-zcat ~{input_annovar_file} > annovar.clean
-
-paste annovar.clean request.clean > request.annovar.final.tsv
-
-cat <<EOF > transpose.r 
-
-bed_file="~{input_bed_file}"
-annovar_file="request.annovar.final.tsv"
-output_file="~{output_prefix}.csv"
-
-library(data.table)
-library(dplyr)
-
-fbed=fread(bed_file, sep="\t", data.table=FALSE) |>
-  dplyr::rename( Name=V4 ) |>
-  dplyr::select(-V1,-V2,-V3)
-
-fdat=fread(annovar_file, sep="\t", data.table=FALSE)
-samples=colnames(fdat)[14:ncol(fdat)]
-
-fdat = fdat |>
-  dplyr::mutate(Chr=paste0("chr", Chr),
-                Position=Start-1,
-                Name=paste0(Chr, ":", Position, ":", Ref, ":", Alt)) |>
-  dplyr::select(-Position)
-
-fcomb = merge(fbed, fdat, by="Name") |> 
-  dplyr::select(-GeneDetail.refGene, -ExonicFunc.refGene, -AAChange.refGene, -FILTER, -INFO, -FORMAT) |>
-  dplyr::select(Name, everything())  
-
-fcomb = fcomb[,!grepl("HG", colnames(fcomb))] #remove all HG samples
-fcomb = fcomb[,!grepl("_INVALID", colnames(fcomb))] #remove all invalid samples
-
-samples=samples[!grepl("HG", samples) & !grepl("_INVALID", samples)]
-
-fdata=fcomb[,samples] #remove all non-genotype columns
-
-#remove all samples with all 0/0 genotypes
-snv_count=nrow(fcomb) - apply(fdata, 2, function(x) sum(x=="0/0" | x=="./." | x=="0|0" | x==".|." | x=="0"))
-table(snv_count)
-
-ffiltered_cols=colnames(fdata)[snv_count == 0]
-
-ffiltered=fcomb[,!colnames(fcomb) %in% ffiltered_cols]
-
-mdat=t(ffiltered)
-
-write.table(mdat, output_file, sep=",", row.names=TRUE, col.names=FALSE, quote=F)
-
-EOF
-
-R -f transpose.r
-
-if [[ ! -f "~{output_prefix}.csv" ]]; then
-  echo "Error: Output CSV file not found."
-  exit 1
-fi
-
->>>
-
-  runtime {
-    docker: docker
-    preemptible: 1
-    disks: "local-disk " + disk_size + " HDD"
-    memory: "10 GiB"
-  }
-
-  output {
-    File output_genotype_csv = "~{output_prefix}.csv"
   }
 }
