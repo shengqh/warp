@@ -120,12 +120,13 @@ workflow VUMCExtractVariantGenotypeByLocus {
   }
 
   if (defined(target_gcp_folder)) {
-    call GcpUtils.MoveOrCopyFourFiles as CopyFile {
+    call GcpUtils.MoveOrCopyFiveFiles as CopyFile {
       input:
         source_file1 = FilterSamplesWithoutSNV.output_pgen,
         source_file2 = FilterSamplesWithoutSNV.output_pvar,
         source_file3 = FilterSamplesWithoutSNV.output_psam,
-        source_file4 = Annovar.annovar_file,
+        source_file4 = Pgen2Vcf.output_vcf,
+        source_file5 = Annovar.annovar_file,
         is_move_file = false,
         project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
@@ -136,7 +137,8 @@ workflow VUMCExtractVariantGenotypeByLocus {
     String output_pgen = select_first([CopyFile.output_file1, FilterSamplesWithoutSNV.output_pgen])
     String output_pvar = select_first([CopyFile.output_file2, FilterSamplesWithoutSNV.output_pvar])
     String output_psam = select_first([CopyFile.output_file3, FilterSamplesWithoutSNV.output_psam])
-    String output_annovar_file = select_first([CopyFile.output_file4, Annovar.annovar_file])
+    String output_vcf = select_first([CopyFile.output_file4, Pgen2Vcf.output_vcf])
+    String output_annovar_file = select_first([CopyFile.output_file5, Annovar.annovar_file])
     Int output_num_variants = FilterSamplesWithoutSNV.output_num_variants
     Int output_num_samples = FilterSamplesWithoutSNV.output_num_samples
   }
