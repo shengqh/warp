@@ -5,7 +5,7 @@ import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WdlUtils
 import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
 import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
-import "../annotation/VUMCAnnovar.wdl" as VUMCAnnovar
+import "../annotation/VUMCAnnovarWithAgdVariantFormat.wdl" as VUMCAnnovar
 
 # This workflow extracts SNP genotypes from VUMC pgen files based on a list of rsids
 # and generates a CSV file with the genotype information.
@@ -131,7 +131,7 @@ workflow VUMCExtractSnpGenotypes {
       output_prefix = output_prefix,
   }
 
-  call VUMCAnnovar.Annovar {
+  call VUMCAnnovar.AnnovarWithAgdVariantFormat as Annovar {
     input:
       input_vcf = Pgen2Vcf.output_vcf,
       target_prefix = output_prefix,

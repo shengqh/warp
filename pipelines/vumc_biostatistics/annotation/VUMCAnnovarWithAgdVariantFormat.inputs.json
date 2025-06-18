@@ -1,0 +1,5 @@
+{
+  "VUMCAnnovarWithAgdVariantFormat.target_prefix": "gene_clinvar_star2_pvar",
+  "VUMCAnnovarWithAgdVariantFormat.input_vcf": "/nobackup/h_cqs/shengq2/biovu/20250519_red_gates_fundation_snv_extraction/locus_star2_pvar/gene_clinvar_star2_pvar.vcf.gz"
+}
+

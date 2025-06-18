@@ -4,7 +4,7 @@ import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WdlUtils
 import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
 import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
-import "../annotation/VUMCAnnovar.wdl" as VUMCAnnovar
+import "../annotation/VUMCAnnovarWithAgdVariantFormat.wdl" as VUMCAnnovar
 import "./VUMCExtractVariantGenotypeFormatResult.wdl" as FormatResult
 
 # This workflow extracts variant genotypes from PLINK2 files based on genomic loci defined in a BED file
@@ -114,7 +114,7 @@ workflow VUMCExtractVariantGenotypeByLocus {
       output_prefix = output_prefix,
   }
 
-  call VUMCAnnovar.Annovar {
+  call VUMCAnnovar.AnnovarWithAgdVariantFormat as Annovar{
     input:
       input_vcf = Pgen2Vcf.output_vcf,
       target_prefix = output_prefix,
