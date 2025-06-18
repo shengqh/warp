@@ -63,8 +63,11 @@ task FormatResult {
     File input_bed_file
     File input_vcf_file
     File input_annovar_file
+
     String output_prefix
     String docker = "shengqh/report:20241120"
+
+    Int memory_gb = 20
   }
 
   Int disk_size = ceil(size([input_bed_file, input_vcf_file, input_annovar_file], "GB")) + 10
@@ -134,9 +137,9 @@ fi
 
   runtime {
     docker: docker
-    preemptible: 1
+    preemptible: 3
     disks: "local-disk " + disk_size + " HDD"
-    memory: "10 GiB"
+    memory: memory_gb + " GiB"
   }
 
   output {
