@@ -124,6 +124,9 @@ mdat=t(ffiltered)
 
 write.table(mdat, output_file, sep=",", row.names=TRUE, col.names=FALSE, quote=F)
 
+n_samples=sum(snv_count > 0)
+writeLines(as.character(n_samples), "num_samples.txt")
+
 EOF
 
 R -f transpose.r
@@ -143,6 +146,7 @@ fi
   }
 
   output {
+    Int num_samples = read_int("num_samples.txt")
     File output_genotype_csv = "~{output_prefix}.csv"
   }
 }

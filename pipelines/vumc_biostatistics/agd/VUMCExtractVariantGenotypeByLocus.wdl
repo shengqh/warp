@@ -5,6 +5,7 @@ import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
 import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../annotation/VUMCAnnovar.wdl" as VUMCAnnovar
+import "./VUMCExtractVariantGenotypeFormatResult.wdl" as FormatResult
 
 # This workflow extracts variant genotypes from PLINK2 files based on genomic loci defined in a BED file
 # and performs variant annotation using Annovar.
@@ -119,14 +120,23 @@ workflow VUMCExtractVariantGenotypeByLocus {
       target_prefix = output_prefix,
   }
 
+  call FormatResult.FormatResult {
+    input:
+      input_bed_file = input_bed,
+      input_vcf_file = Pgen2Vcf.output_vcf,
+      input_annovar_file = Annovar.annovar_file,
+      output_prefix = output_prefix
+  }
+  
   if (defined(target_gcp_folder)) {
-    call GcpUtils.MoveOrCopyFiveFiles as CopyFile {
+    call GcpUtils.MoveOrCopySixFiles as CopyFile {
       input:
         source_file1 = FilterSamplesWithoutSNV.output_pgen,
         source_file2 = FilterSamplesWithoutSNV.output_pvar,
         source_file3 = FilterSamplesWithoutSNV.output_psam,
         source_file4 = Pgen2Vcf.output_vcf,
         source_file5 = Annovar.annovar_file,
+        source_file6 = FormatResult.output_genotype_csv,
         is_move_file = false,
         project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
@@ -139,6 +149,7 @@ workflow VUMCExtractVariantGenotypeByLocus {
     String output_psam = select_first([CopyFile.output_file3, FilterSamplesWithoutSNV.output_psam])
     String output_vcf = select_first([CopyFile.output_file4, Pgen2Vcf.output_vcf])
     String output_annovar_file = select_first([CopyFile.output_file5, Annovar.annovar_file])
+    String output_genotype_csv = select_first([CopyFile.output_file6, FormatResult.output_genotype_csv])
     Int output_num_variants = FilterSamplesWithoutSNV.output_num_variants
     Int output_num_samples = FilterSamplesWithoutSNV.output_num_samples
   }
