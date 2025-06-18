@@ -223,7 +223,12 @@ EOF
 
 R -f transpose.r
 
-  >>>
+if [[ ! -f "~{output_prefix}.csv" ]]; then
+  echo "Error: Output CSV file not found."
+  exit 1
+fi
+
+>>>
 
   runtime {
     docker: docker
