@@ -506,15 +506,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2PolygenicRiskScore.wdl
 
-  - name: VUMCExtractVariantGenotypeByLocus
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractVariantGenotypeByLocus.wdl
-
   - name: VUMCExtractVariantGenotypeByPvar
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractVariantGenotypeByPvar.wdl
 
-  - name: VUMCExtractVariantGenotypeFormatResult
+  - name: VUMCExtractVariantGenotypePvarFormatResult
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractVariantGenotypeFormatResult.wdl
-
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractVariantGenotypePvarFormatResult.wdl

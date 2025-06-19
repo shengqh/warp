@@ -1,0 +1,6 @@
+{
+  "VUMCExtractVariantGenotypePvarFormatResult.output_prefix": "gene_clinvar_star2_annovar_pvar",
+  "VUMCExtractVariantGenotypePvarFormatResult.input_pvar_file": "/nobackup/h_cqs/shengq2/biovu/20250519_red_gates_fundation_snv_extraction/gene.annovar.star2_pvar/gene_clinvar_star2_annovar_pvar.pvar",
+  "VUMCExtractVariantGenotypePvarFormatResult.input_vcf_file": "/nobackup/h_cqs/shengq2/biovu/20250519_red_gates_fundation_snv_extraction/gene.annovar.star2_pvar/gene_clinvar_star2_annovar_pvar.vcf.gz"
+}
+
