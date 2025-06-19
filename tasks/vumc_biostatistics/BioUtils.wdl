@@ -575,7 +575,7 @@ task CheckOverlapVariants {
 set -e
 
 # Create Python script
-cat > get_chrom_indices.py << 'EOF'
+cat <<EOF> get_chrom_indices.py 
 import pandas as pd
 import sys
 
@@ -591,6 +591,9 @@ bed_df = pd.read_csv(bed_file, sep='\t', header=None)
 bed_by_chrom = {}
 for _, row in bed_df.iterrows():
     chrom = str(row[0])
+    if chrom == "#CHROM": # input is a pvar file
+        continue  # Skip header line
+
     if chrom.startswith("chr"):
         chrom = chrom[3:]
 
