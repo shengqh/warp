@@ -510,6 +510,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractVariantGenotypeByPvar.wdl
 
-  - name: VUMCExtractVariantGenotypePvarFormatResult
+  - name: VUMCExtractVariantGenotypeByPvarFormatResult
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractVariantGenotypePvarFormatResult.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractVariantGenotypeByPvarFormatResult.wdl

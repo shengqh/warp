@@ -25,7 +25,7 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 # - output_sample_csv: CSV file with sample-centric information
 # - num_samples: The number of samples with valid genotypes
 
-workflow VUMCExtractVariantGenotypePvarFormatResult {
+workflow VUMCExtractVariantGenotypeByPvarFormatResult {
   input {
     File input_pvar_file
     File input_vcf_file
