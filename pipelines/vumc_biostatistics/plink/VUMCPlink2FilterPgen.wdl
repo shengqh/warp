@@ -11,6 +11,7 @@ workflow VUMCPlink2FilterPgen {
 
     File? keep_psam
     File? keep_bed
+    File? keep_variant_names
 
     String output_prefix
 
@@ -20,6 +21,8 @@ workflow VUMCPlink2FilterPgen {
     String? target_gcp_folder
   }
 
+  File check_a_file = select_first([ keep_variant_names, keep_psam, keep_bed ])
+
   call Plink2Utils.Plink2FilterPgen as Plink2FilterPgen {
     input:
       input_pgen = input_pgen,
@@ -27,6 +30,7 @@ workflow VUMCPlink2FilterPgen {
       input_psam = input_psam,
       keep_psam = keep_psam,
       keep_bed = keep_bed,
+      keep_variant_names = keep_variant_names,
       output_prefix = output_prefix,
       plink2_filter_option = plink2_filter_option
   }
