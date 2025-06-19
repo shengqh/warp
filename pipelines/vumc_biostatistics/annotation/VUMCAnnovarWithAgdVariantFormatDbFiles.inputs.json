@@ -1,0 +1,10 @@
+{
+  "VUMCAnnovarWithAgdVariantFormatDbFiles.target_prefix": "test",
+  "VUMCAnnovarWithAgdVariantFormatDbFiles.input_vcf": "/nobackup/h_cqs/shengq2/biovu/20250519_red_gates_fundation_snv_extraction/locus_star2_pvar/gene_clinvar_star2_pvar.vcf.gz",
+  "VUMCAnnovarWithAgdVariantFormatDbFiles.annovar_db_files": [
+    "/data/cqs/references/annovar/humandb/hg38_refGene.txt",
+    "/data/cqs/references/annovar/humandb/hg38_refGeneMrna.fa",
+    "/data/cqs/references/annovar/humandb/hg38_refGeneVersion.txt"
+  ]
+}
+
