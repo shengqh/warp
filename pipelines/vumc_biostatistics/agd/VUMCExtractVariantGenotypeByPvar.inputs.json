@@ -1,0 +1,18 @@
+{
+  "VUMCExtractVariantGenotypeByPvar.input_pgen_files": [
+    "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chr20.primary_pass.pgen",
+    "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chrM.primary_pass.pgen"
+  ],
+  "VUMCExtractVariantGenotypeByPvar.input_psam_files": [
+    "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chr20.primary_pass.psam",
+    "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chrM.primary_pass.psam"
+  ],
+  "VUMCExtractVariantGenotypeByPvar.input_pvar_files": [
+    "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chr20.primary_pass.pvar",
+    "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chrM.primary_pass.pvar"
+  ],
+  "VUMCExtractVariantGenotypeByPvar.keep_pvar": "/nobackup/h_cqs/shengq2/biovu/20250519_red_gates_fundation_snv_extraction/gene.annovar.star2_pvar/gene.annovar.star2.pvar",
+  "VUMCExtractVariantGenotypeByPvar.chromosomes": ["chr20", "chrM"],
+  "VUMCExtractVariantGenotypeByPvar.output_prefix": "gene.annovar.star2.extracted"
+}
+
