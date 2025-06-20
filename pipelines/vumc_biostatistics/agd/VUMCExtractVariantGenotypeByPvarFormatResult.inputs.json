@@ -1,6 +1,7 @@
 {
-  "VUMCExtractVariantGenotypeByPvarFormatResult.output_prefix": "gene_clinvar_star2_annovar_pvar",
-  "VUMCExtractVariantGenotypeByPvarFormatResult.input_pvar_file": "/nobackup/h_cqs/shengq2/biovu/20250519_red_gates_fundation_snv_extraction/gene.annovar.star2_pvar/gene_clinvar_star2_annovar_pvar.pvar",
+  "VUMCExtractVariantGenotypeByPvarFormatResult.output_prefix": "target_gene_clinvar_star2",
+  "VUMCExtractVariantGenotypeByPvarFormatResult.input_pvar_file": "/nobackup/h_cqs/shengq2/biovu/20250519_red_gates_fundation_snv_extraction/gene.annovar.star2_pvar/gene.annovar.star2.pvar",
+  "VUMCExtractVariantGenotypeByPvarFormatResult.input_psam_file": "/nobackup/h_cqs/shengq2/biovu/20250519_red_gates_fundation_snv_extraction/gene.annovar.star2_pvar/gene_clinvar_star2_annovar_pvar.psam",
   "VUMCExtractVariantGenotypeByPvarFormatResult.input_vcf_file": "/nobackup/h_cqs/shengq2/biovu/20250519_red_gates_fundation_snv_extraction/gene.annovar.star2_pvar/gene_clinvar_star2_annovar_pvar.vcf.gz"
 }
 

@@ -13,6 +13,6 @@
   ],
   "VUMCExtractVariantGenotypeByPvar.keep_pvar": "/nobackup/h_cqs/shengq2/biovu/20250519_red_gates_fundation_snv_extraction/gene.annovar.star2_pvar/gene.annovar.star2.pvar",
   "VUMCExtractVariantGenotypeByPvar.chromosomes": ["chr20", "chrM"],
-  "VUMCExtractVariantGenotypeByPvar.output_prefix": "gene.annovar.star2.extracted"
+  "VUMCExtractVariantGenotypeByPvar.output_prefix": "gene.clinvar.star2"
 }
 

@@ -4,6 +4,7 @@ import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WdlUtils
 import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
 import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
+import "./VUMCExtractVariantGenotypeByPvarFormatResult.wdl" as VUMCFormatResult
 
 # This workflow extracts variant genotypes from PLINK2 files based on genomic loci defined in a BED file
 # and performs variant annotation using Annovar.
@@ -75,7 +76,7 @@ workflow VUMCExtractVariantGenotypeByPvar {
     File psam_file = input_psam_files[old_ind]
     String chromosome = chromosomes[old_ind]
 
-    call Plink2Utils.Plink2FilterPgenByPvar as Plink2FilterPgen {
+    call Plink2Utils.Plink2FilterPgenByPvar as Plink2FilterPgen_variants {
       input:
         input_pgen = pgen_file,
         input_pvar = pvar_file,
@@ -89,36 +90,60 @@ workflow VUMCExtractVariantGenotypeByPvar {
   if (num_valid_chromsome > 1){
     call Plink2Utils.MergePgenFiles as MergePgenFiles {
       input:
-        input_pgen_files = Plink2FilterPgen.output_pgen,
-        input_pvar_files = Plink2FilterPgen.output_pvar,
-        input_psam_files = Plink2FilterPgen.output_psam,
-        output_prefix = output_prefix
+        input_pgen_files = Plink2FilterPgen_variants.output_pgen,
+        input_pvar_files = Plink2FilterPgen_variants.output_pvar,
+        input_psam_files = Plink2FilterPgen_variants.output_psam,
+        output_prefix = output_prefix + '.allsamples'
     }
   }
 
-  call Plink2Utils.FilterSamplesWithoutSNV {
+  File all_samples_pgen = select_first([MergePgenFiles.output_pgen, Plink2FilterPgen_variants.output_pgen[0]])
+  File all_samples_pvar = select_first([MergePgenFiles.output_pvar, Plink2FilterPgen_variants.output_pvar[0]])
+  File all_samples_psam = select_first([MergePgenFiles.output_psam, Plink2FilterPgen_variants.output_psam[0]])
+
+  call Plink2Utils.Pgen2Vcf as Pgen2Vcf_variants {
     input:
-      input_pgen = select_first([MergePgenFiles.output_pgen, Plink2FilterPgen.output_pgen[0]]),
-      input_pvar = select_first([MergePgenFiles.output_pvar, Plink2FilterPgen.output_pvar[0]]),
-      input_psam = select_first([MergePgenFiles.output_psam, Plink2FilterPgen.output_psam[0]]),
+      input_pgen = all_samples_pgen,
+      input_pvar = all_samples_pvar,
+      input_psam = all_samples_psam,
+      output_prefix = output_prefix + '.allsamples'
+  }
+
+  call VUMCFormatResult.FormatResult as FormatResult {
+    input:
+      input_pvar_file = all_samples_pvar,
+      input_psam_file = all_samples_psam,
+      input_vcf_file = Pgen2Vcf_variants.output_vcf,
       output_prefix = output_prefix
   }
 
-  call Plink2Utils.Pgen2Vcf {
+  call Plink2Utils.Plink2FilterPgen as Plink2FilterPgen_samples {
     input:
-      input_pgen = FilterSamplesWithoutSNV.output_pgen,
-      input_pvar = FilterSamplesWithoutSNV.output_pvar,
-      input_psam = FilterSamplesWithoutSNV.output_psam,
-      output_prefix = output_prefix,
+      input_pgen = all_samples_pgen,
+      input_pvar = all_samples_pvar,
+      input_psam = all_samples_psam,
+      keep_psam = FormatResult.output_psam,
+      plink2_filter_option = "",
+      output_prefix = output_prefix
   }
   
+  call Plink2Utils.Pgen2Vcf as Pgen2Vcf_samples {
+    input:
+      input_pgen = Plink2FilterPgen_samples.output_pgen,
+      input_pvar = Plink2FilterPgen_samples.output_pvar,
+      input_psam = Plink2FilterPgen_samples.output_psam,
+      output_prefix = output_prefix
+  }
+
   if (defined(target_gcp_folder)) {
-    call GcpUtils.MoveOrCopyFourFiles as CopyFile {
+    call GcpUtils.MoveOrCopySixFiles as CopyFile {
       input:
-        source_file1 = FilterSamplesWithoutSNV.output_pgen,
-        source_file2 = FilterSamplesWithoutSNV.output_pvar,
-        source_file3 = FilterSamplesWithoutSNV.output_psam,
-        source_file4 = Pgen2Vcf.output_vcf,
+        source_file1 = Plink2FilterPgen_samples.output_pgen,
+        source_file2 = Plink2FilterPgen_samples.output_pvar,
+        source_file3 = Plink2FilterPgen_samples.output_psam,
+        source_file4 = Pgen2Vcf_samples.output_vcf,
+        source_file5 = FormatResult.output_variant_csv,
+        source_file6 = FormatResult.output_sample_csv,
         is_move_file = false,
         project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
@@ -126,11 +151,13 @@ workflow VUMCExtractVariantGenotypeByPvar {
   }
 
   output {
-    String output_pgen = select_first([CopyFile.output_file1, FilterSamplesWithoutSNV.output_pgen])
-    String output_pvar = select_first([CopyFile.output_file2, FilterSamplesWithoutSNV.output_pvar])
-    String output_psam = select_first([CopyFile.output_file3, FilterSamplesWithoutSNV.output_psam])
-    String output_vcf = select_first([CopyFile.output_file4, Pgen2Vcf.output_vcf])
-    Int output_num_variants = FilterSamplesWithoutSNV.output_num_variants
-    Int output_num_samples = FilterSamplesWithoutSNV.output_num_samples
+    String output_pgen = select_first([CopyFile.output_file1, Plink2FilterPgen_samples.output_pgen])
+    String output_pvar = select_first([CopyFile.output_file2, Plink2FilterPgen_samples.output_pvar])
+    String output_psam = select_first([CopyFile.output_file3, Plink2FilterPgen_samples.output_psam])
+    String output_vcf = select_first([CopyFile.output_file4, Pgen2Vcf_samples.output_vcf])
+    String output_variant_csv = select_first([CopyFile.output_file5, FormatResult.output_variant_csv])
+    String output_sample_csv = select_first([CopyFile.output_file6, FormatResult.output_sample_csv])
+    Int output_num_variants = Plink2FilterPgen_samples.num_variants
+    Int output_num_samples = Plink2FilterPgen_samples.num_samples
   }
 }

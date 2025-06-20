@@ -28,6 +28,7 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 workflow VUMCExtractVariantGenotypeByPvarFormatResult {
   input {
     File input_pvar_file
+    File input_psam_file
     File input_vcf_file
     String output_prefix
 
@@ -38,15 +39,17 @@ workflow VUMCExtractVariantGenotypeByPvarFormatResult {
   call FormatResult {
     input:
       input_pvar_file = input_pvar_file,
+      input_psam_file = input_psam_file,
       input_vcf_file = input_vcf_file,
       output_prefix = output_prefix,
   }
 
   if (defined(target_gcp_folder)) {
-    call GcpUtils.MoveOrCopyTwoFiles as CopyFile {
+    call GcpUtils.MoveOrCopyThreeFiles as CopyFile {
       input:
         source_file1 = FormatResult.output_variant_csv,
         source_file2 = FormatResult.output_sample_csv,
+        source_file3 = FormatResult.output_psam,
         is_move_file = false,
         project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
@@ -56,6 +59,7 @@ workflow VUMCExtractVariantGenotypeByPvarFormatResult {
   output {
     String output_variant_csv = select_first([CopyFile.output_file1, FormatResult.output_variant_csv])
     String output_sample_csv = select_first([CopyFile.output_file2, FormatResult.output_sample_csv])
+    String output_psam = select_first([CopyFile.output_file3, FormatResult.output_psam])
     Int num_samples = FormatResult.num_samples
   }
 }
@@ -63,6 +67,8 @@ workflow VUMCExtractVariantGenotypeByPvarFormatResult {
 task FormatResult {
   input {
     File input_pvar_file
+    File input_psam_file
+
     File input_vcf_file
 
     String output_prefix
@@ -75,17 +81,20 @@ task FormatResult {
 
   command <<<
 
-cat <<EOF > transpose.r 
+cat <<EOF> transpose.r 
 
 pvar_file="~{input_pvar_file}"
+psam_file="~{input_psam_file}"
 vcf_file="~{input_vcf_file}"
-file_prefix="~{output_prefix}"
+output_prefix="~{output_prefix}"
 
 library(data.table)
 library(dplyr)
 
 fpvar=fread(pvar_file, sep="\t", data.table=FALSE) |>
   dplyr::rename("CHROM"=1)
+
+fpsam=fread(psam_file, sep="\t", data.table=FALSE) 
 
 fvcf=fread(vcf_file, sep="\t", data.table=FALSE) |>
   dplyr::rename("CHROM"=1)
@@ -102,15 +111,19 @@ snv_count=nrow(fdata) - apply(fdata, 2, function(x) sum(x=="0/0" | x=="./." | x=
 
 print(table(snv_count))
 
-ffiltered_cols=colnames(fdata)[snv_count > 0]
+ffiltered_samples=colnames(fdata)[snv_count > 0]
 
-fvcf_filtered=fvcf[,c('ID', ffiltered_cols)]
+ffiltered_psam=fpsam |>
+  dplyr::filter(IID %in% ffiltered_samples) 
+write.table(ffiltered_psam, paste0(output_prefix, ".psam"), sep="\t", row.names=FALSE, col.names=TRUE, quote=F)
+
+fvcf_filtered=fvcf[,c('ID', ffiltered_samples)]
 
 fcomb = merge(fpvar, fvcf_filtered, by="ID")
-write.table(fcomb, paste0(file_prefix, ".variant.csv"), sep=",", row.names=FALSE, col.names=TRUE, quote=F)
+write.table(fcomb, paste0(output_prefix, ".variant.csv"), sep=",", row.names=FALSE, col.names=TRUE, quote=F)
 
 mdat=t(fcomb)
-write.table(mdat, paste0(file_prefix, ".sample.csv"), sep=",", row.names=TRUE, col.names=FALSE, quote=F)
+write.table(mdat, paste0(output_prefix, ".sample.csv"), sep=",", row.names=TRUE, col.names=FALSE, quote=F)
 
 n_samples=sum(snv_count > 0)
 writeLines(as.character(n_samples), "num_samples.txt")
@@ -130,6 +143,7 @@ R -f transpose.r
 
   output {
     Int num_samples = read_int("num_samples.txt")
+    File output_psam = "~{output_prefix}.psam"
     File output_variant_csv = "~{output_prefix}.variant.csv"
     File output_sample_csv = "~{output_prefix}.sample.csv"
   }
