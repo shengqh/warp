@@ -53,10 +53,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCMoveCram.wdl
 
-  - name: VUMCDeleteBam
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCDeleteBam.wdl
-
   - name: VUMCExomeGermlineSingleSampleFromFastq
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wes/VUMCExomeGermlineSingleSampleFromFastq.wdl
@@ -349,9 +345,9 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCPgen2Vcf.wdl 
 
-  - name: VUMCPgen2Matrix
+  - name: VUMCPgen2BigQueryMatrix
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCPgen2Matrix.wdl 
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCPgen2BigQueryMatrix.wdl 
 
   - name: VUMCBed2HailMatrix
     subclass: WDL
