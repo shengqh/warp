@@ -265,10 +265,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/annotation/VUMCAnnovar.wdl
 
-  - name: VUMCAnnovarDbFiles
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/annotation/VUMCAnnovarDbFiles.wdl
-
   - name: VUMCAnnovarWithAgdVariantFormatDbFiles
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/annotation/VUMCAnnovarWithAgdVariantFormatDbFiles.wdl
