@@ -23,7 +23,7 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 # Note: The workflow handles special cases in AGD variant format to ensure
 # that the original VCF variant representation is preserved in the annotation output
 
-workflow VUMCAnnovarWithAgdVariantFormat {
+workflow VUMCAnnovarWithVcfColumns {
   input {
     File input_vcf
 
@@ -39,7 +39,7 @@ workflow VUMCAnnovarWithAgdVariantFormat {
 
   Float? true_annovar_db_umcompressed_gb = if(defined(annovar_db_tar_gz)) then if(defined(annovar_db_umcompressed_gb)) then annovar_db_umcompressed_gb else size(annovar_db_tar_gz, "GB") * 10 else 0
 
-  call AnnovarWithAgdVariantFormat as Annovar {
+  call AnnovarWithVcfColumns as Annovar {
     input:
       input_vcf = input_vcf,
       annovar_db_tar_gz = annovar_db_tar_gz,
@@ -69,7 +69,7 @@ workflow VUMCAnnovarWithAgdVariantFormat {
 # When it is converted to annovar input format, it will become:
 # 1       17002327        17002327        G       - 
 # So we need to keep the original vcf columns and replace the annovar output with the vcf columns.
-task AnnovarWithAgdVariantFormat {
+task AnnovarWithVcfColumns {
   input {
     File input_vcf
 

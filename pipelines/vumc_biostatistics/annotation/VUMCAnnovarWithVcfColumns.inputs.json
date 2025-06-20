@@ -1,0 +1,5 @@
+{
+  "VUMCAnnovarWithVcfColumns.target_prefix": "20250619_genes_clinvar",
+  "VUMCAnnovarWithVcfColumns.input_vcf": "/nobackup/h_cqs/shengq2/biovu/20250519_red_gates_fundation_snv_extraction/20250619/20250619_genes_clinvar.vcf.gz"
+}
+

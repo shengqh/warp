@@ -265,9 +265,9 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/annotation/VUMCAnnovar.wdl
 
-  - name: VUMCAnnovarWithAgdVariantFormat
+  - name: VUMCAnnovarWithVcfColumns
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/annotation/VUMCAnnovarWithAgdVariantFormat.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/annotation/VUMCAnnovarWithVcfColumns.wdl
 
   - name: VUMCGetGeneLocus
     subclass: WDL
