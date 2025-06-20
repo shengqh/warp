@@ -48,6 +48,8 @@ task Pgen2BigQueryMatrix {
     File input_psam
     
     String output_prefix
+
+    Int preemptible = 1
     
     String docker = "shengqh/plink_1.9_2.0:20250620"
     Int? memory_gb_override
@@ -202,7 +204,7 @@ python3 convert.py
 
   runtime {
     docker: docker
-    preemptible: 1
+    preemptible: preemptible
     disks: "local-disk " + disk_size + " HDD"
     memory: memory_gb + " GiB"
   }
