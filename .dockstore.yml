@@ -493,11 +493,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCMergeVcfFilesAndIndexOneTask.wdl
 
-  # Failed, need authentication
-  # - name: VUMCMergeVcfFilesUrl
-  #   subclass: WDL
-  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCMergeVcfFilesUrl.wdl
-
   - name: VUMCPRScs
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/polygenic_risk_score/VUMCPRScs.wdl
@@ -509,7 +504,3 @@ workflows:
   - name: VUMCExtractVariantGenotypeByPvar
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractVariantGenotypeByPvar.wdl
-
-  - name: VUMCExtractVariantGenotypeByPvarFormatResult
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractVariantGenotypeByPvarFormatResult.wdl
