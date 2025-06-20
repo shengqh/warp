@@ -349,6 +349,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCPgen2Bgen.wdl 
 
+  - name: VUMCPgen2Vcf
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCPgen2Vcf.wdl 
+
   - name: VUMCBed2HailMatrix
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCBed2HailMatrix.wdl
