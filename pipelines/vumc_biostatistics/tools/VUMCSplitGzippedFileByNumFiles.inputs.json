@@ -1,0 +1,6 @@
+{
+  "VUMCSplitGzippedFileByNumFiles.input_file": "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen-BigQuery-matrix/agd250k_chrM_pvar.txt.gz",
+  "VUMCSplitGzippedFileByNumFiles.output_prefix": "test",
+  "VUMCSplitGzippedFileByNumFiles.SplitGzippedFile.n_files_override": "2"
+}
+

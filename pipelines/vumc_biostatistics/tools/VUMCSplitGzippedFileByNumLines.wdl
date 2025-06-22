@@ -2,9 +2,11 @@ version 1.0
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
-workflow VUMCSplitGzippedFile {
+workflow VUMCSplitGzippedFileByNumLines {
   input {
     File input_file
+
+    Int n_lines_per_file = 750000000 # For pgen txt file, this is about 2 GB per file
 
     String output_prefix
 
@@ -12,9 +14,10 @@ workflow VUMCSplitGzippedFile {
     String? target_gcp_folder
   }
   
-  call SplitGzippedFile {
+  call SplitGzippedFileByNumLines as SplitGzippedFile {
     input: 
       input_file = input_file,
+      n_lines_per_file = n_lines_per_file,
       output_prefix = output_prefix
   }
 
@@ -33,29 +36,24 @@ workflow VUMCSplitGzippedFile {
   }
 }
 
-task SplitGzippedFile {
+task SplitGzippedFileByNumLines {
   input {
     File input_file
     String output_prefix
 
     Int machine_mem_gb = 10
+    Int n_lines_per_file
 
-    Int? n_files_override
-    Int expect_gb_per_file = 2
     Float size_multiplier = 2.5
     Int addtional_disk_space_gb = 10
     Int cpu = 3
   }
 
-  Int file_size=ceil(size(input_file, "GB"))
-
-  Int n_files=select_first([n_files_override, ceil(file_size  / expect_gb_per_file)])
-
-  Int disk_size = ceil(file_size * size_multiplier + addtional_disk_space_gb)
+  Int disk_size = ceil(size(input_file, "GB") * size_multiplier + addtional_disk_space_gb)
 
   command <<<
 
-  zcat ~{input_file} | split - -n ~{n_files} --filter='gzip > $FILE.gz' ~{output_prefix}.
+  zcat ~{input_file} | split - -l ~{n_lines_per_file} --verbose --filter='gzip > $FILE.gz' ~{output_prefix}.
   
   >>>
 
@@ -69,5 +67,4 @@ task SplitGzippedFile {
     disks: "local-disk ~{disk_size} HDD"
     cpu: cpu
   }
-
 }

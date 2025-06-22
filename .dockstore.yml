@@ -505,6 +505,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractVariantGenotypeByPvar.wdl
 
-  - name: VUMCSplitGzippedFile
+  - name: VUMCSplitGzippedFileByNumFiles
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCSplitGzippedFile.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCSplitGzippedFileByNumFiles.wdl
+
+  - name: VUMCSplitGzippedFileByNumLines
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCSplitGzippedFileByNumLines.wdl
