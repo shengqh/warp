@@ -69,13 +69,17 @@ import pandas as pd
 import numpy as np
 import gzip
 import time
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("Pgen2Matrix")
 
 pgen_file = '~{input_pgen}'
 pvar_file = '~{input_pvar}'
 psam_file = '~{input_psam}'
 
 # Read .pvar file (variant information)
-print(f"Processing pvar file: {pvar_file} ...")
+logger.info(f"Processing pvar file: {pvar_file} ...")
 pvar = pd.read_csv(pvar_file, sep='\t', comment='#', 
                    names=['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO'], 
                    dtype={'CHROM': str, 'POS': int, 'ID': str, 'REF': str, 'ALT': str})
@@ -95,7 +99,7 @@ def get_start_index(chrom):
       int_chrom = 30  # Default case for any other chromosome format
   return int_chrom * 100000000
 
-print("Creating VARIANT_ID based on chromosome and position ...")
+logger.info("Creating VARIANT_ID based on chromosome and position ...")
 start_index = get_start_index(pvar['CHROM'].iloc[0])
 # Apply the function to create VAR_ID
 pvar['VARIANT_ID'] = pvar.index.astype(int) + start_index
@@ -104,14 +108,11 @@ pvar['VARIANT_ID'] = pvar.index.astype(int) + start_index
 pvar = pvar[['VARIANT_ID', 'CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO']]
 
 # Save pvar information to a compressed tab-delimited file
-print("Saving pvar information to a compressed file ...")
+logger.info("Saving pvar information to a compressed file ...")
 with gzip.open("~{output_prefix}_pvar.txt.gz", "wt") as f:
   pvar.to_csv(f, sep="\t", index=False)
 
-print(pvar.shape)
-print(pvar.head())
-
-print(f"Processing pvar file: {psam_file} ...")
+logger.info(f"Processing pvar file: {psam_file} ...")
 # Read .psam file (sample information)
 psam = pd.read_csv(psam_file, sep='\t', header=0)
 
@@ -124,20 +125,17 @@ psam['SAMPLE_ID'] = psam.index.astype(int)
 psam = psam[['SAMPLE_ID', 'FID', 'IID', 'SEX']]
 
 # Save psam information to a compressed tab-delimited file
-print("Saving psam information to a compressed file ...")
+logger.info("Saving psam information to a compressed file ...")
 with gzip.open("~{output_prefix}_psam.txt.gz", "wt") as f:
   psam.to_csv(f, sep="\t", index=False)
 
-print(f"Processing pgen file: {pgen_file} ...")
-
-print(psam.shape)
-print(psam.head())
+logger.info(f"Processing pgen file: {pgen_file} ...")
 
 num_samples = len(psam)
 num_variants = len(pvar)
 
-print(f"Number of samples: {num_samples}")
-print(f"Number of variants: {num_variants}")
+logger.info(f"Number of samples: {num_samples}")
+logger.info(f"Number of variants: {num_variants}")
 
 with gzip.open("~{output_prefix}_pgen.txt.gz", "wt") as fout:
   fout.write("VARIANT_ID\tSAMPLE_ID\tGENOTYPE\n")
@@ -157,7 +155,7 @@ with gzip.open("~{output_prefix}_pgen.txt.gz", "wt") as fout:
         if variant_idx == 0:
           start_time = time.time()
           elapsed = 0
-          print(f" {variant_idx + 1}/{num_variants}")
+          logger.info(f" {variant_idx + 1}/{num_variants}")
         else:
           # Calculate percentage complete and estimated time remaining
           percent_complete = (variant_idx / num_variants) * 100
@@ -170,7 +168,7 @@ with gzip.open("~{output_prefix}_pgen.txt.gz", "wt") as fout:
           # Format time remaining in minutes/seconds
           minutes, seconds = divmod(est_time_remaining, 60)
           
-          print(f" {variant_idx + 1}/{num_variants} | {percent_complete:.1f}% | Elapsed: {elapsed:.1f}s | Est. remaining: {int(minutes)}m {int(seconds)}s")
+          logger.info(f" {variant_idx + 1}/{num_variants} | {percent_complete:.1f}% | Elapsed: {elapsed:.1f}s | Est. remaining: {int(minutes)}m {int(seconds)}s")
 
       var_id = pvar.iloc[variant_idx]['VARIANT_ID']
       # Read genotypes for the current variant
