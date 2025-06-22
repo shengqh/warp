@@ -38,7 +38,7 @@ task SplitGzippedFile {
     File input_file
     String output_prefix
 
-    Int machine_mem_gb = 4
+    Int machine_mem_gb = 10
 
     Int? n_files_override
     Int expect_gb_per_file = 2
