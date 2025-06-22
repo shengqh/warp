@@ -42,7 +42,7 @@ task SplitGzippedFileByNumFiles {
 
     Int? n_files_override
     Int expect_gb_per_file = 2
-    Float size_multiplier = 2.5
+    Float size_multiplier = 4
     Int addtional_disk_space_gb = 10
     Int cpu = 3
   }
