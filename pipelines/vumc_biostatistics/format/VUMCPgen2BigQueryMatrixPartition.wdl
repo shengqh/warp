@@ -68,9 +68,6 @@ task Pgen2BigQueryMatrixPartition {
   Int disk_size = select_first([disk_size_override, pgen_file_size * 5 + 20])
   Int memory_gb = select_first([memory_gb_override, 10])
 
-  String target_bgen = output_prefix + ".bgen"
-  String target_sample = output_prefix + ".sample"
-
   command <<<
 
 cat<<EOF>convert.py
