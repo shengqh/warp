@@ -345,10 +345,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCPgen2Vcf.wdl 
 
-  - name: VUMCPgen2BigQueryMatrix
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCPgen2BigQueryMatrix.wdl 
-
   - name: VUMCBed2HailMatrix
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCBed2HailMatrix.wdl
@@ -512,3 +508,11 @@ workflows:
   - name: VUMCSplitGzippedFileByNumLines
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCSplitGzippedFileByNumLines.wdl
+
+  - name: VUMCPgen2BigQueryMatrix
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCPgen2BigQueryMatrix.wdl 
+
+  - name: VUMCPgen2BigQueryMatrixPartition
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCPgen2BigQueryMatrixPartition.wdl 
