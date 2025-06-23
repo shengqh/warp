@@ -58,8 +58,7 @@ task Pgen2BigQueryMatrix {
     Int? disk_size_override
   }
 
-  Int pgen_file_size = ceil(size([input_pgen, input_pvar, input_psam], "GB"))
-  Int disk_size = select_first([disk_size_override, pgen_file_size * size_multiplier + 20])
+  Int disk_size = select_first([disk_size_override, ceil(size([input_pgen, input_pvar, input_psam], "GB") * size_multiplier) + 20])
   Int memory_gb = select_first([memory_gb_override, 10])
 
   command <<<
