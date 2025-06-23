@@ -47,7 +47,7 @@ task SplitGzippedFileByNumLines {
     Int machine_mem_gb = 10
     Int n_lines_per_file
 
-    Float size_multiplier = 4.5
+    Float size_multiplier = 4
     Int addtional_disk_space_gb = 10
     Int cpu = 3
   }
