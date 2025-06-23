@@ -50,6 +50,8 @@ task Pgen2BigQueryMatrix {
     String output_prefix
 
     Int preemptible = 1
+
+    Float size_multiplier = 5.5
     
     String docker = "shengqh/plink_1.9_2.0:20250620"
     Int? memory_gb_override
@@ -57,7 +59,7 @@ task Pgen2BigQueryMatrix {
   }
 
   Int pgen_file_size = ceil(size([input_pgen, input_pvar, input_psam], "GB"))
-  Int disk_size = select_first([disk_size_override, pgen_file_size * 5 + 20])
+  Int disk_size = select_first([disk_size_override, pgen_file_size * size_multiplier + 20])
   Int memory_gb = select_first([memory_gb_override, 10])
 
   command <<<
