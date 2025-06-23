@@ -7,6 +7,7 @@ workflow VUMCSplitGzippedFileByNumFiles {
     File input_file
 
     String output_prefix
+    Boolean skip_first_line = false
 
     String? project_id
     String? target_gcp_folder
@@ -15,6 +16,7 @@ workflow VUMCSplitGzippedFileByNumFiles {
   call SplitGzippedFileByNumFiles as SplitGzippedFile {
     input: 
       input_file = input_file,
+      skip_first_file = skip_first_line,
       output_prefix = output_prefix
   }
 
@@ -36,6 +38,7 @@ workflow VUMCSplitGzippedFileByNumFiles {
 task SplitGzippedFileByNumFiles {
   input {
     File input_file
+    Boolean skip_first_line = false
     String output_prefix
 
     Int machine_mem_gb = 10
@@ -55,7 +58,11 @@ task SplitGzippedFileByNumFiles {
 
   command <<<
 
-  zcat ~{input_file} | split - -n ~{n_files} --verbose --filter='gzip > $FILE.gz' ~{output_prefix}.
+  if [[ "~{skip_first_line}" == "true" ]]; then
+    zcat ~{input_file} | tail -n +2 | split - -n ~{n_files} --verbose --filter='gzip > $FILE.gz' ~{output_prefix}.
+  else
+    zcat ~{input_file} | split - -n ~{n_files} --verbose --filter='gzip > $FILE.gz' ~{output_prefix}.
+  fi
   
   >>>
 

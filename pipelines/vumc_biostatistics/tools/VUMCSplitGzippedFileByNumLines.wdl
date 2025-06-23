@@ -5,6 +5,7 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 workflow VUMCSplitGzippedFileByNumLines {
   input {
     File input_file
+    Boolean skip_first_line = false
 
     Int n_lines_per_file = 750000000 # For pgen txt file, this is about 2 GB per file
 
@@ -17,6 +18,7 @@ workflow VUMCSplitGzippedFileByNumLines {
   call SplitGzippedFileByNumLines as SplitGzippedFile {
     input: 
       input_file = input_file,
+      skip_first_line = skip_first_line,
       n_lines_per_file = n_lines_per_file,
       output_prefix = output_prefix
   }
@@ -39,6 +41,7 @@ workflow VUMCSplitGzippedFileByNumLines {
 task SplitGzippedFileByNumLines {
   input {
     File input_file
+    Boolean skip_first_line = false
     String output_prefix
 
     Int machine_mem_gb = 10
@@ -53,7 +56,11 @@ task SplitGzippedFileByNumLines {
 
   command <<<
 
-  zcat ~{input_file} | split - -l ~{n_lines_per_file} --verbose --filter='gzip > $FILE.gz' ~{output_prefix}.
+  if [[ ~{skip_first_line} == "true" ]]; then
+    zcat ~{input_file} | tail -n +2 | split - -l ~{n_lines_per_file} --verbose --filter='gzip > $FILE.gz' ~{output_prefix}.
+  else
+    zcat ~{input_file} | split - -l ~{n_lines_per_file} --verbose --filter='gzip > $FILE.gz' ~{output_prefix}.
+  fi
   
   >>>
 
