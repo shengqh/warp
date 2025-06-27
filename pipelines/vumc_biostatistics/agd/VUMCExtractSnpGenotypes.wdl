@@ -5,7 +5,7 @@ import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WdlUtils
 import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
 import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
-import "../annotation/VUMCAnnovarWithAgdVariantFormat.wdl" as VUMCAnnovar
+import "../annotation/VUMCAnnovarWithVcfColumns.wdl" as VUMCAnnovar
 
 # This workflow extracts SNP genotypes from VUMC pgen files based on a list of rsids
 # and generates a CSV file with the genotype information.
@@ -29,7 +29,6 @@ import "../annotation/VUMCAnnovarWithAgdVariantFormat.wdl" as VUMCAnnovar
 # - input_pgen_files: An array of input pgen files.
 # - input_psam_files: An array of input psam files.
 # - input_pvar_files: An array of input pvar files.
-# - billing_gcp_project_id: The GCP project ID for billing.
 # - target_gcp_folder: The GCP folder to move the output files to.
 # Output files:
 # - output_bed: The output BED file.
@@ -58,7 +57,6 @@ workflow VUMCExtractSnpGenotypes {
     Array[File] input_psam_files
     Array[File] input_pvar_files
 
-    String? billing_gcp_project_id
     String? target_gcp_folder    
   }
 
@@ -131,7 +129,7 @@ workflow VUMCExtractSnpGenotypes {
       output_prefix = output_prefix,
   }
 
-  call VUMCAnnovar.AnnovarWithAgdVariantFormat as Annovar {
+  call VUMCAnnovar.VUMCAnnovarWithVcfColumns as Annovar {
     input:
       input_vcf = Pgen2Vcf.output_vcf,
       target_prefix = output_prefix,
@@ -154,7 +152,6 @@ workflow VUMCExtractSnpGenotypes {
         source_file4 = FilterSamplesWithoutSNV.output_psam,
         source_file5 = FormatResult.output_genotype_csv,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }
