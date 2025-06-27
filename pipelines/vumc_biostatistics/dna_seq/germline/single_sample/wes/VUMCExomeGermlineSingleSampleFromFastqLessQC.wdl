@@ -64,7 +64,6 @@ workflow VUMCExomeGermlineSingleSampleFromFastqLessQC {
     File bait_interval_list
     String bait_set_name
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -108,7 +107,6 @@ workflow VUMCExomeGermlineSingleSampleFromFastqLessQC {
     call MoveResults.VUMCMoveSingleSampleWESResultLessQC as mf {
       input:
         target_bucket = select_first([target_gcp_folder]),
-        project_id = project_id,
         genoset = select_first([genoset]),
         GRID = sample_name,
 

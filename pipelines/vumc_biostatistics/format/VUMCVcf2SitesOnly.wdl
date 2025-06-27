@@ -19,7 +19,6 @@ version 1.0
 ## - input_vcf: Input VCF file to be processed
 ## - input_vcf_index: Index file for the input VCF
 ## - output_prefix: Prefix for output filenames
-## - project_id: Optional GCP project ID for file copy operations
 ## - target_gcp_folder: Optional target GCP folder for the output files
 ##
 ## ### Outputs:
@@ -39,7 +38,6 @@ workflow VUMCVcf2SitesOnly {
 
     String output_prefix
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -56,7 +54,6 @@ workflow VUMCVcf2SitesOnly {
         source_file1 = Vcf2SitesOnly.output_sites_vcf,
         source_file2 = Vcf2SitesOnly.output_sites_vcf_index,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

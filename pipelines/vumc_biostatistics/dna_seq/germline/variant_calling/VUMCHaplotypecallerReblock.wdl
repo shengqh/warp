@@ -40,7 +40,6 @@ workflow VUMCHaplotypecallerReblock {
     File ref_fasta_index
     File scattered_calling_intervals_list
 
-    String? project_id
     String? target_bucket
     String? genoset
     String? GRID
@@ -111,7 +110,6 @@ workflow VUMCHaplotypecallerReblock {
       input:
         input_vcf = Reblock.output_vcf,
         input_vcf_index = Reblock.output_vcf_index,
-        project_id = project_id,
         target_bucket = select_first([target_bucket]),
         genoset = select_first([genoset]),
         GRID = select_first([GRID])

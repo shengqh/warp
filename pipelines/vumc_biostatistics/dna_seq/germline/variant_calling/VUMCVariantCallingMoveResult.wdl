@@ -7,7 +7,6 @@ workflow VUMCVariantCallingMoveResult {
     String input_vcf
     String input_vcf_index 
 
-    String? project_id
     String target_bucket
     String genoset
     String GRID
@@ -19,7 +18,6 @@ workflow VUMCVariantCallingMoveResult {
       input_vcf_detail_metrics = input_vcf_detail_metrics,
       input_vcf = input_vcf,
       input_vcf_index = input_vcf_index,
-      project_id = project_id,
       target_bucket = target_bucket,
       genoset = genoset,
       GRID = GRID,
@@ -43,7 +41,6 @@ task CopyOrMoveResult {
 
     Boolean is_move_file = true
 
-    String? project_id
     String target_bucket
     String genoset
     String GRID
@@ -68,7 +65,7 @@ if [[ $result != 1 ]]; then
 
   set -e
 
-  gsutil -m ~{"-u " + project_id} ~{action} \
+  gsutil -m ~{action} \
     ~{input_vcf_summary_metrics} \
     ~{input_vcf_detail_metrics} \
     ~{input_vcf} \

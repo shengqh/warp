@@ -10,7 +10,6 @@ workflow VUMCVcfRenameSamples {
     String target_suffix = ".vcf.gz"
     String docker = "staphb/bcftools"
 
-    String? project_id
     String? target_bucket
     String? genoset
 
@@ -33,7 +32,6 @@ workflow VUMCVcfRenameSamples {
         input_vcf = BcftoolsReplaceHeader.output_vcf,
         input_vcf_index = BcftoolsReplaceHeader.output_vcf_index,
         is_move_file = true,
-        project_id = project_id,
         target_bucket = select_first([target_bucket]),
         genoset = select_first([genoset]),
     }

@@ -4,7 +4,6 @@ workflow VUMCHaplotypecallerReblockMoveResult {
   input {
     String genoset
     String GRID
-    String? project_id
 
     String input_vcf
     String input_vcf_index
@@ -16,7 +15,6 @@ workflow VUMCHaplotypecallerReblockMoveResult {
     input:
       genoset = genoset,
       GRID = GRID,
-      project_id = project_id,
 
       input_vcf = input_vcf,
       input_vcf_index = input_vcf_index,
@@ -35,7 +33,6 @@ task MoveVcf {
   input {
     String genoset
     String GRID
-    String? project_id
 
     String input_vcf
     String input_vcf_index
@@ -58,7 +55,7 @@ if [[ $result != 1 ]]; then
 
   set -e
     
-  gsutil -m ~{"-u " + project_id} mv ~{input_vcf} \
+  gsutil -m mv ~{input_vcf} \
     ~{input_vcf_index} \
     ~{target_folder}/
 

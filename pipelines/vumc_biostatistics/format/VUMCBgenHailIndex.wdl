@@ -18,7 +18,6 @@ version 1.0
 ## - input_bgen: Input BGEN file to be indexed
 ## - input_bgen_sample: Sample file associated with the BGEN file
 ## - reference_genome: Reference genome version (default: "GRCh38")
-## - project_id: Optional GCP project ID for file copy operations
 ## - target_gcp_folder: Optional target GCP folder for the output files
 ##
 ## ### Outputs:
@@ -41,7 +40,6 @@ workflow VUMCBgenHailIndex {
 
     String reference_genome = "GRCh38"
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -50,7 +48,6 @@ workflow VUMCBgenHailIndex {
       input_bgen = input_bgen,
       input_bgen_sample = input_bgen_sample,
       reference_genome = reference_genome,
-      project_id = project_id,
       target_gcp_folder = target_gcp_folder
   }
 
@@ -67,7 +64,6 @@ task BgenHailIndex {
 
     String reference_genome
 
-    String? project_id
     String? target_gcp_folder
 
     String docker = "shengqh/hail_gcp:20240211"
@@ -159,7 +155,7 @@ if [[ -f "~{local_output_file}" ]]; then
 
   if [[ "~{output_to_gcp}" == "true" ]]; then
     echo "Copying MatrixTable to GCS..."
-    gsutil ~{"-u " + project_id} -m rsync -Cr ~{basename_input_bgen}.idx2 ~{gcs_output_path}/~{basename_input_bgen}.idx2
+    gsutil -m rsync -Cr ~{basename_input_bgen}.idx2 ~{gcs_output_path}/~{basename_input_bgen}.idx2
 
     res=$?
     if [[ $res -ne 0 ]]; then

@@ -5,7 +5,6 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 workflow VUMCMoveCram {
   input {
     String target_bucket
-    String? project_id
 
     String genoset
     String GRID
@@ -26,7 +25,6 @@ workflow VUMCMoveCram {
 
       is_move_file = false,
 
-      project_id = project_id,
       target_gcp_folder = target_gcp_folder,
   }
 

@@ -9,14 +9,13 @@ workflow VUMCSplitGzippedFileByNumFiles {
     String output_prefix
     Boolean skip_first_line = false
 
-    String? project_id
     String? target_gcp_folder
   }
   
   call SplitGzippedFileByNumFiles as SplitGzippedFile {
     input: 
       input_file = input_file,
-      skip_first_file = skip_first_line,
+      skip_first_line = skip_first_line,
       output_prefix = output_prefix
   }
 
@@ -25,7 +24,6 @@ workflow VUMCSplitGzippedFileByNumFiles {
       input:
         source_files = SplitGzippedFile.output_files,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

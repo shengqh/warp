@@ -26,7 +26,6 @@ version 1.0
 ## - step1_max_variants: Maximum number of variants to include in the model
 ## - step1_prune: Flag to perform LD pruning
 ## - step1_prune_option: LD pruning parameters if pruning is enabled
-## - billing_gcp_project_id: Optional GCP project ID for file copy operations
 ## - target_gcp_folder: Optional target GCP folder for the output files
 ##
 ## ### Outputs:
@@ -67,7 +66,6 @@ workflow VUMCRegenie4Task3PrepareModelPgen {
     Boolean step1_prune = true
     String step1_prune_option="--indep-pairwise 1000 100 0.1"
 
-    String? billing_gcp_project_id
     String? target_gcp_folder
   }
 
@@ -166,7 +164,6 @@ workflow VUMCRegenie4Task3PrepareModelPgen {
         source_file2 = model_pvar,
         source_file3 = model_psam,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = gcs_output_dir
     }
   }

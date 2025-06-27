@@ -12,7 +12,6 @@ workflow VUMCAnnovar {
 
     String target_prefix
 
-    String? billing_project_id
     String? target_gcp_folder
   }
 
@@ -32,7 +31,6 @@ workflow VUMCAnnovar {
       input:
         source_file = Annovar.annovar_file,
         is_move_file = false,
-        project_id = billing_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

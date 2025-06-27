@@ -12,7 +12,6 @@ workflow VUMCGenotypePCA {
 
     Int n_geno_pcs = 10
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -30,7 +29,6 @@ workflow VUMCGenotypePCA {
       input:
         source_file = PlinkPCA.output_pca_file,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

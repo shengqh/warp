@@ -17,7 +17,6 @@ workflow VUMCPlink2FilterPgen {
 
     String plink2_filter_option
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -42,7 +41,6 @@ workflow VUMCPlink2FilterPgen {
         source_file2 = Plink2FilterPgen.output_pvar,
         source_file3 = Plink2FilterPgen.output_psam,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

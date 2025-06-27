@@ -22,7 +22,6 @@ version 1.0
 ## - filter_psam_file: Optional Psam file for sample filtering
 ## - output_prefix: Prefix for output files
 ## - step2_plink2_option: Plink2 options for QC filtering
-## - billing_gcp_project_id: Optional GCP project ID for file copy operations
 ## - target_gcp_folder: Optional target GCP folder for output files
 ##
 ## ### Outputs:
@@ -54,7 +53,6 @@ workflow VUMCRegenie4Task2PrepareTestPgen {
     
     String step2_plink2_option="--geno 0.05 --maf 0.01 --max-alleles 2"
 
-    String? billing_gcp_project_id
     String? target_gcp_folder
   }
 
@@ -85,7 +83,6 @@ workflow VUMCRegenie4Task2PrepareTestPgen {
       input:
         source_files = Step2Filter.output_pgen,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = gcs_output_dir
     }
     scatter(pgen in CopyFile7.outputFiles) {
@@ -96,7 +93,6 @@ workflow VUMCRegenie4Task2PrepareTestPgen {
       input:
         source_files = Step2Filter.output_psam,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = gcs_output_dir
     }
     scatter(psam in CopyFile8.outputFiles) {
@@ -107,7 +103,6 @@ workflow VUMCRegenie4Task2PrepareTestPgen {
       input:
         source_files = Step2Filter.output_pvar,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = gcs_output_dir
     }
     scatter(pvar in CopyFile9.outputFiles) {

@@ -20,7 +20,6 @@ version 1.0
 ## - input_ancestry: Optional ancestry specification
 ## - input_ancestry_file: Optional file containing ancestry information
 ## - output_prefix: Prefix for output files
-## - billing_gcp_project_id: Optional GCP project ID for file copy operations
 ## - target_gcp_folder: Optional target GCP folder for the output files
 ##
 ## ### Outputs:
@@ -49,7 +48,6 @@ workflow VUMCRegenie4Task1CreateCohortPsam {
 
     String output_prefix
 
-    String? billing_gcp_project_id
     String? target_gcp_folder
   }
 
@@ -69,7 +67,6 @@ workflow VUMCRegenie4Task1CreateCohortPsam {
       input:
         source_file = CreateCohortPsam.output_psam,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

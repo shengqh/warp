@@ -16,7 +16,6 @@ workflow VUMCBed2GDS {
 
     Int memory_gb = 20
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -35,7 +34,6 @@ workflow VUMCBed2GDS {
       input:
         source_file = Bed2GDS.gds_file,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

@@ -43,7 +43,6 @@ workflow VUMCRegenie4 {
 
     Array[String] chromosome_list = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","X"]
 
-    String? billing_gcp_project_id
     String? target_gcp_folder
   }
 
@@ -236,14 +235,12 @@ workflow VUMCRegenie4 {
       input:
         source_file = RegenieStep1FitModel.pred_list_file,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = gcs_output_dir
     }
     call GcpUtils.MoveOrCopyFileArray as CopyFile2 {
       input:
         source_files = RegenieStep1FitModel.pred_loco_files,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = gcs_output_dir
     }
     scatter(output_loco_file in CopyFile2.outputFiles) {
@@ -254,7 +251,6 @@ workflow VUMCRegenie4 {
       input:
         source_files = MergeRegenieChromosomeResults.phenotype_regenie_file,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = gcs_output_dir
     }
     scatter(afile in CopyFile3.outputFiles) {
@@ -265,7 +261,6 @@ workflow VUMCRegenie4 {
       input:
         source_files = RegeniePlots.qqplot_png,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = gcs_output_dir
     }
     scatter(qpng in CopyFile4.outputFiles) {
@@ -276,7 +271,6 @@ workflow VUMCRegenie4 {
       input:
         source_files = RegeniePlots.manhattan_png,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = gcs_output_dir
     }
     scatter(mpng in CopyFile5.outputFiles) {

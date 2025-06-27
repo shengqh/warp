@@ -7,7 +7,6 @@ workflow VUMCGetGeneLocus {
   input {
     String gene_symbol
 
-    String? billing_project_id
     String? target_gcp_folder
   }
 
@@ -21,7 +20,6 @@ workflow VUMCGetGeneLocus {
       input:
         source_file = GetGeneLocus.gene_bed,
         is_move_file = false,
-        project_id = billing_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

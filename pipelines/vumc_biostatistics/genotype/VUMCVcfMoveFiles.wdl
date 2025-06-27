@@ -7,7 +7,6 @@ workflow VUMCVcfMoveFiles {
     String input_vcf
     String input_vcf_index
 
-    String? project_id
     String target_gcp_folder
   }
 
@@ -16,7 +15,6 @@ workflow VUMCVcfMoveFiles {
       source_file1 = input_vcf,
       source_file2 = input_vcf_index,
       is_move_file = true,
-      project_id = project_id,
       target_gcp_folder = target_gcp_folder
   }
 

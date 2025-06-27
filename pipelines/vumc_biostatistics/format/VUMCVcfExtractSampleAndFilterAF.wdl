@@ -28,7 +28,6 @@ version 1.0
 ## - bcftools_view_option: Optional parameters for bcftools view
 ## - target_prefix: Prefix for output filenames
 ## - target_suffix: Suffix for output filenames (default: .vcf.gz)
-## - project_id: Optional GCP project ID for file copy operations
 ## - target_gcp_folder: Optional target GCP folder for the output files
 ##
 ## ### Outputs:
@@ -57,7 +56,6 @@ workflow VUMCVcfExtractSampleAndFilterAF {
     String target_prefix
     String target_suffix = ".vcf.gz"
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -96,7 +94,6 @@ workflow VUMCVcfExtractSampleAndFilterAF {
         source_file2 = BcftoolsMultiallelicAndSlim.output_vcf_index,
         source_file3 = BcftoolsMultiallelicAndSlim.output_vcf_sample,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

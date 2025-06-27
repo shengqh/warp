@@ -8,7 +8,6 @@ workflow VUMCRegeniePlots {
     File regenie_file
     String output_prefix
 
-    String? billing_gcp_project_id
     String? target_gcp_folder
   }
 
@@ -24,7 +23,6 @@ workflow VUMCRegeniePlots {
         source_file1 = RegeniePlots.qqplot_png,
         source_file2 = RegeniePlots.manhattan_png,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

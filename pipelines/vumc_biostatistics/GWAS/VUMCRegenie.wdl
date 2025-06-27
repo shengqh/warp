@@ -19,7 +19,6 @@ workflow VUMCRegenie {
 
     String qc_option="--mac 100 --geno 0.1 --maf 0.1 --max-maf 0.9 --hwe 1e-15 --snps-only --not-chr 23-27"
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -53,7 +52,6 @@ workflow VUMCRegenie {
       input:
         source_files = Regenie.regenie_files,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
     String gcs_output_dir = sub(select_first([target_gcp_folder]), "/+$", "")

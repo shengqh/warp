@@ -20,7 +20,6 @@ version 1.0
 ## - ngc_file: Optional NGC file for accessing protected data
 ## - sra_gb: Disk space allocated for SRA file (default: 10GB)
 ## - umcompressed_fastq_gb: Disk space allocated for uncompressed FASTQ (default: 50GB)
-## - billing_gcp_project_id: Optional GCP project ID for file copy operations
 ## - target_gcp_folder: Optional target GCP folder for the output files
 ##
 ## ### Outputs:
@@ -39,7 +38,6 @@ workflow VUMCSra2Fastq {
     File? ngc_file
     File user_settings_file
 
-    String? billing_gcp_project_id
     String? target_gcp_folder
   }
 
@@ -65,7 +63,6 @@ workflow VUMCSra2Fastq {
         source_file1 = fastq1,
         source_file2 = fastq2,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

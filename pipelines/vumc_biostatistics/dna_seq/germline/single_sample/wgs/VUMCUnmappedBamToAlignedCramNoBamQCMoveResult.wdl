@@ -7,7 +7,6 @@ workflow VUMCUnmappedBamToAlignedCramNoBamQCMoveResult {
     String genoset
     String GRID
     String target_bucket
-    String? project_id
 
     Array[String] quality_yield_metrics
 
@@ -40,7 +39,6 @@ workflow VUMCUnmappedBamToAlignedCramNoBamQCMoveResult {
   call MoveResult as mf {
     input:
       target_folder = target_folder,
-      project_id = project_id,
 
       quality_yield_metrics = quality_yield_metrics,
 
@@ -72,7 +70,6 @@ workflow VUMCUnmappedBamToAlignedCramNoBamQCMoveResult {
 task MoveResult {
   input {
     String target_folder
-    String? project_id
 
     Array[String] quality_yield_metrics
 
@@ -95,7 +92,7 @@ if [[ $result != 1 ]]; then
 
   set -e
 
-  gsutil -m ~{"-u " + project_id} mv ~{sep=" " quality_yield_metrics} \
+  gsutil -m mv ~{sep=" " quality_yield_metrics} \
     ~{duplicate_metrics} \
     ~{output_bqsr_reports} \
     ~{output_cram} \

@@ -11,7 +11,6 @@ workflow VUMCVcfIncludeSamples {
     String target_suffix = ".vcf.gz"
     String docker = "staphb/bcftools"
 
-    String? project_id
     String? target_bucket
     String? genoset
 
@@ -39,7 +38,6 @@ workflow VUMCVcfIncludeSamples {
         source_file2 = BcftoolsIncludeSamples.output_vcf_index,
         source_file3 = BcftoolsIncludeSamples.output_vcf_sample_file,
         is_move_file = true,
-        project_id = project_id,
         target_gcp_folder = target_gcp_folder
     }
   }

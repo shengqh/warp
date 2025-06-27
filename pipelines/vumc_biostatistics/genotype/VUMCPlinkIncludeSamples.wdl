@@ -18,7 +18,6 @@ workflow VUMCPlinkIncludeSamples {
 
     File? id_map_file
 
-    String? project_id
     String? target_bucket
   }
 
@@ -54,7 +53,6 @@ workflow VUMCPlinkIncludeSamples {
         source_bim = PlinkIncludeSamples.output_bim,
         source_fam = PlinkIncludeSamples.output_fam,
         is_move_file = false,
-        project_id = project_id,
         target_bucket = select_first([target_bucket])
     }
   }

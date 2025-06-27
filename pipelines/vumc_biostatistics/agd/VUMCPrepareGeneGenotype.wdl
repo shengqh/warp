@@ -10,7 +10,6 @@ workflow VUMCPrepareGeneGenotype {
     File annovar_file
     File vcf_file
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -31,7 +30,6 @@ workflow VUMCPrepareGeneGenotype {
         source_file4 = PrepareGeneGenotype.vus_genotype_freq_file,
         source_file5 = PrepareGeneGenotype.lof_annovar_file,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

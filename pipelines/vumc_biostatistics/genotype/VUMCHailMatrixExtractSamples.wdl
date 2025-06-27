@@ -79,7 +79,7 @@ mt_eligible.write("~{target_prefix}", overwrite=True)
 
 CODE
 
-gsutil ~{"-u " + project_id} -m rsync -Cr ~{target_prefix} ~{gcs_output_path}
+gsutil -m rsync -Cr ~{target_prefix} ~{gcs_output_path}
 
 >>>
 

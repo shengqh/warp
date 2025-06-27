@@ -9,7 +9,6 @@ workflow VUMCVcfExtractRegions {
     String target_prefix
     String target_suffix = ".vcf.gz"
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -32,7 +31,6 @@ workflow VUMCVcfExtractRegions {
         include_region_bed = include_region_bed,
         target_prefix = target_prefix,
         target_suffix = target_suffix,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }
@@ -113,7 +111,6 @@ task BcftoolsExtractRegionsGcp {
     String target_prefix
     String target_suffix
     
-    String? project_id
     String target_gcp_folder
 
     String docker = "shengqh/hail_gcp:20240213"
@@ -148,16 +145,16 @@ cat ~{target_sample_file} | wc -l > num_samples.txt
 
 bcftools index -n ~{target_vcf} > num_variants.txt
 
-echo gsutil ~{"-u " + project_id} -m cp ~{target_vcf} ~{gcs_output_vcf}
-gsutil ~{"-u " + project_id} -m cp ~{target_vcf} ~{gcs_output_vcf}
+echo gsutil -m cp ~{target_vcf} ~{gcs_output_vcf}
+gsutil -m cp ~{target_vcf} ~{gcs_output_vcf}
 rm -f ~{target_vcf}
 
-echo gsutil ~{"-u " + project_id} -m cp ~{target_vcf_index} ~{gcs_output_vcf_index}
-gsutil ~{"-u " + project_id} -m cp ~{target_vcf_index} ~{gcs_output_vcf_index}
+echo gsutil -m cp ~{target_vcf_index} ~{gcs_output_vcf_index}
+gsutil -m cp ~{target_vcf_index} ~{gcs_output_vcf_index}
 rm -f ~{target_vcf_index}
 
-echo gsutil ~{"-u " + project_id} -m cp ~{target_sample_file} ~{gcs_output_sample_file}
-gsutil ~{"-u " + project_id} -m cp ~{target_sample_file} ~{gcs_output_sample_file}
+echo gsutil -m cp ~{target_sample_file} ~{gcs_output_sample_file}
+gsutil -m cp ~{target_sample_file} ~{gcs_output_sample_file}
 rm -f ~{target_sample_file}
 
 >>>

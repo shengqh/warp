@@ -18,7 +18,6 @@ version 1.0
 ## - annovar_url: BigQuery table URL for Annovar data (default: working-set-385118.agd250k.annovar)
 ## - input_rsid_url: GCS path to file containing RSIDs to query, with column name "RSID"
 ## - output_prefix: Prefix for output files
-## - billing_gcp_project_id: Optional GCP project ID for file copy operations
 ## - target_gcp_folder: Optional target GCP folder for the output files
 ##
 ## ### Outputs:
@@ -39,7 +38,6 @@ workflow VUMCFindAgdVariantsByRsid {
     String input_rsid_url
     String output_prefix
 
-    String? billing_gcp_project_id
     String? target_gcp_folder
   }
 
@@ -56,7 +54,6 @@ workflow VUMCFindAgdVariantsByRsid {
         source_file1 = FindAgdVariantsByRsid.output_variant_bed,
         source_file2 = FindAgdVariantsByRsid.output_variant_txt,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

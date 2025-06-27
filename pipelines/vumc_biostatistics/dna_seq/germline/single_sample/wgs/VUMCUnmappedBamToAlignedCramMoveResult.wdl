@@ -5,7 +5,6 @@ workflow VUMCUnmappedBamToAlignedCramMoveResult {
     String genoset
     String GRID
     String target_bucket
-    String? project_id
 
     Array[String] quality_yield_metrics
 
@@ -133,7 +132,6 @@ workflow VUMCUnmappedBamToAlignedCramMoveResult {
   call MoveResult as mf {
     input:
       target_folder = target_folder,
-      project_id = project_id,
 
       quality_yield_metrics = quality_yield_metrics,
 
@@ -227,7 +225,6 @@ workflow VUMCUnmappedBamToAlignedCramMoveResult {
 task MoveResult {
   input {
     String target_folder
-    String? project_id
 
     Array[String] quality_yield_metrics
 
@@ -276,7 +273,7 @@ task MoveResult {
 
 set -e
 
-gsutil -m ~{"-u " + project_id} mv ~{sep="" quality_yield_metrics} \
+gsutil -m mv ~{sep="" quality_yield_metrics} \
   ~{sep=" " unsorted_read_group_base_distribution_by_cycle_pdf} \
   ~{sep=" " unsorted_read_group_base_distribution_by_cycle_metrics} \
   ~{sep=" " unsorted_read_group_insert_size_histogram_pdf} \

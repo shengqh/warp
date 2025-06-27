@@ -21,7 +21,6 @@ version 1.0
 ## - sample_name: Identifier for the sample
 ## - Reference genome files (chrLength_txt, chrNameLength_txt, etc.)
 ## - gtf: Gene annotation file
-## - billing_gcp_project_id: Optional GCP project ID for file copy operations
 ## - target_gcp_folder: Optional target GCP folder for the output files
 ##
 ## ### Outputs:
@@ -61,7 +60,6 @@ workflow VUMCStarFusion {
     File sjdbList_out_tab
     File transcriptInfo_tab
 
-    String? billing_gcp_project_id
     String? target_gcp_folder
   }
 
@@ -96,7 +94,6 @@ workflow VUMCStarFusion {
         source_file4 = STARFusion.output_fusion_inspector_web,
         source_file5 = STARFusion.output_fusion_inspector_fusions,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

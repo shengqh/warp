@@ -6,7 +6,6 @@ workflow VUMCMoveFile {
   input {
     String source_file
 
-    String? billing_gcp_project_id
     String target_gcp_folder
   }
 
@@ -14,8 +13,7 @@ workflow VUMCMoveFile {
     input:
       source_file = source_file,
       is_move_file = true,
-      project_id = billing_gcp_project_id,
-      target_gcp_folder = select_first([target_gcp_folder])
+      target_gcp_folder = target_gcp_folder
   }
 
   output {

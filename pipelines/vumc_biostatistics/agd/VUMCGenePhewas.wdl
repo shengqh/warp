@@ -24,7 +24,6 @@ workflow VUMCGenePhewas {
     File phecode_data_file
     File phecode_map_file
 
-    String billing_gcp_project_id
     String? target_gcp_folder
   }
 
@@ -34,7 +33,6 @@ workflow VUMCGenePhewas {
       agd_primary_grid_file = agd_primary_grid_file,
       input_hail_mt_path_file = input_hail_mt_path_file,
       expect_output_vcf_bgz_size_gb = expect_output_vcf_bgz_size_gb,
-      project_id = billing_gcp_project_id,
       target_gcp_folder = target_gcp_folder
   }
 
@@ -50,7 +48,6 @@ workflow VUMCGenePhewas {
       ancestry_file = ancestry_file,
       phecode_data_file = phecode_data_file,
       phecode_map_file = phecode_map_file,
-      project_id = billing_gcp_project_id,
       target_gcp_folder = target_gcp_folder
   }
 

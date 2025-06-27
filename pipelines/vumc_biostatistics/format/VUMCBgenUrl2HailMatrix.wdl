@@ -12,7 +12,6 @@ workflow VUMCBgenUrl2HailMatrix {
 
     String output_prefix
 
-    String billing_project_id
     String? target_gcp_folder
   }
 
@@ -22,7 +21,6 @@ workflow VUMCBgenUrl2HailMatrix {
       input_bgen_sample = input_bgen_sample,
       reference_genome = reference_genome,
       output_prefix = output_prefix,
-      billing_project_id = billing_project_id,
       target_gcp_folder = target_gcp_folder
   }
 
@@ -174,7 +172,7 @@ CODE
 
 set -o pipefail
 
-if gsutil -u ~{billing_project_id} stat ~{index_meta_file} 2>/dev/null; then
+if gsutil stat ~{index_meta_file} 2>/dev/null; then
   has_index="1"
 else
   has_index="0"
@@ -187,7 +185,7 @@ if [[ -f "~{local_output_file}" ]]; then
 
   if [[ "~{output_to_gcp}" == "true" ]]; then
     echo "Copying MatrixTable to GCS..."
-    gsutil ~{"-u " + billing_project_id} -m rsync -Cr ~{output_prefix} ~{gcs_output_path}
+    gsutil -m rsync -Cr ~{output_prefix} ~{gcs_output_path}
 
     res=$?
     if [[ $res -ne 0 ]]; then

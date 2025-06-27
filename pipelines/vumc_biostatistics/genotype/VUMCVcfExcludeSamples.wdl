@@ -10,7 +10,6 @@ workflow VUMCVcfExcludeSamples {
     String target_suffix = ".vcf.gz"
     String docker = "staphb/bcftools"
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -29,7 +28,6 @@ workflow VUMCVcfExcludeSamples {
         source_file1 = BcftoolsExcludeSamples.output_vcf,
         source_file2 = BcftoolsExcludeSamples.output_vcf_index,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder]),
     }
   }

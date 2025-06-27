@@ -37,7 +37,6 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
       input:
         source_file = GetFileSizeInArray.output_size_file,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

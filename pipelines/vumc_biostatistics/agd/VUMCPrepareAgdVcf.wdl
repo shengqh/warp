@@ -13,7 +13,6 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 # - input_vcf: The input VCF file to be processed.
 # - id_map_file: File containing ID mappings for AGD processing.
 # - output_prefix: Prefix for the output processed VCF file.
-# - project_id: Optional GCP project ID.
 # - target_gcp_folder: Optional GCP folder to copy processed files to.
 #
 # Output parameters:
@@ -30,7 +29,6 @@ workflow VUMCPrepareAgdVcf {
 
     String output_prefix
 
-    String? project_id
     String? target_gcp_folder
   }
   
@@ -55,7 +53,6 @@ workflow VUMCPrepareAgdVcf {
         source_file1 = filtered_vcf,
         source_file2 = filtered_vcf_index,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

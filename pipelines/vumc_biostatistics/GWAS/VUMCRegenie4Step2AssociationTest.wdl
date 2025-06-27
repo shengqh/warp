@@ -24,7 +24,7 @@ workflow VUMCRegenie4Step2AssociationTest {
     String output_prefix
 
     String? chromosome
-    String? billing_gcp_project_id
+
     String? target_gcp_folder
   }
 
@@ -50,7 +50,6 @@ workflow VUMCRegenie4Step2AssociationTest {
       input:
         source_files = RegenieStep2AssociationTest.regenie_files,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
     scatter(regenie_file in CopyFile.outputFiles) {

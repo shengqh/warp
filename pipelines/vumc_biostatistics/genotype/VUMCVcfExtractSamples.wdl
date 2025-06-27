@@ -13,7 +13,6 @@ workflow VUMCVcfExtractSamples {
     String target_prefix
     String target_suffix = ".vcf.gz"
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -34,7 +33,6 @@ workflow VUMCVcfExtractSamples {
         source_file2 = BcftoolsExtractSamples.output_vcf_index,
         source_file3 = BcftoolsExtractSamples.output_vcf_sample,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

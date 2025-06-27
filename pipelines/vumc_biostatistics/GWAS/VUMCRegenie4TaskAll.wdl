@@ -59,7 +59,6 @@ workflow VUMCRegenie4TaskAll {
     String step2_plink2_option="--geno 0.05 --maf 0.01 --max-alleles 2"
     String step2_regenie_option="--firth --approx --pThresh 0.01 --bsize 400"
 
-    String? billing_gcp_project_id
     String? target_gcp_folder
   }
 
@@ -73,7 +72,6 @@ workflow VUMCRegenie4TaskAll {
         input_ancestry = input_ancestry,
         input_ancestry_file = input_ancestry_file,
         output_prefix = output_prefix,
-        billing_gcp_project_id = billing_gcp_project_id,
         target_gcp_folder = target_gcp_folder
     }
   }
@@ -87,7 +85,6 @@ workflow VUMCRegenie4TaskAll {
       filter_psam_file = CreateCohortPsam.output_psam,
       output_prefix = output_prefix,
       step2_plink2_option = step2_plink2_option,
-      billing_gcp_project_id = billing_gcp_project_id,
       target_gcp_folder = target_gcp_folder
   }
 
@@ -102,7 +99,6 @@ workflow VUMCRegenie4TaskAll {
       step1_prune = step1_prune,
       step1_prune_option = step1_prune_option,
       step1_max_variants = step1_max_variants,
-      billing_gcp_project_id = billing_gcp_project_id,
       target_gcp_folder = target_gcp_folder
   }
 
@@ -123,9 +119,7 @@ workflow VUMCRegenie4TaskAll {
       output_prefix = output_prefix,
       step1_regenie_option = step1_regenie_option,
       step1_block_size = step1_block_size,
-      step1_max_variants = step1_max_variants,
       step2_regenie_option = step2_regenie_option,
-      billing_gcp_project_id = billing_gcp_project_id,
       target_gcp_folder = target_gcp_folder
   }
 
@@ -150,6 +144,7 @@ workflow VUMCRegenie4TaskAll {
 
     Array[File] phenotype_qqplot_png = Regenie.phenotype_qqplot_png
     Array[File] phenotype_manhattan_png = Regenie.phenotype_manhattan_png
+    Array[File] regenie_log_files = Regenie.regenie_log_files
   }
 }
 

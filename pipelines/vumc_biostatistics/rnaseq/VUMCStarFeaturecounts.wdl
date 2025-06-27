@@ -21,7 +21,6 @@ version 1.0
 ## - sample_name: Identifier for the sample
 ## - Reference genome files (chrLength_txt, chrNameLength_txt, etc.)
 ## - gtf: Gene annotation file
-## - billing_gcp_project_id: Optional GCP project ID for file copy operations
 ## - target_gcp_folder: Optional target GCP folder for the output files
 ##
 ## ### Outputs:
@@ -64,7 +63,6 @@ workflow VUMCStarFeaturecounts {
 
     File gtf
 
-    String? billing_gcp_project_id
     String? target_gcp_folder
   }
 
@@ -115,7 +113,6 @@ workflow VUMCStarFeaturecounts {
         source_file4 = FeatureCounts.output_count,
         source_file5 = FeatureCounts.output_count_summary,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

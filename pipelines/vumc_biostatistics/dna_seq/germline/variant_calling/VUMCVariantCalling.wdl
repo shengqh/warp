@@ -52,7 +52,6 @@ workflow VUMCVariantCalling {
 
     Boolean use_spanning_event_genotyping = true
 
-    String? project_id
     String? target_bucket
     String? genoset
     String? GRID
@@ -89,7 +88,6 @@ workflow VUMCVariantCalling {
         input_vcf_detail_metrics = BamToGvcf.vcf_detail_metrics,
         input_vcf = BamToGvcf.output_vcf,
         input_vcf_index = BamToGvcf.output_vcf_index,
-        project_id = project_id,
         target_bucket = select_first([target_bucket]),
         genoset = select_first([genoset]),
         GRID = select_first([GRID]),

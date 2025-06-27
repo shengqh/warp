@@ -14,7 +14,6 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 # - annovar_db_umcompressed_gb: Optional estimate of uncompressed ANNOVAR database size
 # - annovar_param: Optional parameters for ANNOVAR
 # - target_prefix: Prefix for output files
-# - billing_project_id: Optional GCP project ID for billing
 # - target_gcp_folder: Optional GCP folder to store output files
 #
 # Output files:
@@ -33,7 +32,6 @@ workflow VUMCAnnovarWithVcfColumns {
 
     String target_prefix
 
-    String? billing_project_id
     String? target_gcp_folder
   }
 
@@ -53,7 +51,6 @@ workflow VUMCAnnovarWithVcfColumns {
       input:
         source_file = Annovar.annovar_file,
         is_move_file = false,
-        project_id = billing_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

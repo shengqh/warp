@@ -16,7 +16,6 @@ workflow VUMCQCFilterAndPrunePgen {
 
     Int max_variants = 1000000
 
-    String? billing_gcp_project_id
     String? target_gcp_folder
   }
 
@@ -43,7 +42,6 @@ workflow VUMCQCFilterAndPrunePgen {
         source_file2 = QCFilterAndPrunePgen.output_pvar,
         source_file3 = QCFilterAndPrunePgen.output_psam,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = gcs_output_dir
     }
   }

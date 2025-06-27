@@ -17,7 +17,6 @@ workflow VUMCPlink2Filter {
 
     String docker = "shengqh/plink_1.9_2.0:20250304"
 
-    String? project_id
     String? target_bucket
 
     Int? preemptible=1
@@ -47,7 +46,6 @@ workflow VUMCPlink2Filter {
         source_bim = Plink2Filter.output_bim,
         source_fam = Plink2Filter.output_fam,
         is_move_file = false,
-        project_id = project_id,
         target_bucket = select_first([target_bucket])
     }
   }

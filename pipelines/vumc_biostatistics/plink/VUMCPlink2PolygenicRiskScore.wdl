@@ -23,7 +23,6 @@ workflow VUMCPlink2PolygenicRiskScore {
 
     String output_prefix
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -43,7 +42,6 @@ workflow VUMCPlink2PolygenicRiskScore {
       input:
         source_file = Plink2PolygenicRiskScore.output_sscore,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

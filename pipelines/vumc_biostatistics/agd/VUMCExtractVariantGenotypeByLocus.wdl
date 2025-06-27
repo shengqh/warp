@@ -26,7 +26,6 @@ import "./VUMCExtractVariantGenotypeFormatResult.wdl" as FormatResult
 # - input_pgen_files: PGEN files (one per chromosome)
 # - input_psam_files: PSAM files (one per chromosome)
 # - input_pvar_files: PVAR files (one per chromosome)
-# - billing_gcp_project_id: Optional GCP billing project
 # - target_gcp_folder: Optional GCP destination for result files
 #
 # Outputs:
@@ -48,7 +47,6 @@ workflow VUMCExtractVariantGenotypeByLocus {
     Array[File] input_psam_files
     Array[File] input_pvar_files
 
-    String? billing_gcp_project_id
     String? target_gcp_folder    
   }
 
@@ -138,7 +136,6 @@ workflow VUMCExtractVariantGenotypeByLocus {
         source_file5 = Annovar.annovar_file,
         source_file6 = FormatResult.output_genotype_csv,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

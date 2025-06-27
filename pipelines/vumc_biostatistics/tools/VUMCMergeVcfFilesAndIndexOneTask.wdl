@@ -12,7 +12,6 @@ version 1.0
 # - input_vcf_indexes: Array of index files corresponding to the input VCFs.
 # - input_vcf_startpos: Array of starting positions for each VCF file.
 # - output_prefix: Prefix for the output merged VCF file.
-# - billing_gcp_project_id: Optional GCP project ID for billing.
 # - target_gcp_folder: Optional GCP folder to copy merged files to.
 #
 # Output parameters:
@@ -30,7 +29,6 @@ workflow VUMCMergeVcfFilesAndIndexOneTask {
     Array[Int] input_vcf_startpos
     String output_prefix
 
-    String? billing_gcp_project_id
     String? target_gcp_folder    
   }
 
@@ -50,7 +48,6 @@ workflow VUMCMergeVcfFilesAndIndexOneTask {
         source_file1 = merged_vcf,
         source_file2 = merged_vcf_index,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

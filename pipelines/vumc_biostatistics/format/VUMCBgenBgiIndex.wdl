@@ -17,7 +17,6 @@ version 1.0
 ## ### Inputs:
 ## - input_bgen: Input BGEN file to be indexed
 ## - reference_genome: Reference genome version (default: "GRCh38")
-## - project_id: Optional GCP project ID for file copy operations
 ## - target_gcp_folder: Optional target GCP folder for the output files
 ##
 ## ### Outputs:
@@ -36,7 +35,6 @@ workflow VUMCBgenBgiIndex {
 
     String reference_genome = "GRCh38"
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -50,7 +48,6 @@ workflow VUMCBgenBgiIndex {
       input:
         source_file = BgenBgiIndex.bgen_bgi_index,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

@@ -8,7 +8,6 @@ workflow VUMCVcfIndex {
   input {
     File input_vcf
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -22,7 +21,6 @@ workflow VUMCVcfIndex {
       input:
         source_file = VcfIndex.output_vcf_index,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder]),
     }
   }

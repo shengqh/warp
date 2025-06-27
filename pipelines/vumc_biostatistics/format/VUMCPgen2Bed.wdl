@@ -13,7 +13,6 @@ workflow VUMCPgen2Bed {
 
     String docker = "shengqh/plink_1.9_2.0:20250304"
 
-    String? project_id
     String? target_bucket
   }
 
@@ -34,7 +33,6 @@ workflow VUMCPgen2Bed {
         source_file2 = Pgen2Bed.output_plink_bim,
         source_file3 = Pgen2Bed.output_plink_fam,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_bucket])
     }
   }

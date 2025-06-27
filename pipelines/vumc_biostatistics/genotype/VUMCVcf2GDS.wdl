@@ -19,7 +19,6 @@ workflow VUMCVcf2GDS {
 
     Int memory_gb = 20
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -41,7 +40,6 @@ workflow VUMCVcf2GDS {
         source_file1 = Vcf2GDS.gds_file,
         source_file2 = Vcf2GDS.gds_samples,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

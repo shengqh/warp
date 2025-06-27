@@ -18,7 +18,6 @@ workflow VUMCPrepareAgdPgen {
 
     String output_prefix
 
-    String? project_id
     String? target_gcp_folder
   }
   
@@ -50,7 +49,6 @@ workflow VUMCPrepareAgdPgen {
         source_file2 = filtered_pvar,
         source_file3 = filtered_psam,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

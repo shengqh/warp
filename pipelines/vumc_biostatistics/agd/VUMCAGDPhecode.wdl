@@ -10,7 +10,6 @@ workflow VUMCAGDPhecode {
     File phemap_file
     String output_prefix
 
-    String? billing_gcp_project_id
     String? target_gcp_folder    
   }
 
@@ -33,7 +32,6 @@ workflow VUMCAGDPhecode {
         source_file3 = query_phecode.phecode12_wide_csv,
         source_file4 = query_phecode.phecode12_wide_binarized_csv,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = gcs_output_dir
     }
   }

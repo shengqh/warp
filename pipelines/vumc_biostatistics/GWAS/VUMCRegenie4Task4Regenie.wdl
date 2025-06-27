@@ -30,7 +30,6 @@ version 1.0
 ## - covarColList: Comma-separated list of covariate columns
 ## - catCovarColList: Optional categorical covariates list
 ## - step1/2_regenie_option: Command line options for Regenie steps
-## - billing_gcp_project_id: Optional GCP project ID for file operations
 ## - target_gcp_folder: Optional target GCP folder for output files
 ##
 ## ### Outputs:
@@ -39,6 +38,7 @@ version 1.0
 ## - phenotype_regenie_files: Final association results for each phenotype
 ## - phenotype_qqplot_png: QQ plots for each phenotype
 ## - phenotype_manhattan_png: Manhattan plots for each phenotype
+## - regenie_log_files: Log files from Regenie association tests
 
 import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
@@ -71,12 +71,10 @@ workflow VUMCRegenie4Task4Regenie {
     #option of regenie for model fitting
     String step1_regenie_option="--loocv --bsize 1000 --lowmem"
     Int step1_block_size=1000
-    Int step1_max_variants=500000
 
     #option of regenie for testing
     String step2_regenie_option="--firth --approx --pThresh 0.01 --bsize 400"
 
-    String? billing_gcp_project_id
     String? target_gcp_folder
   }
 
@@ -204,7 +202,6 @@ workflow VUMCRegenie4Task4Regenie {
       input:
         source_file = RegenieStep1FitModel.pred_list_file,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = gcs_output_dir
     }
 
@@ -212,7 +209,6 @@ workflow VUMCRegenie4Task4Regenie {
       input:
         source_files = RegenieStep1FitModel.pred_loco_files,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = gcs_output_dir
     }
     scatter(output_loco_file in CopyFile2.outputFiles) {
@@ -223,7 +219,6 @@ workflow VUMCRegenie4Task4Regenie {
       input:
         source_files = MergeRegenieChromosomeResults.phenotype_regenie_file,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = gcs_output_dir
     }
     scatter(afile in CopyFile3.outputFiles) {
@@ -234,7 +229,6 @@ workflow VUMCRegenie4Task4Regenie {
       input:
         source_files = RegeniePlots.qqplot_png,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = gcs_output_dir
     }
     scatter(qpng in CopyFile4.outputFiles) {
@@ -245,12 +239,19 @@ workflow VUMCRegenie4Task4Regenie {
       input:
         source_files = RegeniePlots.manhattan_png,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = gcs_output_dir
     }
     scatter(mpng in CopyFile5.outputFiles) {
       String pheno_manhattan_png = mpng
     }
+
+    call GcpUtils.MoveOrCopyFileArray as CopyFile6 {
+      input:
+        source_files = RegenieStep2AssociationTest.regenie_log_file,
+        is_move_file = false,
+        target_gcp_folder = gcs_output_dir
+    }
+
   }
 
   output {
@@ -261,6 +262,8 @@ workflow VUMCRegenie4Task4Regenie {
 
     Array[File] phenotype_qqplot_png = select_first([pheno_qqplot_png, RegeniePlots.qqplot_png])
     Array[File] phenotype_manhattan_png = select_first([pheno_manhattan_png, RegeniePlots.manhattan_png])
+
+    Array[File] regenie_log_files = select_first([CopyFile6.outputFiles, RegenieStep2AssociationTest.regenie_log_file])
   }
 }
 

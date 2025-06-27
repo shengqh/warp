@@ -13,7 +13,6 @@ workflow VUMCMergeRegenieChromosomeResults {
 
     String output_prefix
 
-    String? billing_gcp_project_id
     String? target_gcp_folder
   }
 
@@ -31,7 +30,6 @@ workflow VUMCMergeRegenieChromosomeResults {
       input:
         source_files = MergeRegenieChromosomeResults.phenotype_regenie_files,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
     scatter(regenie_file in CopyFile.outputFiles) {

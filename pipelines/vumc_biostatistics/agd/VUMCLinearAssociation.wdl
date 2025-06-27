@@ -19,7 +19,6 @@ workflow VUMCLinearAssociation {
     File phecode_map_file
     File ancestry_file
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -43,7 +42,6 @@ workflow VUMCLinearAssociation {
         source_file1 = LinearAssociation.linear_association_file,
         source_file2 = LinearAssociation.linear_association_report,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

@@ -13,7 +13,6 @@ workflow VUMCPreparePhenotype {
     File phecode_map_file
     Int min_occurance = 2
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -33,7 +32,6 @@ workflow VUMCPreparePhenotype {
         source_file1 = PreparePhenotype.phenotype_file,
         source_file2 = PreparePhenotype.phenotype_report,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

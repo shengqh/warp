@@ -58,7 +58,6 @@ workflow VUMCPrepareGeneGenotypeWorkflow {
         source_file6 = PrepareGeneGenotype.vus_genotype_file,
         source_file7 = PrepareGeneGenotype.vus_genotype_freq_file,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

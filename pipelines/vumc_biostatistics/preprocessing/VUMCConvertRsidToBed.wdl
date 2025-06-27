@@ -12,7 +12,6 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 # - input_rsid_file: A file containing rsids, one per line.
 # - input_rsids: A string containing rsids separated by spaces.
 # - output_prefix: The prefix for the output files.
-# - billing_gcp_project_id: The GCP project ID for billing.
 # - target_gcp_folder: The GCP folder to move the output files to.
 # Output files:
 # - output_variant_bed: The output BED file.
@@ -29,7 +28,6 @@ workflow VUMCConvertRsidToBed {
 
     String output_prefix
 
-    String? billing_gcp_project_id
     String? target_gcp_folder    
   }
 
@@ -45,7 +43,6 @@ workflow VUMCConvertRsidToBed {
       input:
         source_file = ConvertRsidToBed.output_bed,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

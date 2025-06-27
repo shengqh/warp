@@ -10,7 +10,6 @@ workflow VUMCPgen2BigQueryMatrixPartition {
 
     String output_prefix
 
-    String? project_id
     String? target_bucket
   }
 
@@ -28,14 +27,12 @@ workflow VUMCPgen2BigQueryMatrixPartition {
         source_file1 = Pgen2BigQueryMatrix.output_pvar_txt,
         source_file2 = Pgen2BigQueryMatrix.output_psam_txt,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_bucket])
     }
     call GcpUtils.MoveOrCopyFileArray as CopyFile2 {
       input:
         source_files = Pgen2BigQueryMatrix.output_pgen_txt_files,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_bucket])
     }
   }

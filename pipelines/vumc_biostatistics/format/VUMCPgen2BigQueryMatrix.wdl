@@ -10,7 +10,6 @@ workflow VUMCPgen2BigQueryMatrix {
 
     String output_prefix
 
-    String? project_id
     String? target_bucket
   }
 
@@ -29,7 +28,6 @@ workflow VUMCPgen2BigQueryMatrix {
         source_file2 = Pgen2BigQueryMatrix.output_pvar_txt,
         source_file3 = Pgen2BigQueryMatrix.output_psam_txt,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_bucket])
     }
   }

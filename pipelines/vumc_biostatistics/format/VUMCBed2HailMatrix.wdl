@@ -10,7 +10,6 @@ workflow VUMCBed2HailMatrix {
 
     String output_prefix
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -23,7 +22,6 @@ workflow VUMCBed2HailMatrix {
       reference_genome = reference_genome,
       output_prefix = output_prefix,
 
-      project_id = project_id,
       target_gcp_folder = target_gcp_folder
   }
 
@@ -42,7 +40,6 @@ task Bed2HailMatrix {
     String reference_genome
     String output_prefix
 
-    String? project_id
     String? target_gcp_folder
 
     String docker = "hailgenetics/hail:0.2.127-py3.11"
@@ -133,7 +130,7 @@ if [[ -f "~{local_output_file}" ]]; then
 
   if [[ "~{output_to_gcp}" == "true" ]]; then
     echo "Copying MatrixTable to GCS..."
-    gsutil ~{"-u " + project_id} -m rsync -Cr ~{output_prefix} ~{gcs_output_path}
+    gsutil -m rsync -Cr ~{output_prefix} ~{gcs_output_path}
 
     res=$?
     if [[ $res -ne 0 ]]; then

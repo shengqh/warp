@@ -156,7 +156,7 @@ set -o pipefail
 
 python3 bgen_hail_index.py
 
-if gsutil -u ~{project_id} stat ~{meta_output_file} 2>/dev/null; then
+if gsutil stat ~{meta_output_file} 2>/dev/null; then
     echo "Writing index completed successfully."
     exit 0
 else

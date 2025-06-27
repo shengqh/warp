@@ -14,7 +14,6 @@ workflow VUMCPlink2FilterRegion {
 
     String docker = "shengqh/plink_1.9_2.0:20250304"
 
-    String? project_id
     String? target_bucket
   }
 
@@ -37,7 +36,6 @@ workflow VUMCPlink2FilterRegion {
         source_bim = Plink2FilterRegion.output_bim,
         source_fam = Plink2FilterRegion.output_fam,
         is_move_file = false,
-        project_id = project_id,
         target_bucket = select_first([target_bucket])
     }
   }

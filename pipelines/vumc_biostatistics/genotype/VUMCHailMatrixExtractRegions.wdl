@@ -30,7 +30,6 @@ workflow VUMCHailMatrixExtractRegions {
       input:
         source_file = HailMatrixExtractRegions.output_vcf,
         is_move_file = false,
-        project_id = billing_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

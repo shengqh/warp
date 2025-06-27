@@ -18,7 +18,6 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 # - input_vcf_file: A VCF file containing genotype information
 # - input_annovar_file: An Annovar annotation file
 # - output_prefix: The prefix for the output files
-# - billing_gcp_project_id: (Optional) The GCP project ID for billing
 # - target_gcp_folder: (Optional) The GCP folder to copy the output files to
 #
 # Output files:
@@ -31,7 +30,6 @@ workflow VUMCExtractVariantGenotypeFormatResult {
     File input_annovar_file
     String output_prefix
 
-    String? billing_gcp_project_id
     String? target_gcp_folder    
   }
 
@@ -48,7 +46,6 @@ workflow VUMCExtractVariantGenotypeFormatResult {
       input:
         source_file = FormatResult.output_genotype_csv,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

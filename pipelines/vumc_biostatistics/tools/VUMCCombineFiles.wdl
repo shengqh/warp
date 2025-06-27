@@ -10,7 +10,6 @@ workflow VUMCCombineFiles {
     Boolean has_header = false
     String output_prefix
     String output_suffix = ".txt"
-    String? billing_gcp_project_id
     String? target_gcp_folder  
   }
 
@@ -28,7 +27,6 @@ workflow VUMCCombineFiles {
       input:
         source_file = CombineFiles.combined_file,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

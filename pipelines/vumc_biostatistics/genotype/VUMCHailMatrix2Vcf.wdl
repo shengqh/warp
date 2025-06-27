@@ -9,7 +9,6 @@ workflow VUMCHailMatrix2Vcf {
 
     String target_prefix
 
-    String? project_id
     String target_gcp_folder
   }
 
@@ -19,7 +18,6 @@ workflow VUMCHailMatrix2Vcf {
       expect_vcf_size = expect_vcf_size,
       reference_genome = reference_genome,
       target_prefix = target_prefix,
-      project_id = project_id,
       target_gcp_folder = target_gcp_folder
   }
 
@@ -38,7 +36,7 @@ task HailMatrix2Vcf {
     Float expect_vcf_size
     String reference_genome
     String target_prefix
-    String? project_id
+
     String target_gcp_folder
 
     String docker = "shengqh/hail_gcp:20240213"
@@ -103,11 +101,11 @@ cat ~{target_sample_file} | wc -l > num_samples.txt
 
 bcftools index -n ~{target_vcf} > num_variants.txt
 
-gsutil ~{"-u " + project_id} -m cp ~{target_vcf} ~{gcs_output_vcf}
+gsutil -m cp ~{target_vcf} ~{gcs_output_vcf}
 
-gsutil ~{"-u " + project_id} -m cp ~{target_vcf_index} ~{gcs_output_vcf_index}
+gsutil -m cp ~{target_vcf_index} ~{gcs_output_vcf_index}
 
-gsutil ~{"-u " + project_id} -m cp ~{target_sample_file} ~{gcs_output_sample_file}
+gsutil -m cp ~{target_sample_file} ~{gcs_output_sample_file}
 
 >>>
 

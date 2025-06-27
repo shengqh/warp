@@ -5,7 +5,6 @@ workflow VUMCMoveSingleSampleWESResultLessQC {
     String genoset
     String GRID
     String target_bucket
-    String? project_id
 
     Array[String] quality_yield_metrics
 
@@ -87,7 +86,6 @@ workflow VUMCMoveSingleSampleWESResultLessQC {
   call MoveResult as mf {
     input:
       target_folder = target_folder,
-      project_id = project_id,
 
       quality_yield_metrics = quality_yield_metrics,
 
@@ -166,7 +164,6 @@ workflow VUMCMoveSingleSampleWESResultLessQC {
 task MoveResult {
   input {
     String target_folder
-    String? project_id
 
     Array[String] quality_yield_metrics
 
@@ -209,7 +206,7 @@ task MoveResult {
 
 set -e
 
-gsutil -m ~{"-u " + project_id} mv ~{sep=" " quality_yield_metrics} \
+gsutil -m mv ~{sep=" " quality_yield_metrics} \
   ~{read_group_alignment_summary_metrics} \
   ~{calculate_read_group_checksum_md5} \
   ~{agg_alignment_summary_metrics} \

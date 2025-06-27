@@ -22,7 +22,6 @@ workflow VUMCCombineIlluminaQC {
       input:
         source_file = CombineIlluminaQC.combined_long_file,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

@@ -15,7 +15,6 @@ workflow VUMCVcf2HailMatrix {
 
     String output_prefix
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -27,7 +26,6 @@ workflow VUMCVcf2HailMatrix {
       pass_only = pass_only,
       reference_genome = reference_genome,
       output_prefix = output_prefix,
-      project_id = project_id,
       target_gcp_folder = target_gcp_folder
   }
 
@@ -55,7 +53,6 @@ task Vcf2HailMatrix {
 
     Boolean pass_only=true
 
-    String? project_id
     String? target_gcp_folder
 
     String docker = "shengqh/hail_gcp:20240211"
@@ -171,7 +168,7 @@ if [[ -f "~{local_output_file}" ]]; then
 
   if [[ "~{output_to_gcp}" == "true" ]]; then
     echo "Copying MatrixTable to GCS..."
-    gsutil ~{"-u " + project_id} -m rsync -Cr ~{output_prefix} ~{gcs_output_path}
+    gsutil -m rsync -Cr ~{output_prefix} ~{gcs_output_path}
 
     res=$?
     if [[ $res -ne 0 ]]; then

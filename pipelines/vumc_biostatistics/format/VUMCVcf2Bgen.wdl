@@ -28,7 +28,6 @@ version 1.0
 ##                                    * 'b38'/'hg38' = GRCh38, 2781479/155701383
 ##                                    * 'chm13' = T2T-CHM13, 2394410/153925835
 ## - output_prefix: Prefix for output filenames
-## - project_id: Optional GCP project ID for file copy operations
 ## - target_gcp_folder: Optional target GCP folder for the output files
 ##
 ## ### Outputs:
@@ -50,7 +49,6 @@ workflow VUMCVcf2Bgen {
     String? split_par
     String output_prefix
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -81,7 +79,6 @@ workflow VUMCVcf2Bgen {
         source_file1 = Vcf2Bgen.output_bgen,
         source_file2 = Vcf2Bgen.output_sample,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

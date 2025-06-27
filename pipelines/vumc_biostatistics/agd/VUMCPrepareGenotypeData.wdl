@@ -20,7 +20,6 @@ workflow VUMCPrepareGenotypeData {
 
     File id_map_file
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -70,7 +69,6 @@ workflow VUMCPrepareGenotypeData {
         source_file2 = MergePgenFiles.output_pvar,
         source_file3 = MergePgenFiles.output_psam,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

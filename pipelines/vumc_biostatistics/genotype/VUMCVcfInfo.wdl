@@ -20,7 +20,6 @@ version 1.0
 ## - input_vcf: Input VCF file to analyze
 ## - input_vcf_index: Index file for the input VCF
 ## - output_prefix: Prefix for output filenames
-## - project_id: Optional GCP project ID for file copy operations
 ## - target_gcp_folder: Optional target GCP folder for the output files
 ##
 ## ### Outputs:
@@ -40,7 +39,6 @@ workflow VUMCVcfInfo {
     File input_vcf_index
     String output_prefix
 
-    String? project_id
     String? target_gcp_folder    
   }
 
@@ -56,7 +54,6 @@ workflow VUMCVcfInfo {
       input:
         source_file = VcfInfo.samples_file,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

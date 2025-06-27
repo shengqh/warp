@@ -12,7 +12,6 @@ import "./VUMCPrepareAgdVcf.wdl" as VUMCPrepareAgdVcf
 # - input_vcf: The input VCF file to be processed.
 # - id_map_file: File containing ID mappings for AGD processing.
 # - output_prefix: Prefix for the output processed VCF file.
-# - project_id: Optional GCP project ID.
 # - target_gcp_folder: Optional GCP folder to copy processed files to.
 #
 # Output parameters:
@@ -29,7 +28,6 @@ workflow VUMCPrepareAgdVcfNoIndex {
 
     String output_prefix
 
-    String? project_id
     String? target_gcp_folder
   }
   
@@ -47,7 +45,6 @@ workflow VUMCPrepareAgdVcfNoIndex {
       input:
         source_file = filtered_vcf,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

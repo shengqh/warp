@@ -20,7 +20,6 @@ workflow VUMCPhewas {
     File phecode_data_file
     File phecode_map_file
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -61,7 +60,6 @@ workflow VUMCPhewas {
           source_file3 = LinearAssociation.linear_association_file,
           source_file4 = LinearAssociation.linear_association_report,
           is_move_file = false,
-          project_id = project_id,
           target_gcp_folder = "~{gcs_output_dir}/~{genotype_name}/~{phecode}"
       }
     }
@@ -86,7 +84,6 @@ workflow VUMCPhewas {
       input:
         source_file = LinearAssociationSummary.linear_association_summary_file,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = "~{gcs_output_dir2}/~{genotype_name}"
     }
   }

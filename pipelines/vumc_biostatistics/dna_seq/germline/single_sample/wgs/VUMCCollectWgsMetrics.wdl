@@ -13,7 +13,6 @@ workflow VUMCCollectWgsMetrics {
     File input_cram
     File input_cram_index
 
-    String? project_id
     String genoset
     String GRID
     String target_bucket
@@ -40,7 +39,6 @@ workflow VUMCCollectWgsMetrics {
     input:
       genoset = genoset,
       GRID = GRID,
-      project_id = project_id,
       input_file = CollectWgsMetrics.metrics,
       target_bucket = target_bucket
   } 
@@ -64,7 +62,6 @@ task CopyFileNoOverwrite {
   input {
     String genoset
     String GRID
-    String? project_id
 
     String input_file
 
@@ -77,19 +74,19 @@ task CopyFileNoOverwrite {
   command <<<
 set +e
 
-result=$(gsutil ~{"-u " + project_id} -q stat ~{new_file} || echo 1)
+result=$(gsutil -q stat ~{new_file} || echo 1)
 if [[ $result != 1 ]]; then
   echo "Target file exists, return"
   exit 0
 
-  result=$(gsutil ~{"-u " + project_id} -q stat ~{input_file} || echo 1)
+  result=$(gsutil -q stat ~{input_file} || echo 1)
   if [[ $result != 1 ]]; then
     echo "Source file exists, copying to target bucket ..."
 
     set -o pipefail
     set -e
      
-    gsutil -m ~{"-u " + project_id} cp ~{input_file} \
+    gsutil -m cp ~{input_file} \
       ~{gcs_output_dir}/~{genoset}/~{GRID}/
 
   else

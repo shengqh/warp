@@ -17,7 +17,6 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 # - input_pvar_file: A PVAR file containing variant information
 # - input_vcf_file: A VCF file containing genotype information
 # - output_prefix: The prefix for the output files
-# - billing_gcp_project_id: (Optional) The GCP project ID for billing
 # - target_gcp_folder: (Optional) The GCP folder to copy the output files to
 #
 # Output files:
@@ -32,7 +31,6 @@ workflow VUMCExtractVariantGenotypeByPvarFormatResult {
     File input_vcf_file
     String output_prefix
 
-    String? billing_gcp_project_id
     String? target_gcp_folder    
   }
 
@@ -51,7 +49,6 @@ workflow VUMCExtractVariantGenotypeByPvarFormatResult {
         source_file2 = FormatResult.output_sample_csv,
         source_file3 = FormatResult.output_psam,
         is_move_file = false,
-        project_id = billing_gcp_project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }

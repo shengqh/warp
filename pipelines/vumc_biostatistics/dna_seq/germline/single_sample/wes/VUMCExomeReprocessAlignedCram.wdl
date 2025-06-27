@@ -59,7 +59,6 @@ workflow VUMCExomeReprocessAlignedCram {
 
     Boolean provide_bam_output = false
 
-    String? project_id
     String? target_gcp_folder    
   }
 
@@ -114,7 +113,6 @@ workflow VUMCExomeReprocessAlignedCram {
     call MoveResults.VUMCMoveSingleSampleWESResultLessQC as mf {
       input:
         target_bucket = select_first([target_gcp_folder]),
-        project_id = project_id,
         genoset = select_first([genoset]),
         GRID = sample_name,
 

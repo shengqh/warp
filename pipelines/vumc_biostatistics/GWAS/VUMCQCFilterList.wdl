@@ -14,7 +14,6 @@ workflow VUMCQCFilterList {
 
     String qc_option="--mac 100 --geno 0.1 --maf 0.1 --max-maf 0.9 --hwe 1e-15 --snps-only --not-chr 23-27"
 
-    String? project_id
     String? target_gcp_folder
   }
 
@@ -36,7 +35,6 @@ workflow VUMCQCFilterList {
         source_file1 = snplist_file,
         source_file2 = samples_file,
         is_move_file = false,
-        project_id = project_id,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }
