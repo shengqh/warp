@@ -18,7 +18,7 @@ version 1.0
 ##
 ## ### Inputs:
 ## - source_file: Source file path (only the basename is used)
-## - project_id: Google Cloud project ID
+## - project_id: Google Cloud project ID (only work when you copy file out of requestor pay bucket, but not copy into requestor pay bucket)
 ## - output_gcp_folder: Target Google Cloud Storage folder
 ##
 ## ### Outputs:
