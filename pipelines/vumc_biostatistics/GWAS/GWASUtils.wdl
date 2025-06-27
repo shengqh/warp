@@ -292,7 +292,7 @@ regenie --step 2 \
   ~{step2_option} \
   --threads ~{cpu} \
   --pred pred.list \
-  --out ~{output_prefix}
+  --out ~{output_prefix} | tee ~{output_prefix}.log
 
 >>>
 
@@ -305,6 +305,7 @@ regenie --step 2 \
   }
   output {
     Array[File] regenie_files = glob("~{output_prefix}*.regenie")
+    File regenie_log_file = "~{output_prefix}.log"
   }
 }
 
