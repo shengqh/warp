@@ -1,5 +1,12 @@
 version 1.0
 
+# Since the WDL task will use service account to access GCP resources, 
+# Put project_id in gsutil command could not work if you copy the files to requstor pay bucket.
+# If you need to copy file into or out of a normal bucket, project_id is not required.
+# If you need to copy file out of requstor pay bucket, project_id is required.
+# Copy file into requestor pay bucket would be failed even if you provided project_id if your service id doesn't have write permission.
+# User must have write permission to the target GCP folder.
+
 task MoveOrCopyOneFile {
   input {
     String source_file
