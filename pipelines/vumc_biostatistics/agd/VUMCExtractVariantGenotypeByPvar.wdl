@@ -6,20 +6,21 @@ import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "./VUMCExtractVariantGenotypeByPvarFormatResult.wdl" as VUMCFormatResult
 
-# This workflow extracts variant genotypes from PLINK2 files based on genomic loci defined in a BED file
-# and performs variant annotation using Annovar.
+# This workflow extracts variant genotypes from PLINK2 files based on variant IDs defined in a plink2 pvar file
+# and formats the results for further analysis.
 #
 # Workflow steps:
-# 1. Identify chromosomes with variants overlapping the input BED regions
-# 2. Extract variants within those regions from PGEN files 
-# 3. Merge filtered PGEN files across valid chromosomes if needed
-# 4. Remove samples without any variants
-# 5. Convert PGEN to VCF format
-# 6. Annotate variants using Annovar
-# 7. Optionally copy results to a GCP storage location
+# 1. Check for overlapping variants between input pvar files and the keep_pvar file
+# 2. Extract variants from PGEN files for chromosomes with overlapping variants
+# 3. Merge filtered PGEN files across valid chromosomes if more than one exists
+# 4. Convert merged PGEN to VCF format
+# 5. Format results to generate sample and variant CSV files
+# 6. Filter to keep only samples with variants
+# 7. Convert final filtered data to VCF format
+# 8. Optionally copy results to a GCP storage location
 #
 # Inputs:
-# - input_bed: BED file specifying target genomic regions
+# - keep_pvar: PVAR file containing variant IDs to extract
 # - output_prefix: Prefix for all output files
 # - chromosomes: List of chromosomes to process
 # - input_pgen_files: PGEN files (one per chromosome)
@@ -29,9 +30,11 @@ import "./VUMCExtractVariantGenotypeByPvarFormatResult.wdl" as VUMCFormatResult
 #
 # Outputs:
 # - output_pgen: Final filtered PGEN file path
-# - output_pvar: Final filtered PVAR file path  
+# - output_pvar: Final filtered PVAR file path
 # - output_psam: Final filtered PSAM file path
-# - output_annovar_file: Path to Annovar annotation results
+# - output_vcf: Final VCF file path
+# - output_variant_csv: CSV file with variant in row
+# - output_sample_csv: CSV file with sample in row
 # - output_num_variants: Number of variants in final result
 # - output_num_samples: Number of samples in final result
 
