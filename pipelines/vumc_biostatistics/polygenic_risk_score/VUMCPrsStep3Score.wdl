@@ -160,6 +160,6 @@ task Plink2PolygenicRiskScore {
    }
 
   output {
-    File output_sscore_file = "~{output_prefix}.sscore.txt"
+    File output_sscore_file = "~{output_prefix}.sscore"
   }
 }
