@@ -37,10 +37,13 @@ workflow VUMCPrsStep2PRScs {
 
     # use files instead of .tar.gz to avoid unzipping the file, save time and disk space
     Array[File] ld_files
+    
     # the folder name should contains either 1kg or ukbb, for example: "ldblk_ukbb_eur"
     String ld_folder_name
-    String ld_snpname = "snplist"
-    
+
+    # "locus" for agd data,"snplist" for others
+    String ld_snpname
+=    
     String output_prefix
 
     String? target_gcp_folder
@@ -50,13 +53,13 @@ workflow VUMCPrsStep2PRScs {
 
   scatter(all_chrom_ind in range(num_all_chromsome)){
     Int chromosome = chromosomes[all_chrom_ind]
-    File input_bim = input_pvar_files[all_chrom_ind]
+    File input_pvar = input_pvar_files[all_chrom_ind]
 
     String output_prefix_chromosome = output_prefix + ".chr" + chromosome
 
     call PRScs as PRScs {
       input:
-        input_bim = input_bim,
+        input_pvar = input_pvar,
         n_gwas = n_gwas,
         input_sst = input_sst,
         ld_files = ld_files,
@@ -67,29 +70,37 @@ workflow VUMCPrsStep2PRScs {
     }
   }
 
-  call WDLUtils.concat_files {
+  call WDLUtils.concat_files as concat_files {
     input:
       input_files = PRScs.output_effort_file,
       output_file = output_prefix + ".effect.txt"
   }
 
+  call EffectToPvar {
+    input:
+      input_effect_file = concat_files.concat_file,
+      output_prefix = output_prefix + ".effect"
+  }
+
   if(defined(target_gcp_folder)){
-    call GcpUtils.MoveOrCopyOneFile as CopyFile {
+    call GcpUtils.MoveOrCopyTwoFiles as CopyFile {
       input:
-        source_file = concat_files.concat_file,
+        source_file1 = concat_files.concat_file,
+        source_file2 = EffectToPvar.output_pvar_file,
         is_move_file = false,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }
 
   output {
-    String output_effect_file = select_first([CopyFile.output_file, concat_files.concat_file])
+    String output_effect_file = select_first([CopyFile.output_file1, concat_files.concat_file])
+    File output_effect_pvar_file = select_first([CopyFile.output_file2, EffectToPvar.output_pvar_file])
   }
 }
 
 task PRScs {
   input {
-    File input_bim
+    File input_pvar
 
     Int n_gwas
     File input_sst
@@ -99,7 +110,7 @@ task PRScs {
 
     Array[File] ld_files
     String ld_folder_name
-    String ld_snpname = "snplist"
+    String ld_snpname
 
     String output_prefix
 
@@ -111,22 +122,23 @@ task PRScs {
     Int addtional_disk_space_gb = 10
   }
 
-  Int disk_size = ceil(size([input_bim], "GB")) + ceil(size(ld_files, "GB")) + addtional_disk_space_gb
+  Int disk_size = ceil(size([input_pvar], "GB")) + ceil(size(ld_files, "GB")) + addtional_disk_space_gb
+  String suffix = ".pvar"
 
   command <<<
     ld_cur_folder=$(dirname ~{ld_files[1]})
     ln -s ${ld_cur_folder} ~{ld_folder_name}
     echo "ld_folder: ~{ld_folder_name} : $ld_cur_folder"
 
-    bim_file="~{input_bim}"
-    bim_prefix="${bim_file%.pvar}"
-    echo "bim_prefix: $bim_prefix"
+    pvar_file="~{input_pvar}"
+    pvar_prefix="${pvar_file%~{suffix}}"
+    echo "pvar_prefix: $pvar_prefix"
 
     echo "Running PRScs ..."
     python3 ~{PRSsc_script} \
       --ref_dir=~{ld_folder_name} \
       --ref_snpname=~{ld_snpname} \
-      --bim_prefix=${bim_prefix} \
+      --bim_prefix=${pvar_prefix} \
       --sst_file=~{input_sst} \
       --chrom=~{chromosome} \
       --n_gwas=~{n_gwas} \
@@ -145,5 +157,36 @@ task PRScs {
 
   output {
     File output_effort_file = "~{output_prefix}_pst_eff_a1_b0.5_phiauto_chr~{chromosome}.txt"
+  }
+}
+
+task EffectToPvar {
+  input {
+    File input_effect_file
+
+    String output_prefix
+
+    Int preemptible=3
+    Int memory_gb=2
+  }
+
+  Int disk_size = ceil(size([input_effect_file], "GB") * 2)
+  String suffix = ".pvar"
+
+  command <<<
+
+  awk 'NR==1 {print "#CHROM\tPOS\tID\tREF\tALT"}; NR>1 {print $1"\t"$3"\t"$2"\t"$5"\t"$4}' ~{input_effect_file} > ~{output_prefix}.pvar
+
+  >>>
+
+  runtime{
+    docker: "ubuntu:20.04"
+    preemptible: preemptible
+    disks: "local-disk " + disk_size + " HDD"
+    memory: memory_gb + " GiB"
+   }
+
+  output {
+    File output_pvar_file = "~{output_prefix}.pvar"
   }
 }
