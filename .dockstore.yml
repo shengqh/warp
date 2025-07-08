@@ -512,3 +512,7 @@ workflows:
   - name: VUMCPrsStep2PRScs
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/polygenic_risk_score/VUMCPrsStep2PRScs.wdl
+
+  - name: VUMCPrsStep3Score
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/polygenic_risk_score/VUMCPrsStep3Score.wdl
