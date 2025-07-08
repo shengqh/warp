@@ -118,11 +118,14 @@ task PRScs {
     String PRSsc_script = "/opt/PRScs/PRScs.py"
 
     Int preemptible=3
-    Int memory_gb = 10
+    Int addtional_memory_gb = 10
     Int addtional_disk_space_gb = 10
   }
 
-  Int disk_size = ceil(size([input_pvar], "GB")) + ceil(size(ld_files, "GB")) + addtional_disk_space_gb
+  Int disk_size = ceil(size([input_pvar], "GB") + size(ld_files, "GB") + size(input_sst, "GB")) + addtional_disk_space_gb
+
+  Int memory_gb = ceil(size([input_pvar], "GB") + size(ld_files, "GB") + size(input_sst, "GB")) + addtional_memory_gb # 10 GB is the minimum memory for PRScs
+
   String suffix = ".pvar"
 
   command <<<
