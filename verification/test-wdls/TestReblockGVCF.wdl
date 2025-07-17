@@ -4,7 +4,7 @@ version 1.0
 import "../../pipelines/broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl" as ReblockGVCF
 import "../../verification/VerifyGvcf.wdl" as VerifyGvcf
 import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestReblockGVCF {
 
@@ -25,8 +25,6 @@ workflow TestReblockGVCF {
       String truth_path
       String results_path
       Boolean update_truth
-      String vault_token_path
-      String google_account_vault_path
       String cloud_provider
     }
 
@@ -54,8 +52,8 @@ workflow TestReblockGVCF {
     # Collect all of the pipeline outputs into single Array[String]
     Array[String] pipeline_outputs = flatten([
                                     [ # File outputs
-                                    ReblockGVCF.output_vcf_index,
-                                    ReblockGVCF.output_vcf,
+                                    ReblockGVCF.reblocked_gvcf_index,
+                                    ReblockGVCF.reblocked_gvcf,
                                     ],
                                     
     ])
@@ -63,21 +61,17 @@ workflow TestReblockGVCF {
     
 
     # Copy results of pipeline to test results bucket
-    call Copy.CopyFilesFromCloudToCloud as CopyToTestResults {
+    call Copy.TerraCopyFilesFromCloudToCloud as CopyToTestResults {
       input:
         files_to_copy             = flatten([pipeline_outputs]),
-        vault_token_path          = vault_token_path,
-        google_account_vault_path = google_account_vault_path,
         destination_cloud_path    = results_path
     }
   
     # If updating truth then copy output to truth bucket
     if (update_truth){
-      call Copy.CopyFilesFromCloudToCloud as CopyToTruth {
+      call Copy.TerraCopyFilesFromCloudToCloud as CopyToTruth {
         input: 
           files_to_copy             = flatten([pipeline_outputs]),
-          vault_token_path          = vault_token_path,
-          google_account_vault_path = google_account_vault_path,
           destination_cloud_path    = truth_path
       }
     }
@@ -86,13 +80,13 @@ workflow TestReblockGVCF {
     if (!update_truth){
         call Utilities.GetValidationInputs as GetGvcf {
           input:
-            input_file = ReblockGVCF.output_vcf,
+            input_file = ReblockGVCF.reblocked_gvcf,
             results_path = results_path,
             truth_path = truth_path
         }
         call Utilities.GetValidationInputs as GetGvcfIndex {
           input:
-            input_file = ReblockGVCF.output_vcf_index,
+            input_file = ReblockGVCF.reblocked_gvcf_index,
             results_path = results_path,
             truth_path = truth_path
         }

@@ -2,14 +2,14 @@ version 1.0
 
 import "../../../pipelines/skylab/atac/atac.wdl" as atac
 import "../../../pipelines/skylab/optimus/Optimus.wdl" as optimus
+import "../../../pipelines/skylab/peak_calling/PeakCalling.wdl" as peakcalling
+
 import "../../../tasks/skylab/H5adUtils.wdl" as H5adUtils
-import "https://raw.githubusercontent.com/aawdeh/CellBender/aa-cbwithoutcuda/wdl/cellbender_remove_background_azure.wdl" as CellBender_no_cuda
-import "https://raw.githubusercontent.com/broadinstitute/CellBender/v0.3.0/wdl/cellbender_remove_background.wdl" as CellBender
 import "../../../tasks/broad/Utilities.wdl" as utils
 
 workflow Multiome {
 
-    String pipeline_version = "5.9.2"
+    String pipeline_version = "6.0.5"
 
     input {
         String cloud_provider
@@ -19,7 +19,7 @@ workflow Multiome {
         String? atac_nhash_id
         Int expected_cells = 3000
 
-        # Optimus Inputs
+        # Optimus inputs
         String counting_mode = "sn_rna"
         Array[File] gex_r1_fastq
         Array[File] gex_r2_fastq
@@ -52,6 +52,8 @@ workflow Multiome {
 
         # CellBender
         Boolean run_cellbender = false
+        # Peak Calling
+        Boolean run_peak_calling = false
     }
 
     # Determine docker prefix based on cloud provider
@@ -60,7 +62,7 @@ workflow Multiome {
     String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
 
     # Define docker images
-    String snap_atac_docker_image = "snapatac2:1.0.4-2.3.1-1700590229"
+    String snap_atac_docker_image = "snapatac2:2.0.0"
 
     # Define all whitelist files
     File gcp_gex_whitelist = "gs://gcp-public-data--broad-references/RNA/resources/arc-v1/737K-arc-v1_gex.txt"
@@ -103,7 +105,8 @@ workflow Multiome {
             count_exons = count_exons,
             soloMultiMappers = soloMultiMappers,
             cloud_provider = cloud_provider,
-            gex_expected_cells = expected_cells
+            gex_expected_cells = expected_cells,
+            run_cellbender = run_cellbender
     }
 
     # Call the ATAC workflow
@@ -122,8 +125,11 @@ workflow Multiome {
             annotations_gtf = annotations_gtf,
             atac_nhash_id = atac_nhash_id,
             adapter_seq_read3 = adapter_seq_read3,
-            atac_expected_cells = expected_cells
+            atac_expected_cells = expected_cells,
+            peak_calling = false
+
     }
+
     call H5adUtils.JoinMultiomeBarcodes as JoinBarcodes {
         input:
             docker_path = docker_prefix + snap_atac_docker_image,
@@ -134,38 +140,15 @@ workflow Multiome {
             atac_fragment = Atac.fragment_file
     }
 
-    # Call CellBender
-    if (run_cellbender) {
-        if (cloud_provider == "gcp") {
-            call CellBender.run_cellbender_remove_background_gpu as CellBender {
-                input:
-                    sample_name = input_id,
-                    input_file_unfiltered = Optimus.h5ad_output_file,
-                    hardware_boot_disk_size_GB = 20,
-                    hardware_cpu_count = 4,
-                    hardware_disk_size_GB = 50,
-                    hardware_gpu_type = "nvidia-tesla-t4",
-                    hardware_memory_GB = 32,
-                    hardware_preemptible_tries = 2,
-                    hardware_zones = "us-central1-a us-central1-c",
-                    nvidia_driver_version = "470.82.01"
-            }
-        } 
-        if (cloud_provider == "azure") {
-            call CellBender_no_cuda.run_cellbender_remove_background_gpu as CellBender_no_cuda {
-                input:
-                    sample_name = input_id,
-                    input_file_unfiltered = Optimus.h5ad_output_file,
-                    hardware_boot_disk_size_GB = 20,
-                    hardware_cpu_count = 4,
-                    hardware_disk_size_GB = 50,
-                    hardware_gpu_type = "nvidia-tesla-t4",
-                    hardware_memory_GB = 32,
-                    hardware_preemptible_tries = 2,
-                    hardware_zones = "us-central1-a us-central1-c",
-                    nvidia_driver_version = "470.82.01"
-            }
-        }           
+    if (run_peak_calling) {
+        call peakcalling.PeakCalling as PeakCalling {
+            input:
+                annotations_gtf = annotations_gtf,
+                metrics_h5ad = JoinBarcodes.atac_h5ad_file,
+                chrom_sizes = chrom_sizes,
+                output_base_name = input_id,
+                cloud_provider = cloud_provider,
+        }
     }
 
     meta {
@@ -183,6 +166,8 @@ workflow Multiome {
         File fragment_file_index = JoinBarcodes.atac_fragment_tsv_index
         File snap_metrics_atac = JoinBarcodes.atac_h5ad_file
         File atac_library_metrics = Atac.library_metrics_file
+        File? cellbybin_h5ad_file = PeakCalling.cellbybin_h5ad
+        File? cellbypeak_h5ad_file = PeakCalling.cellbypeak_h5ad
 
         # optimus outputs
         File genomic_reference_version_gex = Optimus.genomic_reference_version
@@ -194,22 +179,23 @@ workflow Multiome {
         File gene_metrics_gex = Optimus.gene_metrics
         File? cell_calls_gex = Optimus.cell_calls
         File h5ad_output_file_gex = JoinBarcodes.gex_h5ad_file
-        Array[File?] multimappers_EM_matrix = Optimus.multimappers_EM_matrix
-        Array[File?] multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
-        Array[File?] multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
-        Array[File?] multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
+        File? multimappers_EM_matrix = Optimus.multimappers_EM_matrix
+        File? multimappers_Uniform_matrix = Optimus.multimappers_Uniform_matrix
+        File? multimappers_Rescue_matrix = Optimus.multimappers_Rescue_matrix
+        File? multimappers_PropUnique_matrix = Optimus.multimappers_PropUnique_matrix
         File? gex_aligner_metrics = Optimus.aligner_metrics
         File? library_metrics = Optimus.library_metrics
         File? mtx_files = Optimus.mtx_files
 
-        # cellbender outputs
-        File? cell_barcodes_csv = CellBender.cell_csv
-        File? checkpoint_file = CellBender.ckpt_file
-        Array[File]? h5_array = CellBender.h5_array
-        Array[File]? html_report_array = CellBender.report_array
-        File? log = CellBender.log
-        Array[File]? metrics_csv_array = CellBender.metrics_array
-        String? output_directory = CellBender.output_dir
-        File? summary_pdf = CellBender.pdf
+         # cellbender outputs
+        File? cell_barcodes_csv = Optimus.cell_barcodes_csv
+        File? checkpoint_file = Optimus.checkpoint_file
+        Array[File]? h5_array = Optimus.h5_array
+        Array[File]? html_report_array = Optimus.html_report_array
+        File? log = Optimus.log
+        Array[File]? metrics_csv_array = Optimus.metrics_csv_array
+        String? output_directory = Optimus.output_directory
+        File? summary_pdf = Optimus.summary_pdf
+
     }
 }

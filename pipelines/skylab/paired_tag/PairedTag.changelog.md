@@ -1,7 +1,70 @@
+# 2.1.4
+2025-06-18 (Date of Last Commit) 
+
+* Added the exclude_chroms input parameter to the snap.metrics.tsse function in the CreateFragmentFile task of the ATAC pipeline; which is a list of chromosomes to exclude in per cell metric computation. The default value is [chrM, M]
+
+# 2.1.3
+2025-06-06 (Date of Last Commit)
+
+* Added mito_list (a list of strings) as an input parameter to CreateFragmentFile task of the ATAC pipeline. This specifies the chromosome names considered mitochondrial DNA. The default value is [chrM, M]
+* Removed quotes from bootDiskSizeGb in RunEmptyDrops task to be compatible with Google Batch; this does not affect the outputs of the pipeline
+* Increased the ulimit in the following tasks: CalculateCellMetrics, CalculateGeneMetrics CalculateUMIsMetrics; this does not affect the outputs of the pipeline
+
+# 2.1.2
+2025-05-27 (Date of Last Commit)
+
+* Increased the ulimit in the STARsoloFastq task in the StarAlign.wdl to 10000; this does not affect the outputs of the pipeline
+
+# 2.1.1
+
+2025-04-15 (Date of Last Commit)
+
+* Refactored peak calling task to be called from PeakCalling.wdl
+
+# 2.1.0
+
+2025-04-02 (Date of Last Commit)
+* Refactored the STAR alignment step in Optimus and removed tasks FastqProcessing and MergeSortBamFiles; we are no longer sharding. We are now running one instance of STAR
+* Removed MergeStarOutput tasks from Optimus pipeline; added necessary parts of MergeStarOutput task to the STAR alignment step (STARsoloFastq). Additional outputs added to STARsoloFastq task as a result; this includes row_index, col_index, sparse_counts, library_metrics, mtx_files, filtered_mtx_files and cell_reads_out
+* Updated the STAR docker image to include Samtools and Python
+
+
+# 1.10.2 
+2025-02-25 (Date of Last Commit)
+
+* Updated the SnapATAC2 docker image to the latest SnapATAC2, allowing for future peak calling implementation
+* Updated the warp-tools docker image to include an update to the GroupQCs function in sctools; this does not affect the outputs of the pipeline
+* Added reference information to the BAM headers
+
+# 1.10.1
+2025-02-03 (Date of Last Commit)
+
+* Added an optional PeakCalling task to the ATAC workflow; this does not affect the outputs of the pipeline
+* Added a boolean variable run_peak_calling to the Multiome pipeline; default is false and this does not affect the outputs of the pipeline
+
+# 1.10.0
+2025-01-21 (Date of Last Commit)
+
+* Added a boolean variable is_slidetags; default is false, but set to true if Slide-Tags pipeline is calling Optimus
+* Added reference_gtf_file to the output h5ad unstructured metadata 
+* Added the fragment file CSI index as workflow output
+* Updated the default STARsolo multimapping parameter to the EM tehcnique
+
+# 1.9.0
+2024-12-05 (Date of Last Commit)
+
+* Added an optional task to the Optimus.wdl that will run CellBender on the Optimus output h5ad file
+
+# 1.8.4
+2024-12-3 (Date of Last Commit)
+
+* Fixed a bug in the StarSoloFastq task that caused the pipeline to not output a UniqueAndMult-Uniform.mtx when --soloMultiMappers Uniform was passed to STAR
+
 # 1.8.3
-2024-11-15 (Date of Last Commit)
+2024-11-22 (Date of Last Commit)
 
 * Added bam validation in the StarSoloFastq task; this does not affect the outputs of the pipeline
+* Updated the warp-tools docker; this update changes the way gene_names are identified when creating gene expression h5ad files
 
 # 1.8.2
 2024-11-12 (Date of Last Commit)

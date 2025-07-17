@@ -3,7 +3,7 @@ version 1.0
 import "../../tasks/broad/Utilities.wdl" as Utilities
 import "../../pipelines/skylab/optimus/Optimus.wdl" as Optimus
 import "../../verification/VerifyOptimus.wdl" as VerifyOptimus
-import "../../tasks/broad/CopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestOptimus {
 
@@ -45,7 +45,7 @@ workflow TestOptimus {
     # Set to Forward by default to count reads in 10x stranded mode
     String star_strand_mode
 
-# Set to true to count reads aligned to exonic regions in sn_rna mode
+    # Set to true to count reads aligned to exonic regions in sn_rna mode
     Boolean count_exons = false
 
     # this pipeline does not set any preemptible varibles and only relies on the task-level preemptible settings
@@ -57,8 +57,6 @@ workflow TestOptimus {
     String truth_path
     String results_path
     Boolean update_truth
-    String vault_token_path
-    String google_account_vault_path
 
     String cloud_provider
 
@@ -120,21 +118,17 @@ Array[String] pipeline_outputs = flatten([
                               ])
 
   # Copy results of pipeline to test results bucket
-  call Copy.CopyFilesFromCloudToCloud as CopyToTestResults {
+  call Copy.TerraCopyFilesFromCloudToCloud as CopyToTestResults {
     input:
       files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
-      vault_token_path          = vault_token_path,
-      google_account_vault_path = google_account_vault_path,
       destination_cloud_path    = results_path
   }
 
   # If updating truth then copy pipeline results to truth bucket
   if (update_truth){
-    call Copy.CopyFilesFromCloudToCloud as CopyToTruth {
+    call Copy.TerraCopyFilesFromCloudToCloud as CopyToTruth {
     input:
       files_to_copy             = flatten([pipeline_outputs, pipeline_metrics]),
-      vault_token_path          = vault_token_path,
-      google_account_vault_path = google_account_vault_path,
       destination_cloud_path    = truth_path
     }
   }

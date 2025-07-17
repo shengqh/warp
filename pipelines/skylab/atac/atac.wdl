@@ -4,6 +4,7 @@ import "../../../tasks/skylab/MergeSortBam.wdl" as Merge
 import "../../../tasks/skylab/FastqProcessing.wdl" as FastqProcessing
 import "../../../tasks/skylab/PairedTagUtils.wdl" as AddBB
 import "../../../tasks/broad/Utilities.wdl" as utils
+import "../../../pipelines/skylab/peak_calling/PeakCalling.wdl" as peakcalling # import peakcalling as subworkflow
 
 workflow ATAC {
   meta {
@@ -28,6 +29,8 @@ workflow ATAC {
 
     # Option for running files with preindex
     Boolean preindex = false
+    # Option for running peak calling
+    Boolean peak_calling = false
     
     # BWA ref
     File tar_bwa_reference
@@ -49,7 +52,7 @@ workflow ATAC {
     String adapter_seq_read3 = "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAG"
   }
 
-  String pipeline_version = "2.5.2"
+  String pipeline_version = "2.9.0"
 
   # Determine docker prefix based on cloud provider
   String gcr_docker_prefix = "us.gcr.io/broad-gotc-prod/"
@@ -57,11 +60,11 @@ workflow ATAC {
   String docker_prefix = if cloud_provider == "gcp" then gcr_docker_prefix else acr_docker_prefix
 
   # Docker image names
-  String warp_tools_2_2_0 = "warp-tools:2.2.0"
+  String warp_tools_docker = "warp-tools:2.6.1"
   String cutadapt_docker = "cutadapt:1.0.0-4.4-1686752919"
   String samtools_docker = "samtools-dist-bwa:3.0.0"
   String upstools_docker = "upstools:1.0.0-2023.03.03-1704300311"
-  String snap_atac_docker = "snapatac2:1.1.0"
+  String snap_atac_docker = "snapatac2:2.0.0"
 
   # Make sure either 'gcp' or 'azure' is supplied as cloud_provider input. If not, raise an error
   if ((cloud_provider != "gcp") && (cloud_provider != "azure")) {
@@ -70,7 +73,6 @@ workflow ATAC {
             message = "cloud_provider must be supplied with either 'gcp' or 'azure'."
     }
   }
-
 
   parameter_meta {
     read1_fastq_gzipped: "read 1 FASTQ file as input for the pipeline, contains read 1 of paired reads"
@@ -99,7 +101,7 @@ workflow ATAC {
       output_base_name = input_id,
       num_output_files = GetNumSplits.ranks_per_node_out,
       whitelist = whitelist,
-      docker_path = docker_prefix + warp_tools_2_2_0
+      docker_path = docker_prefix + warp_tools_docker
   }
 
   scatter(idx in range(length(SplitFastq.fastq_R1_output_array))) {
@@ -158,20 +160,33 @@ workflow ATAC {
         atac_nhash_id = atac_nhash_id,
         atac_expected_cells = atac_expected_cells,
         input_id = input_id
-
+    }
+    if (peak_calling) {
+      call peakcalling.PeakCalling as PeakCalling{
+        input:
+          output_base_name = input_id,
+          annotations_gtf = annotations_gtf,
+          metrics_h5ad = CreateFragmentFile.Snap_metrics,
+          chrom_sizes = chrom_sizes,
+          cloud_provider = cloud_provider,
+      }
     }
   }
-
+  
   File bam_aligned_output_atac = select_first([BBTag.bb_bam, BWAPairedEndAlignment.bam_aligned_output])
   File fragment_file_atac = select_first([BB_fragment.fragment_file, CreateFragmentFile.fragment_file])
+  File fragment_file_index_atac = select_first([BB_fragment.fragment_file_index, CreateFragmentFile.fragment_file_index])
   File snap_metrics_atac = select_first([BB_fragment.Snap_metrics,CreateFragmentFile.Snap_metrics])
   File library_metrics = select_first([BB_fragment.atac_library_metrics, CreateFragmentFile.atac_library_metrics])
-
+    
   output {
     File bam_aligned_output = bam_aligned_output_atac
     File fragment_file = fragment_file_atac
+    File fragment_file_index = fragment_file_index_atac
     File snap_metrics = snap_metrics_atac
     File library_metrics_file = library_metrics
+    File? cellbybin_h5ad_file = PeakCalling.cellbybin_h5ad
+    File? cellbypeak_h5ad_file = PeakCalling.cellbypeak_h5ad
   }
 }
 
@@ -267,7 +282,6 @@ task GetNumSplits {
   }
 }
 
-
 # trim read 1 and read 2 adapter sequeunce with cutadapt
 task TrimAdapters {
   input {
@@ -339,6 +353,7 @@ task BWAPairedEndAlignment {
     Array[File] read1_fastq
     Array[File] read3_fastq
     File tar_bwa_reference
+    String reference_path = tar_bwa_reference
     String read_group_id = "RG1"
     String read_group_sample_name = "RGSN1"
     String suffix = "trimmed_adapters.fastq.gz"
@@ -463,7 +478,11 @@ task BWAPairedEndAlignment {
     ls
     
     # rename file to this
-    mv final.sorted.bam ~{bam_aligned_output_name}
+    echo "Reheading BAM with reference"
+    /usr/temp/Open-Omics-Acceleration-Framework/applications/samtools/samtools view -H final.sorted.bam > header.txt
+    echo -e "@CO\tReference genome used: ~{reference_path}" >> header.txt
+    /usr/temp/Open-Omics-Acceleration-Framework/applications/samtools/samtools reheader header.txt final.sorted.bam > final.sorted.reheader.bam
+    mv final.sorted.reheader.bam ~{bam_aligned_output_name}
         
     echo "the present working dir"
     pwd
@@ -511,8 +530,8 @@ task CreateFragmentFile {
     File bam
     File annotations_gtf
     File chrom_sizes
-    File annotations_gtf
     Boolean preindex
+    Array[String] mito_list = ['chrM', 'M']
     Int disk_size = 500
     Int mem_size = 64
     Int nthreads = 4
@@ -521,6 +540,7 @@ task CreateFragmentFile {
     String atac_nhash_id = ""
     String input_id
     Int atac_expected_cells = 3000
+    String gtf_path = annotations_gtf
   }
 
   parameter_meta {
@@ -533,9 +553,20 @@ task CreateFragmentFile {
   }
 
   command <<<
-    set -e pipefail
+    set -euo pipefail
+    set -x 
 
     python3 <<CODE
+
+    # import libraries
+    import snapatac2.preprocessing as pp
+    import snapatac2 as snap
+    import scanpy as sc
+    import numpy as np
+    import polars as pl
+    import anndata as ad
+    from collections import OrderedDict
+    import csv
 
     # set parameters
     bam = "~{bam}"
@@ -544,8 +575,13 @@ task CreateFragmentFile {
     atac_gtf = "~{annotations_gtf}"
     preindex = "~{preindex}"
     atac_nhash_id = "~{atac_nhash_id}"
+    mito_list = "~{sep=' ' mito_list}"
     expected_cells = ~{atac_expected_cells}
 
+    print(mito_list)
+    mito_list = mito_list.split(" ")
+    print("Mitochondrial chromosomes:", mito_list) 
+    
     # calculate chrom size dictionary based on text file
     chrom_size_dict={}
     with open('~{chrom_sizes}', 'r') as f:
@@ -553,18 +589,11 @@ task CreateFragmentFile {
         key, value = line.strip().split()
         chrom_size_dict[str(key)] = int(value)
 
-    # use snap atac2
-    import snapatac2.preprocessing as pp
-    import snapatac2 as snap
-    import anndata as ad
-    from collections import OrderedDict
-    import csv
-
     # extract CB or BB (if preindex is true) tag from bam file to create fragment file
     if preindex == "true":
-      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="BB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None, chrM=mito_list)
     elif preindex == "false":
-      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None)
+      data = pp.recipe_10x_metrics("~{bam}", "~{input_id}.fragments.tsv", "temp_metrics.h5ad", is_paired=True, barcode_tag="CB", chrom_sizes=chrom_size_dict, gene_anno=atac_gtf, peaks=None, chrM=mito_list)
 
     # Add NHashID to metrics 
     data = OrderedDict({'NHashID': atac_nhash_id, **data})
@@ -576,8 +605,7 @@ task CreateFragmentFile {
     atac_percent_target = number_of_cells / expected_cells*100
     print("Setting percent target in nested dictionary")
     data['Cells']['atac_percent_target'] = atac_percent_target
-    
-    
+
     # Flatten the dictionary
     flattened_data = []
     for category, metrics in data.items():
@@ -601,8 +629,14 @@ task CreateFragmentFile {
     atac_data = ad.read_h5ad("temp_metrics.h5ad")
     # Add nhash_id to h5ad file as unstructured metadata
     atac_data.uns['NHashID'] = atac_nhash_id
+
+    # Add GTF to uns field
+    # Original path from args.annotation_file
+    gtf_path = "~{gtf_path}"  # e.g., 'gs://gcp-public-data--broad-references/hg38/v0/star/v2_7_10a/modified_v43.annotation.gtf'
+    
+    atac_data.uns["reference_gtf_file"] = gtf_path
     # calculate tsse metrics
-    snap.metrics.tsse(atac_data, atac_gtf)
+    snap.metrics.tsse(atac_data, atac_gtf, exclude_chroms=mito_list)
     # Write new atac file
     atac_data.write_h5ad("~{input_id}.metrics.h5ad")
 
@@ -628,7 +662,6 @@ task CreateFragmentFile {
   output {
     File fragment_file = "~{input_id}.fragments.sorted.tsv.gz"
     File fragment_file_index = "~{input_id}.fragments.sorted.tsv.gz.csi"
-
     File Snap_metrics = "~{input_id}.metrics.h5ad"
     File atac_library_metrics = "~{input_id}_~{atac_nhash_id}_library_metrics.csv"
   }

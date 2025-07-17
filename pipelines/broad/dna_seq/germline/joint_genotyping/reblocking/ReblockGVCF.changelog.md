@@ -1,3 +1,13 @@
+# 2.4.1
+2025-02-21 (Date of Last Commit)
+
+* Updated HaplotypeCaller_GATK4_VCF to use MEM_SIZE and MEM_UNIT; this does not affect the outputs of this pipeline
+
+# 2.4.0
+2024-12-05 (Date of Last Commit)
+
+* Updated output names for ReblockGVCF workflow from output_vcf and output_vcf_index to reblocked_gvcf and reblocked_gvcf_index respectively
+
 # 2.3.2
 2024-11-04 (Date of Last Commit)
 

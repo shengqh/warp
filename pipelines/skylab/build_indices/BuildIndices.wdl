@@ -16,7 +16,7 @@ workflow BuildIndices {
   }
 
   # version of this pipeline
-  String pipeline_version = "3.0.0"
+  String pipeline_version = "4.0.0"
 
 
   parameter_meta {
@@ -49,12 +49,25 @@ workflow BuildIndices {
         organism = organism
     }
 
+    call RecordMetadata {
+      input:
+      pipeline_version = pipeline_version,
+      input_files = [annotations_gtf, genome_fa, biotypes],
+      output_files = [
+      BuildStarSingleNucleus.star_index,
+      BuildStarSingleNucleus.modified_annotation_gtf,
+      CalculateChromosomeSizes.chrom_sizes,
+      BuildBWAreference.reference_bundle
+      ]
+    }
+
   output {
     File snSS2_star_index = BuildStarSingleNucleus.star_index
     String pipeline_version_out = "BuildIndices_v~{pipeline_version}"
     File snSS2_annotation_gtf_modified = BuildStarSingleNucleus.modified_annotation_gtf
     File reference_bundle = BuildBWAreference.reference_bundle
     File chromosome_sizes = CalculateChromosomeSizes.chrom_sizes
+    File metadata = RecordMetadata.metadata_file
   }
 }
 
@@ -101,29 +114,58 @@ task BuildStarSingleNucleus {
   String annotation_gtf_modified = "modified_v~{gtf_annotation_version}.annotation.gtf"
 
   command <<<
-    # Check that input GTF files contain input genome source, genome build version, and annotation version
-    if head -10 ~{annotation_gtf} | grep -qi ~{genome_build}
+    # First check for marmoset GTF and modify header
+    echo "checking for marmoset"
+    if [[ "~{organism}" == "marmoset" || "~{organism}" == "Marmoset" ]]
     then
-        echo Genome version found in the GTF file
+        echo "marmoset is detected, running header modification"
+        python3 /script/create_marmoset_header_mt_genes.py \
+            ~{annotation_gtf} > "/cromwell_root/header.gtf"
     else
-        echo Error: Input genome version does not match version in GTF file
-        exit 1;
-    fi
-    # Check that GTF file contains correct build source info in the first 10 lines of the GTF
-    if head -10 ~{annotation_gtf} | grep -qi ~{genome_source}
-    then
-        echo Source of genome build identified in the GTF file
-    else
-        echo Error: Source of genome build not identified in the GTF file
-        exit 1;
+        echo "marmoset is not detected"
+
+        # Check that input GTF files contain input genome source, genome build version, and annotation version
+        if head -10 ~{annotation_gtf} | grep -qi ~{genome_build}
+        then
+            echo Genome version found in the GTF file
+        else
+            echo Error: Input genome version does not match version in GTF file
+            exit 1;
+        fi
+
+        # Check that GTF file contains correct build source info in the first 10 lines of the GTF
+        if head -10 ~{annotation_gtf} | grep -qi ~{genome_source}
+        then
+            echo Source of genome build identified in the GTF file
+        else
+            echo Error: Source of genome build not identified in the GTF file
+            exit 1;
+        fi
+        set -eo pipefail
     fi
 
-    set -eo pipefail
-
-    python3 /script/modify_gtf.py  \
-    --input-gtf ~{annotation_gtf} \
-    --output-gtf ~{annotation_gtf_modified} \
-    --biotypes ~{biotypes}
+    if [[ "~{organism}" == "marmoset" || "~{organism}" == "Marmoset" ]]
+    then
+        echo "marmoset detected, running marmoset GTF modification"
+        echo "Listing files to check for head.gtf"
+        ls
+        python3 /script/modify_gtf_marmoset.py \
+            --input-gtf "/cromwell_root/header.gtf" \
+            --output-gtf ~{annotation_gtf_modified} \
+            --species ~{organism}
+        echo "listing files, should see modified gtf"
+        ls 
+    else
+        echo "running GTF modification for non-marmoset"
+        python3 /script/modify_gtf.py \
+            --input-gtf ~{annotation_gtf} \
+            --output-gtf ~{annotation_gtf_modified} \
+            --biotypes ~{biotypes}
+    fi
+    # python3 /script/modify_gtf.py  \
+    # --input-gtf ~{annotation_gtf} \
+    # --output-gtf ~{annotation_gtf_modified} \
+    # --biotypes ~{biotypes}
 
     mkdir star
     STAR --runMode genomeGenerate \
@@ -143,7 +185,7 @@ task BuildStarSingleNucleus {
   }
 
   runtime {
-    docker: "us.gcr.io/broad-gotc-prod/build-indices:2.0.0"
+    docker: "us.gcr.io/broad-gotc-prod/build-indices:2.1.0"
     memory: "50 GiB"
     disks: "local-disk ${disk} HDD"
     disk: disk + " GB" # TES
@@ -192,6 +234,64 @@ String reference_name = "bwa-mem2-2.2.1-~{organism}-~{genome_source}-build-~{gen
 
   output {
     File reference_bundle = "~{reference_name}.tar"
+  }
+}
+
+
+task RecordMetadata {
+  input {
+    String pipeline_version
+    Array[File] input_files
+    Array[File] output_files
+  }
+
+  command <<<
+    set -euo pipefail
+
+    # create metadata file
+    echo "Pipeline Version: ~{pipeline_version}" > metadata.txt
+    echo "Date of Workflow Run: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> metadata.txt
+    echo "" >> metadata.txt
+
+    # echo paths and md5sums for input files
+    echo "Input Files and their md5sums:" >> metadata.txt
+    for file in ~{sep=" " input_files}; do
+      echo "$file : $(md5sum $file | awk '{print $1}')" >> metadata.txt
+    done
+    echo "" >> metadata.txt
+
+    # echo paths and md5sums for input files
+    echo "Output Files and their md5sums:" >> metadata.txt
+    for file in ~{sep=" " output_files}; do
+      echo "$file : $(md5sum $file | awk '{print $1}')" >> metadata.txt
+    done
+    echo "" >> metadata.txt
+
+    # grab workspace bucket
+    file="~{output_files[0]}"
+    workspace_bucket=$(echo $file | awk -F'/' '{print $3}')
+    echo "Workspace Bucket: $workspace_bucket" >> metadata.txt
+
+    # grab submission ID
+    submission_id=$(echo $file | awk -F'/' '{print $5}')
+    echo "Submission ID: $submission_id" >> metadata.txt
+
+    # grab workflow ID
+    workflow_id=$(echo $file | awk -F'/' '{print $7}')
+    echo "Workflow ID: $workflow_id" >> metadata.txt
+
+    echo "" >> metadata.txt
+  >>>
+
+  output {
+    File metadata_file = "metadata.txt"
+  }
+
+  runtime {
+    docker: "ubuntu:20.04"
+    memory: "5 GiB"
+    disks: "local-disk 100 HDD"
+    cpu: "1"
   }
 }
 
