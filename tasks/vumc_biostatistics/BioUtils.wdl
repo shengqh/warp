@@ -585,7 +585,7 @@ pvar_chrom = "~{chromosome}"
 pvar_file = "~{input_pgen_pvar}"
 
 # Read the bed file (assuming standard BED format: chrom start end ...)
-bed_df = pd.read_csv(bed_file, sep='\t', header=None)
+bed_df = pd.read_csv(bed_file, sep='\t', header=None, comment='#')
 
 # Group bed file entries by chromosome
 bed_by_chrom = {}
