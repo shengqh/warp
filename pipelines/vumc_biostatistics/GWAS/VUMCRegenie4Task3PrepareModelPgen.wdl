@@ -58,13 +58,13 @@ workflow VUMCRegenie4Task3PrepareModelPgen {
 
     #https://www.nature.com/articles/s41588-021-00870-7
     # LD pruning settings
-    # Default R2 threshold of 0.1 with window size of 1000 markers and step size of 100
-    # While literature suggests R2 of 0.9, lower threshold (0.1) retains more independent variants 
+    # Default R2 threshold of 0.5 with window size of 1000 markers and step size of 100
+    # While literature suggests R2 of 0.9, lower threshold (0.5) retains more independent variants 
     # for better model performance in large datasets like AGD163K/250K
-    # Adjust R2 threshold if too few variants remain after pruning
+    # Adjust R2 threshold if too few variants or too many variants are retained after pruning
     # Target: ~500K-1M variants post-pruning for optimal results
     Boolean step1_prune = true
-    String step1_prune_option="--indep-pairwise 1000 100 0.1"
+    String step1_prune_option="--indep-pairwise 1000 100 0.5"
 
     String? target_gcp_folder
   }
