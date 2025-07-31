@@ -9,10 +9,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCCramQC.wdl
 
-  - name: VUMCMoveFastqToCramResult
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCMoveFastqToCramResult.wdl
-    
   - name: VUMCGunzippedMd5
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCGunzippedMd5.wdl
@@ -40,10 +36,6 @@ workflows:
   - name: VUMCBamToCram
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCBamToCram.wdl
-
-  - name: VUMCMoveCram
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCMoveCram.wdl
 
   - name: VUMCExomeGermlineSingleSampleFromFastq
     subclass: WDL
