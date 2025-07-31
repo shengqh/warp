@@ -520,3 +520,7 @@ workflows:
   - name: VUMCAgdRsidToPvar
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCAgdRsidToPvar.wdl
+
+  - name: VUMCAgdExtractPgenByPvar
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCAgdExtractPgenByPvar.wdl
