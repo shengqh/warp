@@ -90,8 +90,7 @@ external_config.schema = [
 assert external_config.csv_options is not None
 external_config.csv_options.skip_leading_rows = 1
 
-annovar_url = "~{annovar_url}"
-print(f"annovar_url: {annovar_url}")
+print(f"annovar_url: ~{annovar_url}")
 
 table_id = "rsid_tbl"
 job_config = bigquery.QueryJobConfig(table_definitions={table_id: external_config})
@@ -106,7 +105,7 @@ res.head()
 query = f"""SELECT
   anno._CHROM, anno.POS, anno.ID, anno.REF, anno.ALT, anno.avsnp150 as FILTER, anno.INFO
 FROM
-  `{annovar_url}` as anno,
+  `~{annovar_url}` as anno,
   {table_id} as g
 WHERE
   anno.avsnp150 = g.RSID
