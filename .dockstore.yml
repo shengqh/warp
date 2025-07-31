@@ -516,3 +516,7 @@ workflows:
   - name: VUMCPrsStep3Score
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/polygenic_risk_score/VUMCPrsStep3Score.wdl
+
+  - name: VUMCAgdRsidToPvar
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCAgdRsidToPvar.wdl
