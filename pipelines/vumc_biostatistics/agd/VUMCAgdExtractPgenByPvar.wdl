@@ -4,7 +4,6 @@ import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WdlUtils
 import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
 import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
-import "./VUMCExtractVariantGenotypeByPvarFormatResult.wdl" as VUMCFormatResult
 
 # This workflow extracts variant genotypes from PLINK2 files based on variant IDs defined in a plink2 pvar file.
 #
