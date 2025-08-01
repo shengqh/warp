@@ -47,11 +47,12 @@ workflow VUMCPgenKeepSampleWithVariant {
   }
 
   if (defined(target_gcp_folder)) {
-    call GcpUtils.MoveOrCopyThreeFiles as CopyFile {
+    call GcpUtils.MoveOrCopyFourFiles as CopyFile {
       input:
         source_file1 = KeepSampleWithVariant.output_pgen,
         source_file2 = KeepSampleWithVariant.output_pvar,
         source_file3 = KeepSampleWithVariant.output_psam,
+        source_file4 = KeepSampleWithVariant.output_allele_freq,
         is_move_file = false,
         target_gcp_folder = select_first([target_gcp_folder])
     }
@@ -61,6 +62,7 @@ workflow VUMCPgenKeepSampleWithVariant {
     String sample_with_variant_pgen = select_first([CopyFile.output_file1, KeepSampleWithVariant.output_pgen])
     String sample_with_variant_pvar = select_first([CopyFile.output_file2, KeepSampleWithVariant.output_pvar])
     String sample_with_variant_psam = select_first([CopyFile.output_file3, KeepSampleWithVariant.output_psam])
+    String sample_with_variant_allele_freq = select_first([CopyFile.output_file4, KeepSampleWithVariant.output_allele_freq])
     Int sample_with_variant_num_samples = KeepSampleWithVariant.output_num_samples
     Int sample_with_variant_num_variants = KeepSampleWithVariant.output_num_variants
   }

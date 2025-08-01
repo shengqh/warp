@@ -510,6 +510,9 @@ plink2  --pgen ~{input_pgen} \
 grep -v "^#" ~{target_psam} | wc -l | cut -d ' ' -f 1 > num_samples.txt
 grep -v "^#" ~{target_pvar} | wc -l | cut -d ' ' -f 1 > num_variants.txt
 
+plink2 --pfile ~{output_prefix} --freq --out ~{output_prefix}
+mv ~{output_prefix}.afreq ~{output_prefix}.afreq.txt
+
 >>>
 
   runtime {
@@ -523,6 +526,7 @@ grep -v "^#" ~{target_pvar} | wc -l | cut -d ' ' -f 1 > num_variants.txt
     File output_pvar = target_pvar
     File output_psam = target_psam
     Int output_num_samples = read_int("num_samples.txt")
-    Int output_num_variants = read_int("num_variants.txt")  
+    Int output_num_variants = read_int("num_variants.txt")
+    File output_allele_freq = "~{output_prefix}.afreq.txt"
   }
 }
