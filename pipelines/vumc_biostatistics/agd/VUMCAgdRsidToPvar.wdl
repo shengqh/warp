@@ -103,7 +103,7 @@ print(res.shape)
 res.head()
 
 query = f"""SELECT
-  anno._CHROM, anno.POS, anno.ID, anno.REF, anno.ALT, anno.avsnp150 as FILTER, anno.INFO
+  DISTINCT anno._CHROM, anno.POS, anno.ID, anno.REF, anno.ALT, anno.avsnp150 as FILTER, anno.INFO
 FROM
   \`~{annovar_url}\` as anno,
   {table_id} as g
