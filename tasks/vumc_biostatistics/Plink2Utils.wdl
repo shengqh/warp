@@ -468,22 +468,23 @@ plink2 ~{plink2_option} \
   }
 }
 
-task FilterSamplesWithoutSNV {
+task KeepSampleWithVariant {
   input {
     File input_pgen
     File input_pvar
     File input_psam
 
+    Boolean is_agd_data = true
+
     String output_prefix
 
-    String? plink2_option
-
     Int memory_gb = 20
-
     String docker = "shengqh/plink_1.9_2.0:20250304"
   }
 
-  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 20
+  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 10
+
+  String grep_option = if is_agd_data then "| grep -v '^HG00' | grep -v '_INVALID'" else ""
 
   String target_pgen = output_prefix + ".pgen"
   String target_pvar = output_prefix + ".pvar"
@@ -491,41 +492,20 @@ task FilterSamplesWithoutSNV {
 
   command <<<
 
-grep -v "^#" ~{input_pvar} | wc -l | cut -d ' ' -f 1 > init_num_variants.txt
+plink2  --pgen ~{input_pgen} \
+        --pvar ~{input_pvar} \
+        --psam ~{input_psam} \
+        --sample-counts \
+        --out sample_geno_counts
+ 
+awk -F'\t' '$4 > 0 || $5 > 0 {print $1,$2}' sample_geno_counts.scount ~{grep_option} > samples_with_variants.pvar
 
-plink2 \
-  --pgen ~{input_pgen} \
-  --pvar ~{input_pvar} \
-  --psam ~{input_psam} \
-  --het --out filtered
-
-cat <<EOF> filter.py
-
-import pandas as pd
-
-with open("init_num_variants.txt", "r") as f:
-  init_num_variants = int(f.read().strip())
-
-# Load the gcount file
-het = pd.read_csv("filtered.het", sep="\t")
-
-# Calculate minor allele count: heterozygous + 2 * homozygous minor
-all_hom=het[het['O(HOM)'] == init_num_variants][['#FID', 'IID']]
-
-# Save to file
-all_hom.to_csv("all_hom.txt", index=False, header=True, sep="\t")
-
-EOF
-
-python3 filter.py
-
-plink2 ~{plink2_option} \
-  --pgen ~{input_pgen} \
-  --pvar ~{input_pvar} \
-  --psam ~{input_psam} \
-  --remove all_hom.txt \
-  --make-pgen \
-  --out ~{output_prefix}
+plink2  --pgen ~{input_pgen} \
+        --pvar ~{input_pvar} \
+        --psam ~{input_psam} \
+        --keep samples_with_variants.pvar \
+        --make-pgen \
+        --out ~{output_prefix}
 
 grep -v "^#" ~{target_psam} | wc -l | cut -d ' ' -f 1 > num_samples.txt
 grep -v "^#" ~{target_pvar} | wc -l | cut -d ' ' -f 1 > num_variants.txt
@@ -542,8 +522,7 @@ grep -v "^#" ~{target_pvar} | wc -l | cut -d ' ' -f 1 > num_variants.txt
     File output_pgen = target_pgen
     File output_pvar = target_pvar
     File output_psam = target_psam
-
     Int output_num_samples = read_int("num_samples.txt")
-    Int output_num_variants = read_int("num_variants.txt")
+    Int output_num_variants = read_int("num_variants.txt")  
   }
 }

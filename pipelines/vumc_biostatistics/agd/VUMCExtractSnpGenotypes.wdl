@@ -113,7 +113,7 @@ workflow VUMCExtractSnpGenotypes {
     }
   }
 
-  call Plink2Utils.FilterSamplesWithoutSNV {
+  call Plink2Utils.KeepSampleWithVariant {
     input:
       input_pgen = select_first([MergePgenFiles.output_pgen, Plink2FilterPgen.output_pgen[0]]),
       input_pvar = select_first([MergePgenFiles.output_pvar, Plink2FilterPgen.output_pvar[0]]),
@@ -123,9 +123,9 @@ workflow VUMCExtractSnpGenotypes {
 
   call Plink2Utils.Pgen2Vcf {
     input:
-      input_pgen = FilterSamplesWithoutSNV.output_pgen,
-      input_pvar = FilterSamplesWithoutSNV.output_pvar,
-      input_psam = FilterSamplesWithoutSNV.output_psam,
+      input_pgen = KeepSampleWithVariant.output_pgen,
+      input_pvar = KeepSampleWithVariant.output_pvar,
+      input_psam = KeepSampleWithVariant.output_psam,
       output_prefix = output_prefix,
   }
 
@@ -147,9 +147,9 @@ workflow VUMCExtractSnpGenotypes {
     call GcpUtils.MoveOrCopyFiveFiles {
       input:
         source_file1 = ConvertRsidToBed.output_bed,
-        source_file2 = FilterSamplesWithoutSNV.output_pgen,
-        source_file3 = FilterSamplesWithoutSNV.output_pvar,
-        source_file4 = FilterSamplesWithoutSNV.output_psam,
+        source_file2 = KeepSampleWithVariant.output_pgen,
+        source_file3 = KeepSampleWithVariant.output_pvar,
+        source_file4 = KeepSampleWithVariant.output_psam,
         source_file5 = FormatResult.output_genotype_csv,
         is_move_file = false,
         target_gcp_folder = select_first([target_gcp_folder])
@@ -158,12 +158,12 @@ workflow VUMCExtractSnpGenotypes {
 
   output {
     File output_bed = select_first([MoveOrCopyFiveFiles.output_file1, ConvertRsidToBed.output_bed])
-    File output_pgen = select_first([MoveOrCopyFiveFiles.output_file2, FilterSamplesWithoutSNV.output_pgen])
-    File output_pvar = select_first([MoveOrCopyFiveFiles.output_file3, FilterSamplesWithoutSNV.output_pvar])
-    File output_psam = select_first([MoveOrCopyFiveFiles.output_file4, FilterSamplesWithoutSNV.output_psam])
+    File output_pgen = select_first([MoveOrCopyFiveFiles.output_file2, KeepSampleWithVariant.output_pgen])
+    File output_pvar = select_first([MoveOrCopyFiveFiles.output_file3, KeepSampleWithVariant.output_pvar])
+    File output_psam = select_first([MoveOrCopyFiveFiles.output_file4, KeepSampleWithVariant.output_psam])
     File output_genotype_csv = select_first([MoveOrCopyFiveFiles.output_file5, FormatResult.output_genotype_csv])
-    Int output_num_variants = FilterSamplesWithoutSNV.output_num_variants
-    Int output_num_samples = FilterSamplesWithoutSNV.output_num_samples
+    Int output_num_variants = KeepSampleWithVariant.output_num_variants
+    Int output_num_samples = KeepSampleWithVariant.output_num_samples
   }
 }
 
