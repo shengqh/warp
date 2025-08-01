@@ -6,24 +6,25 @@ import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 # This workflow keeps samples with variants from PLINK2 files.
-#
 # Workflow steps:
-# 1. Keep samples with variants
-# 2. Optionally copy results to a GCP storage location
+#  1. Keep samples with variants
+#  2. Optionally copy results to a GCP storage location
 #
 # Inputs:
-# - output_prefix: Prefix for all output files
-# - input_pgen: Input PGEN file
-# - input_psam: Input PSAM file
-# - input_pvar: Input PVAR file
-# - target_gcp_folder: Optional GCP destination for result files
+#   - output_prefix: Prefix for all output files
+#   - input_pgen: Input PGEN file
+#   - input_psam: Input PSAM file
+#   - input_pvar: Input PVAR file
+#   - is_agd_data: Boolean indicating if the data is from AGD (default true). 
+#     If true, will discard samples with names starting with 'HG00' or containing '_INVALID'.
+#   - target_gcp_folder: Optional GCP destination for result files
 #
 # Outputs:
-# - output_pgen: Final PGEN file path
-# - output_pvar: Final PVAR file path
-# - output_psam: Final PSAM file path
-# - output_num_samples: Number of samples in the output
-# - output_num_variants: Number of variants in the output
+#   - output_pgen: Final PGEN file path
+#   - output_pvar: Final PVAR file path
+#   - output_psam: Final PSAM file path
+#   - output_num_samples: Number of samples in the output
+#   - output_num_variants: Number of variants in the output
 
 workflow VUMCKeepSampleWithVariant {
   input {
