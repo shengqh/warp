@@ -1,8 +1,6 @@
 version 1.0
 
-import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WdlUtils
 import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
-import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 # This workflow keeps samples with variants from PLINK2 files.
