@@ -517,7 +517,7 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCAgdExtractPgenByPvar.wdl
 
-  - name: VUMCKeepSampleWithVariant
+  - name: VUMCPgenKeepSampleWithVariant
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCKeepSampleWithVariant.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPgenKeepSampleWithVariant.wdl
 

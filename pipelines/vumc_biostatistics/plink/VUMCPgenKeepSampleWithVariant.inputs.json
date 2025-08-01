@@ -1,0 +1,7 @@
+{
+  "VUMCPgenKeepSampleWithVariant.input_pvar": "/nobackup/h_cqs/shengq2/biovu/20250731_biovu_rsid_participants/20250721_Kathryn_rsid.allsamples.pvar",
+  "VUMCPgenKeepSampleWithVariant.input_pgen": "/nobackup/h_cqs/shengq2/biovu/20250731_biovu_rsid_participants/20250721_Kathryn_rsid.allsamples.pgen",
+  "VUMCPgenKeepSampleWithVariant.input_psam": "/nobackup/h_cqs/shengq2/biovu/20250731_biovu_rsid_participants/20250721_Kathryn_rsid.allsamples.psam",
+  "VUMCPgenKeepSampleWithVariant.output_prefix": "20250721_Kathryn_rsid.sample_with_variant"
+}
+

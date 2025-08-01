@@ -3,7 +3,7 @@ version 1.0
 import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
-# This workflow keeps samples with variants from PLINK2 files.
+# This workflow keeps samples with variants from PLINK2 pgen files.
 # Workflow steps:
 #  1. Keep samples with variants
 #  2. Optionally copy results to a GCP storage location
@@ -24,7 +24,7 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 #   - output_num_samples: Number of samples in the output
 #   - output_num_variants: Number of variants in the output
 
-workflow VUMCKeepSampleWithVariant {
+workflow VUMCPgenKeepSampleWithVariant {
   input {
     String output_prefix
 
