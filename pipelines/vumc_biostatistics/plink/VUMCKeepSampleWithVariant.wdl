@@ -59,10 +59,10 @@ workflow VUMCKeepSampleWithVariant {
   }
 
   output {
-    String output_pgen = select_first([CopyFile.output_file1, KeepSampleWithVariant.output_pgen])
-    String output_pvar = select_first([CopyFile.output_file2, KeepSampleWithVariant.output_pvar])
-    String output_psam = select_first([CopyFile.output_file3, KeepSampleWithVariant.output_psam])
-    Int output_num_samples = KeepSampleWithVariant.output_num_samples
-    Int output_num_variants = KeepSampleWithVariant.output_num_variants
+    String sample_with_variant_pgen = select_first([CopyFile.output_file1, KeepSampleWithVariant.output_pgen])
+    String sample_with_variant_pvar = select_first([CopyFile.output_file2, KeepSampleWithVariant.output_pvar])
+    String sample_with_variant_psam = select_first([CopyFile.output_file3, KeepSampleWithVariant.output_psam])
+    Int sample_with_variant_num_samples = KeepSampleWithVariant.output_num_samples
+    Int sample_with_variant_num_variants = KeepSampleWithVariant.output_num_variants
   }
 }
