@@ -25,6 +25,18 @@ version 1.0
 ## ### Notes:
 ## - Uses GcpUtils for file copy operations.
 ## - File copy operation to GCP is optional and only executed if a target folder is provided.
+## 
+## Clinvar Significance Codes and count
+## NULL 943035419
+## Uncertain_significance 825362
+## Likely_benign 511049
+## Benign 188512
+## Conflicting_classifications_of_pathogenicity 103251
+## Benign/Likely_benign 47407
+## Pathogenic 24788
+## Likely_pathogenic 12262
+## Pathogenic/Likely_pathogenic 11743
+## not_provided 1834
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
