@@ -81,7 +81,7 @@ task AnnovarWithVcfColumns {
     Int memory_gb = 20
     Int cpu = 1
 
-    String docker = "shengqh/annovar:20241117"
+    String docker = "shengqh/annovar:20250805"
     Float vcf_disk_size_factor = 5
   }
 
