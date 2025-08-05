@@ -521,3 +521,7 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPgenKeepSampleWithVariant.wdl
 
+  - name: VUMCAgdPathogenicVariantInGeneToPvar
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCAgdPathogenicVariantInGeneToPvar.wdl
+
