@@ -67,7 +67,7 @@ workflow VUMCAgdPathogenicVariantInGeneToPvar {
   }
 
   output {
-    String output_pvar = select_first([CopyFile.output_file , AgdPathogenicVariantInGeneToPvar.output_pvar])
+    String keep_pvar = select_first([CopyFile.output_file , AgdPathogenicVariantInGeneToPvar.output_pvar])
   }
 }
 
