@@ -28,7 +28,7 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 # - output_psam: Final filtered PSAM file path
 
 
-workflow VUMCAgdExtractPgenByPvar {
+workflow VUMCAgdPgenExtractAllSamplesByPvar {
   input {
     File keep_pvar
 

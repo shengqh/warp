@@ -513,15 +513,19 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCAgdRsidToPvar.wdl
 
-  - name: VUMCAgdExtractPgenByPvar
+  - name: VUMCAgdPathogenicVariantInGeneToPvar
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCAgdExtractPgenByPvar.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCAgdPathogenicVariantInGeneToPvar.wdl
+
+  - name: VUMCAgdPgenExtractAllSamplesByPvar
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCAgdPgenExtractAllSamplesByPvar.wdl
 
   - name: VUMCPgenKeepSampleWithVariant
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPgenKeepSampleWithVariant.wdl
 
-  - name: VUMCAgdPathogenicVariantInGeneToPvar
+  - name: VUMCAgdPgenExtractSampleWithVariantByPvar
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCAgdPathogenicVariantInGeneToPvar.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCAgdPgenExtractSampleWithVariantByPvar.wdl
 
