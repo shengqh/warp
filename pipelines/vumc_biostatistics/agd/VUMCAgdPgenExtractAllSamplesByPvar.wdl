@@ -45,23 +45,19 @@ workflow VUMCAgdPgenExtractAllSamplesByPvar {
   Int num_all_chromsome = length(chromosomes)
 
   scatter(all_chrom_ind in range(num_all_chromsome)){
-    call BioUtils.CheckOverlapVariants as CheckOverlapVariants {
+    call BioUtils.CheckOverlapVariantsReturnIndex as CheckOverlapVariants {
       input:
         chromosome = chromosomes[all_chrom_ind],
         input_pgen_pvar = input_pvar_files[all_chrom_ind],
-        input_ucsc_bed = keep_pvar
+        input_ucsc_bed = keep_pvar,
+        chrom_index = all_chrom_ind
     }
   }
 
-  call WdlUtils.get_index_of_true {
-    input:
-      values = CheckOverlapVariants.has_variant
-  }
+  Array[Int] valid_indices = select_all(CheckOverlapVariants.chrom_index)
+  Int num_valid_chromsome = length(valid_indices)
 
-  Int num_valid_chromsome = length(get_index_of_true.indices)
-
-  scatter(chrom_ind in range(num_valid_chromsome)){
-    Int old_ind = get_index_of_true.indices[chrom_ind]
+  scatter(old_ind in valid_indices){
     File pgen_file = input_pgen_files[old_ind]
     File pvar_file = input_pvar_files[old_ind]
     File psam_file = input_psam_files[old_ind]
