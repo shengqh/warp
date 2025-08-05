@@ -745,6 +745,77 @@ python3 get_chrom_indices.py
   }
 }
 
+task CheckOverlapVariantsBetweenPvarFilesByIDAndReturnIndex {
+  input {
+    Int chrom_index
+    Int? chrom_index_none # don't set value for it.
+
+    File query_pgen_pvar
+    File target_pgen_pvar
+
+    String docker = "shengqh/hail_gcp:20241127"
+  }
+  Int disk_size = ceil(size([query_pgen_pvar, target_pgen_pvar], "GB")) + 5
+  command <<<
+#!/bin/bash
+
+set -e
+
+# Create Python script
+cat <<EOF> check_overlap.py 
+import pandas as pd
+import sys
+
+query_pvar_file = "~{query_pgen_pvar}"
+target_pvar_file = "~{target_pgen_pvar}"
+
+query_ids = set()
+with open(query_pvar_file, 'r') as f:
+    for line in f:
+        if line.startswith('#'):
+            continue
+        fields = line.strip().split('\t', 3)
+        id = fields[2]
+        query_ids.add(id)
+
+found_match = False
+with open(target_pvar_file, 'r') as f:
+    for line in f:
+        if line.startswith('#'):
+            continue
+        fields = line.strip().split('\t', 3)
+        id = fields[2]
+        if id in query_ids:
+            print(f"Found match at position: {line}")
+            found_match = True
+            break
+
+with open("has_match.txt", "w") as f:
+  if found_match:
+    f.write("true\n")
+  else:
+    f.write("false\n")
+
+EOF
+
+# Run the Python script
+python3 get_chrom_indices.py 
+
+>>>
+
+  runtime {
+    cpu: 1
+    docker: docker
+    preemptible: 1
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "10 GiB"
+  }
+
+  output {
+    Int? chrom_index = if read_boolean("has_match.txt") then chrom_index else chrom_index_none
+  }
+}
+
 task CheckOverlapVariantsByID {
   input {
     String chromosome
