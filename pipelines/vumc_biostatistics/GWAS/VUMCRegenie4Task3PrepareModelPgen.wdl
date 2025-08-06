@@ -54,17 +54,17 @@ workflow VUMCRegenie4Task3PrepareModelPgen {
     #https://rgcgithub.github.io/regenie/recommendations/
     #Based on UKBiobank recommendation, we suggest the following parameters for filtering.
     String step1_plink2_option="--maf 0.01 --mac 100 --geno 0.1 --hwe 1e-15 --mind 0.1 --snps-only --not-chr 23-27 --max-alleles 2"
-    Int step1_max_variants=500000
+    Int step1_max_variants=1000000
 
     #https://www.nature.com/articles/s41588-021-00870-7
     # LD pruning settings
     # Default R2 threshold of 0.5 with window size of 1000 markers and step size of 100
-    # While literature suggests R2 of 0.9, lower threshold (0.5) retains more independent variants 
+    # While literature suggests R2 of 0.9, lower threshold (0.45) retains more independent variants 
     # for better model performance in large datasets like AGD163K/250K
     # Adjust R2 threshold if too few variants or too many variants are retained after pruning
     # Target: ~500K-1M variants post-pruning for optimal results
     Boolean step1_prune = true
-    String step1_prune_option="--indep-pairwise 1000 100 0.5"
+    String step1_prune_option="--indep-pairwise 1000 100 0.45"
 
     String? target_gcp_folder
   }
