@@ -117,6 +117,11 @@ fi
 # run annovar
 table_annovar.pl ~{target_prefix}.avinput ~{real_annovar_db} -buildver ~{buildver} ~{real_annovar_param} --outfile ~{target_prefix}.annovar
 
+if [[ ! -f ~{target_prefix}.annovar.hg38_multianno.txt ]]; then
+  echo "table_annovar.pl failed: output file ~{target_prefix}.annovar.hg38_multianno.txt not found"
+  exit 1
+fi
+
 # extract the relevant columns from the annovar output. Since annovar will keep the order of the variants, we don't need to worry about it.
 cut -f 6- ~{target_prefix}.annovar.hg38_multianno.txt > annovar.data.txt
 
