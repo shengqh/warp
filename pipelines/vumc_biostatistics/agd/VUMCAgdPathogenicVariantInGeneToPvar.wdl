@@ -79,14 +79,15 @@ workflow VUMCAgdPathogenicVariantInGeneToPvar {
   if(defined(target_gcp_folder)){
     call GcpUtils.MoveOrCopyOneFile as CopyFile {
       input:
-        source_file = AgdPathogenicVariantInGeneToPvar.output_pvar,
+        source_file = AgdPathogenicVariantInGeneToPvar.keep_pvar,
         is_move_file = false,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }
 
   output {
-    String keep_pvar = select_first([CopyFile.output_file , AgdPathogenicVariantInGeneToPvar.output_pvar])
+    String keep_pvar = select_first([CopyFile.output_file , AgdPathogenicVariantInGeneToPvar.keep_pvar])
+    Int keep_num_variants = AgdPathogenicVariantInGeneToPvar.keep_num_variants
   }
 }
 
@@ -165,6 +166,8 @@ EOF
 
 python3 query_table.py
 
+grep -v "^#" "~{output_prefix}.pvar" | wc -l | cut -d ' ' -f 1 > num_variants.txt
+
   >>>
 
   runtime {
@@ -176,6 +179,7 @@ python3 query_table.py
   }
 
   output {
-    File output_pvar = "~{output_prefix}.pvar"
+    File keep_pvar = "~{output_prefix}.pvar"
+    Int keep_num_variants = read_int("num_variants.txt")
   }
 }
