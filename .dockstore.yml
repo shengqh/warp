@@ -509,6 +509,10 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/polygenic_risk_score/VUMCPrsStep3Score.wdl
 
+  - name: VUMCAgdClinvarToPvar
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCAgdClinvarToPvar.wdl
+
   - name: VUMCAgdRsidToPvar
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCAgdRsidToPvar.wdl
