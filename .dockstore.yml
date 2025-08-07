@@ -529,3 +529,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCAgdPgenExtractSampleWithVariantByPvar.wdl
 
+  - name: VUMCAgdPgenExtractSampleWithVariantByPvarFormatResult
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCAgdPgenExtractSampleWithVariantByPvarFormatResult.wdl

@@ -1,0 +1,7 @@
+{
+  "VUMCAgdPgenExtractSampleWithVariantByPvarFormatResult.input_sample_with_variant_psam": "/nobackup/h_cqs/shengq2/biovu/20250519_red_gates_fundation_snv_extraction/20250805/ped_epilepsy_20250805_allvariants.sample_with_variant.psam",
+  "VUMCAgdPgenExtractSampleWithVariantByPvarFormatResult.output_prefix": "ped_epilepsy_20250805",
+  "VUMCAgdPgenExtractSampleWithVariantByPvarFormatResult.keep_pvar": "/nobackup/h_cqs/shengq2/biovu/20250519_red_gates_fundation_snv_extraction/20250805/ped_epilepsy_20250805_allvariants.pvar",
+  "VUMCAgdPgenExtractSampleWithVariantByPvarFormatResult.input_sample_with_variant_vcf": "/nobackup/h_cqs/shengq2/biovu/20250519_red_gates_fundation_snv_extraction/20250805/ped_epilepsy_20250805_allvariants.vcf.gz"
+}
+
