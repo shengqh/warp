@@ -42,7 +42,7 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCAgdPathogenicVariantInGeneToPvar {
   input {
-    String annovar_url='working-set-385118.agd250k.annovar_pvar'
+    String annovar_url='working-set-385118.agd250k.annovar_pvar_clinvar20250721'
 
     String input_genes_url
     String output_prefix
