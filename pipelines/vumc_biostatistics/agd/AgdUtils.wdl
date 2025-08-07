@@ -151,8 +151,8 @@ grep -v "^#" "~{output_prefix}.psam" | wc -l > psam.count
   runtime {
     docker: "us.gcr.io/broad-dsp-gcr-public/base/python:3.9-debian"
     preemptible: 1
-    disks: "local-disk 10 HDD"
-    memory: "2 GiB"
+    disks: "local-disk 2 HDD"
+    memory: "1 GiB"
   }
   output {
     File output_psam = "~{output_prefix}.psam"
