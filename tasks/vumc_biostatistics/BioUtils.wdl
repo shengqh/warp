@@ -92,14 +92,15 @@ task QCFilterPgen {
     File? filter_psam_file
     String qc_filter_option
 
-    Int memory_gb = 20
+    Int memory_gb = 13
     Int cpu = 8
     Float disk_size_factor = 1.5
+    Int additional_disk_gb = 10
 
     String docker = "shengqh/plink_1.9_2.0:20250304"
   }
 
-  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * disk_size_factor) + 20
+  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * disk_size_factor) + additional_disk_gb
 
   command <<<
 
@@ -119,7 +120,8 @@ grep -v "^#" ~{output_prefix}.pvar | wc -l | cut -d ' ' -f 1 > num_variants.txt
 
   runtime {
     docker: docker
-    preemptible: 1
+    # there is high chance of preemption when running this task, so allow 3 tries
+    preemptible: 3
     cpu: cpu
     disks: "local-disk " + disk_size + " HDD"
     memory: memory_gb + " GiB"
