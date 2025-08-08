@@ -336,12 +336,12 @@ plink2  --pgen ~{input_pgen} \
         --sample-counts \
         --out sample_geno_counts
  
-awk -F'\t' '$4 > 0 || $5 > 0 {print $1,$2}' sample_geno_counts.scount ~{grep_option} > samples_with_variants.pvar
+awk -F'\t' '$4 > 0 || $5 > 0 {print $1,$2}' sample_geno_counts.scount ~{grep_option} > samples_with_variants.psam
 
 plink2  --pgen ~{input_pgen} \
         --pvar ~{input_pvar} \
         --psam ~{input_psam} \
-        --keep samples_with_variants.pvar \
+        --keep samples_with_variants.psam \
         --make-pgen \
         --out ~{output_prefix}
 
