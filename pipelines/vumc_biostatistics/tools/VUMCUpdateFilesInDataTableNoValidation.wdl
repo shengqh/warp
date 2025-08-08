@@ -43,10 +43,10 @@ workflow VUMCUpdateFilesInDataTableNoValidation {
   String gcs_output_dir = sub(target_gcp_folder, "/+$", "")
 
   String output_file1 = "${gcs_output_dir}/${basename(source_file1)}"
-  String output_file2 = if defined(source_file2) then "${gcs_output_dir}/${basename(source_file2)}" else ""
-  String output_file3 = if defined(source_file3) then "${gcs_output_dir}/${basename(source_file3)}" else ""
-  String output_file4 = if defined(source_file4) then "${gcs_output_dir}/${basename(source_file4)}" else ""
-  String output_file5 = if defined(source_file5) then "${gcs_output_dir}/${basename(source_file5)}" else ""
+  String output_file2 = if defined(source_file2) then "${gcs_output_dir}/${basename(select_first([source_file2]))}" else ""
+  String output_file3 = if defined(source_file3) then "${gcs_output_dir}/${basename(select_first([source_file3]))}" else ""
+  String output_file4 = if defined(source_file4) then "${gcs_output_dir}/${basename(select_first([source_file4]))}" else ""
+  String output_file5 = if defined(source_file5) then "${gcs_output_dir}/${basename(select_first([source_file5]))}" else ""
 
   output {
     String target_file1 = output_file1
