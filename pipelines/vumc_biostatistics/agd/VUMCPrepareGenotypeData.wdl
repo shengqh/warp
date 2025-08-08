@@ -43,22 +43,22 @@ workflow VUMCPrepareGenotypeData {
         output_prefix = "~{chromosome}.grid"
     }
 
-    call Plink2Utils.ExtractPgenSamples as ExtractPgenSamples {
+    call Plink2Utils.PgenFilter as PgenFilter_samples {
       input:
         input_pgen = pgen_file,
         input_pvar = pvar_file,
         input_psam = ReplaceICAIdWithGrid.output_psam,
         output_prefix = chromosome,
         plink2_filter_option = plink2_filter_option,
-        extract_sample = CreateCohortPsam.output_psam
+        keep_psam = CreateCohortPsam.output_psam
     }
   }
 
   call Plink2Utils.MergePgenFiles as MergePgenFiles{
     input:
-      input_pgen_files = ExtractPgenSamples.output_pgen,
-      input_pvar_files = ExtractPgenSamples.output_pvar,
-      input_psam_files = ExtractPgenSamples.output_psam,
+      input_pgen_files = PgenFilter_samples.output_pgen,
+      input_pvar_files = PgenFilter_samples.output_pvar,
+      input_psam_files = PgenFilter_samples.output_psam,
       output_prefix = output_prefix
   }
 

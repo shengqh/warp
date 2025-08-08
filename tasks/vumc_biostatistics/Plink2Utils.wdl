@@ -178,107 +178,27 @@ grep -v "^#" ~{target_pvar} | wc -l | cut -d ' ' -f 1 > num_variants.txt
   }
 }
 
-task Plink2FilterPgen {
+task PgenFilter {
   input {
     File input_pgen
     File input_pvar
     File input_psam
 
     File? keep_psam
+    File? keep_pvar
     File? keep_bed
-    File? keep_variant_names
+    File? keep_variant_ids
     
     String output_prefix
 
     String plink2_filter_option
 
-    Int memory_gb = 13
+    Int memory_gb = 15
 
     String docker = "shengqh/plink_1.9_2.0:20250304"
   }
 
-  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 2
-
-  String target_pgen = output_prefix + ".pgen"
-  String target_pvar = output_prefix + ".pvar"
-  String target_psam = output_prefix + ".psam"
-
-  command <<<
-plink2 \
-  --pgen ~{input_pgen} \
-  --pvar ~{input_pvar} \
-  --psam ~{input_psam} \
-  ~{plink2_filter_option} \
-  ~{"--keep " + keep_psam} \
-  ~{"--extract bed0 " + keep_bed} \
-  ~{"--extract " + keep_variant_names} \
-  --make-pgen \
-  --out ~{output_prefix}
-
-grep -v "^#" ~{target_psam} | wc -l | cut -d ' ' -f 1 > num_samples.txt
-grep -v "^#" ~{target_pvar} | wc -l | cut -d ' ' -f 1 > num_variants.txt
-
->>>
-
-  runtime {
-    docker: docker
-    preemptible: 1
-    disks: "local-disk " + disk_size + " HDD"
-    memory: memory_gb + " GiB"
-  }
-  output {
-    File output_pgen = target_pgen
-    File output_pvar = target_pvar
-    File output_psam = target_psam
-
-    Int num_samples = read_int("num_samples.txt")
-    Int num_variants = read_int("num_variants.txt")
-  }
-}
-
-/**
- * Filters a PLINK2 dataset based on variants from a keep pvar file.
- *
- * This task takes input PLINK2 format files (pgen, pvar, psam) and filters them to keep only 
- * variants specified in the keep_pvar file. The variant names in keep_pvar and input_pvar should be identical.
- * The task allows for optional sample filtering using
- * a keep_psam file. It generates a new filtered PLINK2 dataset with the specified output prefix.
- *
- * @input input_pgen - The input PLINK2 binary genotype file (.pgen)
- * @input input_pvar - The input PLINK2 variant file (.pvar)
- * @input input_psam - The input PLINK2 sample file (.psam)
- * @input keep_psam - Optional file specifying samples to keep
- * @input keep_pvar - A PLINK2 variant file specifying variants to keep
- * @input output_prefix - Prefix for output files
- * @input plink2_filter_option - Additional PLINK2 filtering options
- * @input memory_gb - Memory allocated for the task in GB (default: 20)
- * @input docker - Docker image to use (default: shengqh/plink_1.9_2.0:20250304)
- *
- * @output output_pgen - Filtered PLINK2 binary genotype file
- * @output output_pvar - Filtered PLINK2 variant file
- * @output output_psam - Filtered PLINK2 sample file
- * @output num_samples - Number of samples in the filtered dataset
- * @output num_variants - Number of variants in the filtered dataset
- */
-task Plink2FilterPgenByPvar {
-  input {
-    File input_pgen
-    File input_pvar
-    File input_psam
-
-    File? keep_psam
-    File keep_pvar
-    
-    String output_prefix
-
-    String plink2_filter_option
-
-    Int memory_gb = 13
-
-    String docker = "shengqh/plink_1.9_2.0:20250304"
-  }
-
-  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 2
+  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 5
 
   String target_pgen = output_prefix + ".pgen"
   String target_pvar = output_prefix + ".pvar"
@@ -286,125 +206,43 @@ task Plink2FilterPgenByPvar {
 
   command <<<
 
-grep -v "^#" ~{keep_pvar} | cut -f 3 > keep_variant_names.txt
+if [[ "~{keep_pvar}" != "" ]]; then
+  grep -v "^#" ~{keep_pvar} | cut -f 3 > keep_variant_ids.txt
 
-plink2 \
-  --pgen ~{input_pgen} \
-  --pvar ~{input_pvar} \
-  --psam ~{input_psam} \
-  ~{plink2_filter_option} \
-  ~{"--keep " + keep_psam} \
-  --extract keep_variant_names.txt \
-  --make-pgen \
-  --out ~{output_prefix}
-
-grep -v "^#" ~{target_psam} | wc -l | cut -d ' ' -f 1 > num_samples.txt
-grep -v "^#" ~{target_pvar} | wc -l | cut -d ' ' -f 1 > num_variants.txt
-
->>>
-
-  runtime {
-    docker: docker
-    preemptible: 1
-    disks: "local-disk " + disk_size + " HDD"
-    memory: memory_gb + " GiB"
-  }
-  output {
-    File output_pgen = target_pgen
-    File output_pvar = target_pvar
-    File output_psam = target_psam
-
-    Int num_samples = read_int("num_samples.txt")
-    Int num_variants = read_int("num_variants.txt")
-  }
-}
-
-task ExtractPgenSamples {
-  input {
-    File input_pgen
-    File input_pvar
-    File input_psam
-
-    File extract_sample
-    
-    String output_prefix
-
-    String plink2_filter_option
-
-    Int memory_gb = 13
-
-    String docker = "shengqh/plink_1.9_2.0:20250304"
-  }
-
-  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 2
-
-  String target_pgen = output_prefix + ".pgen"
-  String target_pvar = output_prefix + ".pvar"
-  String target_psam = output_prefix + ".psam"
-
-  command <<<
-
-plink2 \
-  --pgen ~{input_pgen} \
-  --pvar ~{input_pvar} \
-  --psam ~{input_psam} \
-  ~{plink2_filter_option} \
-  --keep ~{extract_sample} \
-  --make-pgen \
-  --out ~{output_prefix}
-
-grep -v "^#" ~{target_psam} | wc -l | cut -d ' ' -f 1 > num_samples.txt
-grep -v "^#" ~{target_pvar} | wc -l | cut -d ' ' -f 1 > num_variants.txt
-
->>>
-
-  runtime {
-    docker: docker
-    preemptible: 1
-    disks: "local-disk " + disk_size + " HDD"
-    memory: memory_gb + " GiB"
-  }
-  output {
-    File output_pgen = target_pgen
-    File output_pvar = target_pvar
-    File output_psam = target_psam
-
-    Int num_samples = read_int("num_samples.txt")
-    Int num_variants = read_int("num_variants.txt")
-  }
-}
-
-task ExtractPgenRegions {
-  input {
-    File input_pgen
-    File input_pvar
-    File input_psam
-    File region_bed
-
-    String output_prefix
-
-    String plink2_filter_option
-
-    Int memory_gb = 13
-
-    String docker = "shengqh/plink_1.9_2.0:20250304"
-  }
-
-  Int disk_size = ceil(size([input_pgen, input_psam, input_pvar], "GB")  * 2) + 2
-
-  String target_pgen = output_prefix + ".pgen"
-  String target_pvar = output_prefix + ".pvar"
-  String target_psam = output_prefix + ".psam"
-
-  command <<<
-
-plink2 ~{plink2_filter_option} \
-  --pgen ~{input_pgen} \
-  --pvar ~{input_pvar} \
-  --psam ~{input_psam} \
-  --extract bed0 ~{region_bed} \
-  --make-pgen \
-  --out ~{output_prefix}
+  plink2 \
+    --pgen ~{input_pgen} \
+    --pvar ~{input_pvar} \
+    --psam ~{input_psam} \
+    ~{plink2_filter_option} \
+    ~{"--keep " + keep_psam} \
+    ~{"--extract bed0 " + keep_bed} \
+    --extract keep_variant_ids.txt \
+    --make-pgen \
+    --out ~{output_prefix}
+else
+  if [[ "~{keep_variant_ids}" != "" ]]; then
+    plink2 \
+      --pgen ~{input_pgen} \
+      --pvar ~{input_pvar} \
+      --psam ~{input_psam} \
+      ~{plink2_filter_option} \
+      ~{"--keep " + keep_psam} \
+      ~{"--extract bed0 " + keep_bed} \
+      --extract ~{keep_variant_ids} \
+      --make-pgen \
+      --out ~{output_prefix}
+  else
+    plink2 \
+      --pgen ~{input_pgen} \
+      --pvar ~{input_pvar} \
+      --psam ~{input_psam} \
+      ~{plink2_filter_option} \
+      ~{"--keep " + keep_psam} \
+      ~{"--extract bed0 " + keep_bed} \
+      --make-pgen \
+      --out ~{output_prefix}
+  fi
+fi
 
 grep -v "^#" ~{target_psam} | wc -l | cut -d ' ' -f 1 > num_samples.txt
 grep -v "^#" ~{target_pvar} | wc -l | cut -d ' ' -f 1 > num_variants.txt

@@ -36,22 +36,22 @@ workflow VUMCExtractRegionAGD {
         output_psam = replaced_sample_name
     }
 
-    call Plink2Utils.ExtractPgenRegions as ExtractPgenRegions {
+    call Plink2Utils.PgenFilter as PgenFilter_regions {
       input:
         input_pgen = pgen_file,
         input_pvar = pvar_file,
         input_psam = ReplaceICAIdWithGrid.output_psam,
         output_prefix = chromosome,
         plink2_filter_option = plink2_filter_option,
-        region_bed = region_bed
+        keep_bed = region_bed
     }
   }
 
   call Plink2Utils.MergePgenFiles as MergePgenFiles{
     input:
-      input_pgen_files = ExtractPgenRegions.output_pgen,
-      input_pvar_files = ExtractPgenRegions.output_pvar,
-      input_psam_files = ExtractPgenRegions.output_psam,
+      input_pgen_files = PgenFilter_regions.output_pgen,
+      input_pvar_files = PgenFilter_regions.output_pvar,
+      input_psam_files = PgenFilter_regions.output_psam,
       output_prefix = output_prefix
   }
 

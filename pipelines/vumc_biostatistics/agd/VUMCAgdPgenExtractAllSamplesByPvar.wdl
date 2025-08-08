@@ -1,10 +1,5 @@
 version 1.0
 
-import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WdlUtils
-import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
-import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
-import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
-
 # This workflow extracts variant genotypes from PLINK2 files based on variant IDs defined in a plink2 pvar file.
 #
 # Workflow steps:
@@ -27,6 +22,10 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 # - output_pvar: Final filtered PVAR file path
 # - output_psam: Final filtered PSAM file path
 
+import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WdlUtils
+import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
+import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
+import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCAgdPgenExtractAllSamplesByPvar {
   input {
@@ -63,7 +62,7 @@ workflow VUMCAgdPgenExtractAllSamplesByPvar {
     File psam_file = input_psam_files[old_ind]
     String chromosome = chromosomes[old_ind]
 
-    call Plink2Utils.Plink2FilterPgenByPvar as Plink2FilterPgen_variants {
+    call Plink2Utils.PgenFilter as PgenFilter_variants {
       input:
         input_pgen = pgen_file,
         input_pvar = pvar_file,
@@ -77,16 +76,16 @@ workflow VUMCAgdPgenExtractAllSamplesByPvar {
   if (num_valid_chromsome > 1){
     call Plink2Utils.MergePgenFiles as MergePgenFiles {
       input:
-        input_pgen_files = Plink2FilterPgen_variants.output_pgen,
-        input_pvar_files = Plink2FilterPgen_variants.output_pvar,
-        input_psam_files = Plink2FilterPgen_variants.output_psam,
+        input_pgen_files = PgenFilter_variants.output_pgen,
+        input_pvar_files = PgenFilter_variants.output_pvar,
+        input_psam_files = PgenFilter_variants.output_psam,
         output_prefix = output_prefix + '.allsamples'
     }
   }
 
-  File all_samples_pgen = select_first([MergePgenFiles.output_pgen, Plink2FilterPgen_variants.output_pgen[0]])
-  File all_samples_pvar = select_first([MergePgenFiles.output_pvar, Plink2FilterPgen_variants.output_pvar[0]])
-  File all_samples_psam = select_first([MergePgenFiles.output_psam, Plink2FilterPgen_variants.output_psam[0]])
+  File all_samples_pgen = select_first([MergePgenFiles.output_pgen, PgenFilter_variants.output_pgen[0]])
+  File all_samples_pvar = select_first([MergePgenFiles.output_pvar, PgenFilter_variants.output_pvar[0]])
+  File all_samples_psam = select_first([MergePgenFiles.output_psam, PgenFilter_variants.output_psam[0]])
 
   if (defined(target_gcp_folder)) {
     call GcpUtils.MoveOrCopyThreeFiles as CopyFile {

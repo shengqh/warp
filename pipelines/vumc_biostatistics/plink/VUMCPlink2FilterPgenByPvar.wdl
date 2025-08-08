@@ -10,7 +10,7 @@ version 1.0
 ## and produces filtered PGEN, PVAR, and PSAM files as output.
 ##
 ## ### Workflow Steps:
-## 1. Plink2FilterPgenByPvar: Filter PGEN files using the provided PVAR file to keep specified variants.
+## 1. PgenFilter: Filter PGEN files using the provided PVAR file to keep specified variants.
 ## 2. Optionally copy the output files to a specified GCP folder.
 ##
 ## ### Inputs:
@@ -52,7 +52,7 @@ workflow VUMCPlink2FilterPgenByPvar {
     String? target_gcp_folder
   }
 
-  call Plink2Utils.Plink2FilterPgenByPvar as Plink2FilterPgen {
+  call Plink2Utils.PgenFilter as PgenFilter_variants {
     input:
       input_pgen = input_pgen,
       input_pvar = input_pvar,
@@ -65,19 +65,19 @@ workflow VUMCPlink2FilterPgenByPvar {
   if(defined(target_gcp_folder)){
     call GcpUtils.MoveOrCopyThreeFiles as CopyFile {
       input:
-        source_file1 = Plink2FilterPgen.output_pgen,
-        source_file2 = Plink2FilterPgen.output_pvar,
-        source_file3 = Plink2FilterPgen.output_psam,
+        source_file1 = PgenFilter_variants.output_pgen,
+        source_file2 = PgenFilter_variants.output_pvar,
+        source_file3 = PgenFilter_variants.output_psam,
         is_move_file = false,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }
 
   output {
-    String output_pgen = select_first([CopyFile.output_file1, Plink2FilterPgen.output_pgen])
-    String output_pvar = select_first([CopyFile.output_file2, Plink2FilterPgen.output_pvar])
-    String output_psam = select_first([CopyFile.output_file3, Plink2FilterPgen.output_psam])
-    Int output_num_samples = Plink2FilterPgen.num_samples
-    Int output_num_variants = Plink2FilterPgen.num_variants
+    String output_pgen = select_first([CopyFile.output_file1, PgenFilter_variants.output_pgen])
+    String output_pvar = select_first([CopyFile.output_file2, PgenFilter_variants.output_pvar])
+    String output_psam = select_first([CopyFile.output_file3, PgenFilter_variants.output_psam])
+    Int output_num_samples = PgenFilter_variants.num_samples
+    Int output_num_variants = PgenFilter_variants.num_variants
   }
 }
