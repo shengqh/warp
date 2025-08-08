@@ -29,10 +29,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCSamHeader.wdl
 
-  - name: VUMCDeleteFiles
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCDeleteFiles.wdl
-
   - name: VUMCBamToCram
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCBamToCram.wdl
@@ -161,13 +157,17 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2Filter.wdl
 
+  - name: VUMCPlink2Bgen
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2Bgen.wdl
+
   - name: VUMCPlink2FilterRegion
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2FilterRegion.wdl
 
-  - name: VUMCPlink2Bgen
+  - name: VUMCPgenFilter
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2Bgen.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPgenFilter.wdl
 
   - name: VUMCPlink2FilterPgen
     subclass: WDL
@@ -229,17 +229,9 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCGenotypePCA.wdl 
 
-  - name: VUMCRegenie
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/GWAS/VUMCRegenie.wdl
-
   - name: VUMCVcfIndex
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCVcfIndex.wdl
-
-  - name: VUMCExtractRegionAGD
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractRegionAGD.wdl
 
   - name: VUMCHailMatrixExtractRegions
     subclass: WDL
