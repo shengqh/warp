@@ -108,8 +108,8 @@ workflow VUMCHaplotypecallerReblock {
   if(defined(target_bucket)){
     call Utils.MoveVcf {
       input:
-        input_vcf = Reblock.output_vcf,
-        input_vcf_index = Reblock.output_vcf_index,
+        input_vcf = Reblock.reblocked_gvcf,
+        input_vcf_index = Reblock.reblocked_gvcf_index,
         target_bucket = select_first([target_bucket]),
         genoset = select_first([genoset]),
         GRID = select_first([GRID])
@@ -117,8 +117,8 @@ workflow VUMCHaplotypecallerReblock {
   }
 
   output {
-    File output_vcf = select_first([MoveVcf.output_vcf, Reblock.output_vcf])
-    File output_vcf_index = select_first([MoveVcf.output_vcf_index, Reblock.output_vcf_index])
+    File output_vcf = select_first([MoveVcf.output_vcf, Reblock.reblocked_gvcf])
+    File output_vcf_index = select_first([MoveVcf.output_vcf_index, Reblock.reblocked_gvcf_index])
   }
 }
 
