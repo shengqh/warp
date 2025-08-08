@@ -11,7 +11,7 @@ task FilterPassVariantsInPgen {
     String docker = "shengqh/plink_1.9_2.0:20250304"
 
     Int preemptible=1
-    Int memory_gb = 40
+    Int memory_gb = 15
     Int addtional_disk_space_gb = 10
   }
 
@@ -192,12 +192,12 @@ task Plink2FilterPgen {
 
     String plink2_filter_option
 
-    Int memory_gb = 20
+    Int memory_gb = 13
 
     String docker = "shengqh/plink_1.9_2.0:20250304"
   }
 
-  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 20
+  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 2
 
   String target_pgen = output_prefix + ".pgen"
   String target_pvar = output_prefix + ".pvar"
@@ -273,12 +273,12 @@ task Plink2FilterPgenByPvar {
 
     String plink2_filter_option
 
-    Int memory_gb = 20
+    Int memory_gb = 13
 
     String docker = "shengqh/plink_1.9_2.0:20250304"
   }
 
-  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 20
+  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 2
 
   String target_pgen = output_prefix + ".pgen"
   String target_pvar = output_prefix + ".pvar"
@@ -331,12 +331,12 @@ task ExtractPgenSamples {
 
     String plink2_filter_option
 
-    Int memory_gb = 20
+    Int memory_gb = 13
 
     String docker = "shengqh/plink_1.9_2.0:20250304"
   }
 
-  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 20
+  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 2
 
   String target_pgen = output_prefix + ".pgen"
   String target_pvar = output_prefix + ".pvar"
@@ -385,12 +385,12 @@ task ExtractPgenRegions {
 
     String plink2_filter_option
 
-    Int memory_gb = 20
+    Int memory_gb = 13
 
     String docker = "shengqh/plink_1.9_2.0:20250304"
   }
 
-  Int disk_size = ceil(size([input_pgen, input_psam, input_pvar], "GB")  * 2) + 20
+  Int disk_size = ceil(size([input_pgen, input_psam, input_pvar], "GB")  * 2) + 2
 
   String target_pgen = output_prefix + ".pgen"
   String target_pvar = output_prefix + ".pvar"
@@ -478,11 +478,11 @@ task KeepSampleWithVariant {
 
     String output_prefix
 
-    Int memory_gb = 20
+    Int memory_gb = 13
     String docker = "shengqh/plink_1.9_2.0:20250304"
   }
 
-  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 10
+  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 2
 
   String grep_option = if is_agd_data then "| grep -v '^HG00' | grep -v '_INVALID'" else ""
 
