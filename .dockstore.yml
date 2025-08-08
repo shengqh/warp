@@ -388,10 +388,6 @@ workflows:
   - name: VUMCVcf2Bgen
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCVcf2Bgen.wdl
-   
-  - name: VUMCUpdateFileInDataTable
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCUpdateFileInDataTable.wdl
 
   - name: VUMCVcf2SitesOnly
     subclass: WDL
@@ -528,3 +524,11 @@ workflows:
   - name: VUMCAgdPgenExtractSampleWithVariantByPvarFormatResult
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCAgdPgenExtractSampleWithVariantByPvarFormatResult.wdl
+   
+  - name: VUMCUpdateFileInDataTable
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCUpdateFileInDataTable.wdl
+   
+  - name: VUMCUpdateFilesInDataTableNoValidation
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCUpdateFilesInDataTableNoValidation.wdl
