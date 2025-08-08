@@ -19,7 +19,6 @@ version 1.0
 ## ### Inputs:
 ## - source_file1: Primary source file path (required)
 ## - source_file2-5: Additional source file paths (optional)
-## - project_id: Google Cloud project ID
 ## - target_gcp_folder: Target Google Cloud Storage folder
 ##
 ## ### Outputs:
@@ -38,7 +37,6 @@ workflow VUMCUpdateFilesInDataTableNoValidation {
     String? source_file4
     String? source_file5
 
-    String project_id
     String target_gcp_folder
   }
 
