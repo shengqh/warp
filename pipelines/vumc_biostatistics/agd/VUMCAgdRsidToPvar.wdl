@@ -30,7 +30,7 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCAgdRsidToPvar {
   input {
-    String annovar_url='working-set-385118.agd250k.annovar_pvar'
+    String annovar_url='working-set-385118.agd250k.annovar_pvar_clinvar20250721'
 
     String input_rsid_url
     String output_prefix
@@ -103,12 +103,12 @@ print(res.shape)
 res.head()
 
 query = f"""SELECT
-  DISTINCT anno._CHROM, anno.POS, anno.ID, anno.REF, anno.ALT, anno.avsnp150 as FILTER, anno.INFO
+  DISTINCT anno._CHROM, anno.POS, anno.ID, anno.REF, anno.ALT, anno.avsnp151 as FILTER, anno.INFO
 FROM
   \`~{annovar_url}\` as anno,
   {table_id} as g
 WHERE
-  anno.avsnp150 = g.RSID
+  anno.avsnp151 = g.RSID
 """
 print(query)
 
