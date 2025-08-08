@@ -20,6 +20,7 @@ version 1.0
 ## - input_psam: Input PSAM file containing sample information
 ## - keep_psam: Optional PSAM file specifying which samples to keep
 ## - keep_pvar: Optional PVAR file specifying which variants to keep, ID should match those in input_pvar
+## - keep_variant_ids: Optional file containing a list of variant IDs to keep, one ID per line, ID should match those in input_pvar
 ## - keep_bed: Optional BED file specifying genomic regions to keep
 ## - output_prefix: Prefix for output files
 ## - plink2_filter_option: Additional filtering options for Plink2
@@ -49,8 +50,8 @@ workflow VUMCPgenFilter {
 
     File? keep_psam
     File? keep_pvar
-    File? keep_bed
     File? keep_variant_ids
+    File? keep_bed
         
     String output_prefix
 
