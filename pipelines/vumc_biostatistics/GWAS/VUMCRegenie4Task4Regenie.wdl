@@ -1,4 +1,4 @@
-version 1.0
+version development-1.1
 
 ## VUMC Regenie GWAS Workflow - Task 4: Run Regenie
 ##
@@ -131,7 +131,7 @@ workflow VUMCRegenie4Task4Regenie {
       input_pvar = model_pvar_file,
       input_psam = model_psam_file,
       phenoFile = phenoFile,
-      phenoColList = phenoColList,
+      phenotype_names = phenotype_names,
       is_binary_traits = is_binary_traits,
       covarFile = covarFile,
       covarColList = covarColList,
@@ -155,7 +155,7 @@ workflow VUMCRegenie4Task4Regenie {
         input_pvar = step2_pvar,
         input_psam = step2_psam,
         phenoFile = phenoFile,
-        phenoColList = phenoColList,
+        phenotype_names = phenotype_names,
         is_binary_traits = is_binary_traits,
         covarFile = covarFile,
         covarColList = covarColList,
@@ -164,22 +164,12 @@ workflow VUMCRegenie4Task4Regenie {
         step2_option = step2_regenie_option,
         memory_gb = step1_memory_gb #chromosome level memory cost would be less than step1, use step1 memory here.
     }
-
-    scatter(cur_pheno in phenotype_names){
-      String expect_regenie_file = "~{output_prefix}.~{step2_chromosome}_~{cur_pheno}.regenie"
-    }
-
-    call order_files_by_strings.order_files_by_strings as OrderFiles {
-      input:
-        input_files = RegenieStep2AssociationTest.regenie_files,
-        expect_files = expect_regenie_file
-    }
   }
 
   scatter(pheno_idx in range(num_phenotypes)){
     String phenotype_name = phenotype_names[pheno_idx]
     scatter(chrom_idx in range(num_chromosomes)){
-      File regenie_file = OrderFiles.ordered_files[chrom_idx][pheno_idx]
+      File regenie_file = RegenieStep2AssociationTest.regenie_files[chrom_idx][pheno_idx]
     }
 
     call GWASUtils.MergeRegenieChromosomeResultsOnePhenotype as MergeRegenieChromosomeResults {

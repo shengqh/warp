@@ -1,4 +1,4 @@
-version 1.0
+version development-1.1
 
 import "./WDLUtils.wdl" as WDLUtils
 

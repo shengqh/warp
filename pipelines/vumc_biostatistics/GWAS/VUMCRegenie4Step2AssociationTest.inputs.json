@@ -1,14 +1,16 @@
 {
-  "VUMCRegenie4Step2AssociationTest.pred_list_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/cromwell_finalOutputs/demo_bmi_953_pred.list",
-  "VUMCRegenie4Step2AssociationTest.pred_loco_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/pgen/cromwell_finalOutputs/glob-7d064f9a852f9135f445f7b53bf8f50e/demo_bmi_953.bmi.loco"],
-  "VUMCRegenie4Step2AssociationTest.pgen_file": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953.pgen",
-  "VUMCRegenie4Step2AssociationTest.pvar_file": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953.pvar",
-  "VUMCRegenie4Step2AssociationTest.psam_file": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953.psam",
-  "VUMCRegenie4Step2AssociationTest.phenoFile": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953_phenotype.final.txt",
-  "VUMCRegenie4Step2AssociationTest.phenoColList": "bmi",
-  "VUMCRegenie4Step2AssociationTest.covarFile": "/nobackup/h_cqs/shengq2/biovu/demo/demo_bmi_953_phenotype.final.txt",
-  "VUMCRegenie4Step2AssociationTest.covarColList": "PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10",
+
+  "VUMCRegenie4Step2AssociationTest.pred_list_file": "/nobackup/h_cqs/shengq2/biovu/demo/phecode_pred.list",
+  "VUMCRegenie4Step2AssociationTest.pred_loco_files": ["/nobackup/h_cqs/shengq2/biovu/demo/phecode.250.loco", "/nobackup/h_cqs/shengq2/biovu/demo/phecode.250.2.loco"],
+  "VUMCRegenie4Step2AssociationTest.pgen_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/primary_pass_pgen/chr2122/phecode.qc.pgen",
+  "VUMCRegenie4Step2AssociationTest.pvar_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/primary_pass_pgen/chr2122/phecode.qc.pvar",
+  "VUMCRegenie4Step2AssociationTest.psam_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/primary_pass_pgen/chr2122/phecode.qc.psam",
+  "VUMCRegenie4Step2AssociationTest.phenoFile": "/nobackup/h_cqs/shengq2/biovu/20241223_agd35k_v5_phenodata_preparation/20241223_agd35k_v5_202410_phenotype.txt",
+  "VUMCRegenie4Step2AssociationTest.phenoColList": "250.2,250",
+  "VUMCRegenie4Step2AssociationTest.covarFile": "/nobackup/h_cqs/shengq2/biovu/20241223_agd35k_v5_phenodata_preparation/20241223_agd35k_v5_202410_covariants.txt",
+  "VUMCRegenie4Step2AssociationTest.covarColList": "SEX,AGE,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10",
   "VUMCRegenie4Step2AssociationTest.chromosome": "22",
-  "VUMCRegenie4Step2AssociationTest.output_prefix": "demo_bmi_953.chr22"
+  "VUMCRegenie4Step2AssociationTest.output_prefix": "phecode.chr22",
+  "VUMCRegenie4Step2AssociationTest.is_binary_traits": true
 }
 

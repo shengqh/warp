@@ -1,4 +1,4 @@
-version 1.0
+version development-1.1
 
 # Since the WDL task will use service account to access GCP resources, 
 # Put project_id in gsutil command could not work if you copy the files to requstor pay bucket.

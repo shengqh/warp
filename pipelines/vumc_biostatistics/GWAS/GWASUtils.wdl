@@ -1,4 +1,4 @@
-version 1.0
+version development-1.1
 
 task Regenie4MemoryEstimation {
   input {
@@ -118,7 +118,7 @@ task Regenie4Step1FitModel {
     File input_psam
 
     File phenoFile
-    String phenoColList
+    Array[String] phenotype_names
     Boolean is_binary_traits
 
     File covarFile
@@ -183,6 +183,8 @@ task Regenie4Step1FitModel {
     String docker = "shengqh/regenie4:20241127"
   }
 
+  Array[String] loco_files = prefix("~{output_prefix}.", suffix(".loco", phenotype_names))
+
   Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB") * disk_size_factor) + 10
 
   Int final_memory_gb = select_first([memory_gb_override, memory_gb])
@@ -198,7 +200,7 @@ regenie --step 1 \
   ~{call_type} \
   --pgen ${pgen_prefix} \
   -p ~{phenoFile} \
-  --phenoColList ~{phenoColList} \
+  --phenoColList ~{sep=',' phenotype_names} \
   -c ~{covarFile} \
   --covarColList ~{covarColList} ~{"--catCovarList " + catCovarColList} \
   ~{step1_option} \
@@ -227,7 +229,7 @@ done < old.list
   }
   output {
     File pred_list_file = "~{output_prefix}_pred.list" 
-    Array[File] pred_loco_files = glob("*.loco")
+    Array[File] pred_loco_files = loco_files
   }
 }
 
@@ -241,7 +243,7 @@ task Regenie4Step2AssociationTest {
     Array[File] pred_loco_files
 
     File phenoFile
-    String phenoColList
+    Array[String] phenotype_names
     Boolean is_binary_traits
 
     File covarFile
@@ -286,7 +288,7 @@ regenie --step 2 \
   ~{call_type} ~{"--chr " + chromosome} \
   --pgen ${pgen_prefix} \
   -p ~{phenoFile} \
-  --phenoColList ~{phenoColList} \
+  --phenoColList ~{sep=',' phenotype_names}  \
   -c ~{covarFile} \
   --covarColList ~{covarColList} ~{"--catCovarList " + catCovarColList} \
   ~{step2_option} \
@@ -304,7 +306,7 @@ regenie --step 2 \
     memory: memory_gb + " GiB"
   }
   output {
-    Array[File] regenie_files = glob("~{output_prefix}*.regenie")
+    Array[File] regenie_files = prefix("~{output_prefix}_", suffix(".regenie", phenotype_names))
     File regenie_log_file = "~{output_prefix}.log"
   }
 }

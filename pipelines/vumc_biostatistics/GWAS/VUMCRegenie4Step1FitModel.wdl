@@ -1,6 +1,7 @@
-version 1.0
+version development-1.1
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
+import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils
 import "./GWASUtils.wdl" as GWASUtils
 
 workflow VUMCRegenie4Step1FitModel {
@@ -23,13 +24,20 @@ workflow VUMCRegenie4Step1FitModel {
     String? target_gcp_folder
   }
 
+  call WDLUtils.string_to_array as pheco_list {
+    input:
+      str = phenoColList,
+      delimiter = ","
+  }
+  Array[String] phenotype_names = pheco_list.arr  
+
   call GWASUtils.Regenie4Step1FitModel as RegenieStep1FitModel {
     input:
       input_pgen = pgen_file,
       input_pvar = pvar_file,
       input_psam = psam_file,
       phenoFile = phenoFile,
-      phenoColList = phenoColList,
+      phenotype_names = phenotype_names,
       is_binary_traits = is_binary_traits,
       covarFile = covarFile,
       covarColList = covarColList,
