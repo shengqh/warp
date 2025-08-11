@@ -71,6 +71,8 @@ workflow VUMCRegenie4Task4Regenie {
     #option of regenie for model fitting
     String step1_regenie_option="--loocv --bsize 1000 --lowmem"
     Int step1_block_size=1000
+    # Memory factor for step 1 based on ridge 0 estimation. ridge 1 might need more memory.
+    Float step1_memory_factor=1.5
 
     #option of regenie for testing
     String step2_regenie_option="--firth --approx --pThresh 0.01 --bsize 400"
@@ -138,7 +140,7 @@ workflow VUMCRegenie4Task4Regenie {
       catCovarColList = catCovarColList,
       output_prefix = output_prefix,
       step1_option = step1_regenie_option,
-      memory_gb = step1_memory_gb * 2 #Level 1 ridge and making predictions need much more memory than Level 0 ridge.
+      memory_gb = ceil(step1_memory_gb * step1_memory_factor) #Level 1 ridge and making predictions need much more memory than Level 0 ridge.
   }
 
   scatter(chrom_ind in chrom_indecies){

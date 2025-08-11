@@ -1,0 +1,15 @@
+{
+  "VUMCRegenie4Task4Regenie.model_pgen_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/qcv2/agd35k_afr.step1.pgen",
+  "VUMCRegenie4Task4Regenie.model_psam_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/qcv2/agd35k_afr.step1.psam",
+  "VUMCRegenie4Task4Regenie.model_pvar_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/qcv2/agd35k_afr.step1.pvar",
+  "VUMCRegenie4Task4Regenie.chromosomes": ["chr21", "chr22"],
+  "VUMCRegenie4Task4Regenie.test_pgen_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/qcv2/agd35k_afr.chr21.step2.pgen","/nobackup/h_cqs/shengq2/biovu/agd35k/qcv2/agd35k_afr.chr22.step2.pgen"],
+  "VUMCRegenie4Task4Regenie.test_psam_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/qcv2/agd35k_afr.chr21.step2.psam","/nobackup/h_cqs/shengq2/biovu/agd35k/qcv2/agd35k_afr.chr22.step2.psam"],
+  "VUMCRegenie4Task4Regenie.test_pvar_files": ["/nobackup/h_cqs/shengq2/biovu/agd35k/qcv2/agd35k_afr.chr21.step2.pvar","/nobackup/h_cqs/shengq2/biovu/agd35k/qcv2/agd35k_afr.chr22.step2.pvar"],
+  "VUMCRegenie4Task4Regenie.is_binary_traits": "true",
+  "VUMCRegenie4Task4Regenie.output_prefix": "agd35k_afr",
+  "VUMCRegenie4Task4Regenie.phenoFile": "/nobackup/h_cqs/shengq2/biovu/agd35k/AGD35K_RegenieSubset/AGD_35k_code_data_floor_binarized_wide_format_phecode_12_gwas.txt",
+  "VUMCRegenie4Task4Regenie.phenoColList": "250.2,250",
+  "VUMCRegenie4Task4Regenie.covarFile": "/nobackup/h_cqs/shengq2/biovu/agd35k/AGD35K_RegenieSubset/AGD35KcovariateList.txt",
+  "VUMCRegenie4Task4Regenie.covarColList": "Sex,Age,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10"
+}
