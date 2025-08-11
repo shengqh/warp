@@ -93,24 +93,24 @@ workflow VUMCRegenie4Task3PrepareModelPgen {
     String chromosome = chromosomes[old_ind]
 
     if(step1_prune){
-      call BioUtils.QCFilterAndPrunePgen as Step1FilterPrune {
+      call Plink2Utils.PgenFilterAndPrune as Step1FilterPrune {
         input:
           input_pgen = pgen_file,
           input_pvar = pvar_file,
           input_psam = psam_file,
-          qc_filter_option = step1_plink2_option,
+          plink2_filter_option = step1_plink2_option,
           indep_pairwise_option = step1_prune_option,
           output_prefix = output_prefix + "." + chromosome + ".step1"
       }
     }
     
     if(!step1_prune){
-      call BioUtils.QCFilterPgen as Step1Filter {
+      call Plink2Utils.PgenFilter as Step1Filter {
         input:
           input_pgen = pgen_file,
           input_pvar = pvar_file,
           input_psam = psam_file,
-          qc_filter_option = step1_plink2_option,
+          plink2_filter_option = step1_plink2_option,
           output_prefix = output_prefix + "." + chromosome + ".step1"
       }
     }
