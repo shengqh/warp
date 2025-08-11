@@ -53,6 +53,14 @@ workflow VUMCRegenie4Task2PrepareTestPgen {
     
     String step2_plink2_option="--geno 0.05 --maf 0.01 --max-alleles 2"
 
+    # for EUR cohort, 1.5 size_factor with addtional 10G is sufficient for default filter "--geno 0.05 --maf 0.01 --max-alleles 2"
+    # for AFR cohort, 1.2 size_factor with addtional 10G is sufficient for default filter "--geno 0.05 --maf 0.01 --max-alleles 2"
+    disk_size_factor = 1.5
+    additional_disk_gb = 10
+
+    # for both EUR and AFR cohort, 16G memory is sufficient for default filter "--geno 0.05 --maf 0.01 --max-alleles 2"
+    memory_gb = 16
+
     String? target_gcp_folder
   }
 
@@ -73,12 +81,9 @@ workflow VUMCRegenie4Task2PrepareTestPgen {
         filter_psam_file = filter_psam_file,
         qc_filter_option = step2_plink2_option,
         output_prefix = output_prefix + "." + chromosome + ".step2",
-        # for EUR cohort, 1.5 size_factor with addtional 10G is sufficient for default filter "--geno 0.05 --maf 0.01 --max-alleles 2"
-        # for AFR cohort, 1.2 size_factor with addtional 10G is sufficient for default filter "--geno 0.05 --maf 0.01 --max-alleles 2"
-        disk_size_factor = 1.5, 
-        additional_disk_gb = 10,
-        # for both EUR and AFR cohort, 13G memory is sufficient for default filter "--geno 0.05 --maf 0.01 --max-alleles 2"
-        memory_gb = 13 
+        disk_size_factor = disk_size_factor, 
+        memory_gb = memory_gb,
+        additional_disk_gb = additional_disk_gb,
     }
   }
 
