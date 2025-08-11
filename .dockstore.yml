@@ -169,14 +169,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPgenFilter.wdl
 
-  - name: VUMCPlink2FilterPgen
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2FilterPgen.wdl
-
-  - name: VUMCPlink2FilterPgenByPvar
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/plink/VUMCPlink2FilterPgenByPvar.wdl
-
   - name: VUMCHailMatrixExtractSamples
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCHailMatrixExtractSamples.wdl
