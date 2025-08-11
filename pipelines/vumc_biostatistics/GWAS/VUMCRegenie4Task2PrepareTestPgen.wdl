@@ -55,11 +55,11 @@ workflow VUMCRegenie4Task2PrepareTestPgen {
 
     # for EUR cohort, 1.5 size_factor with addtional 10G is sufficient for default filter "--geno 0.05 --maf 0.01 --max-alleles 2"
     # for AFR cohort, 1.2 size_factor with addtional 10G is sufficient for default filter "--geno 0.05 --maf 0.01 --max-alleles 2"
-    disk_size_factor = 1.5
-    additional_disk_gb = 10
+    Float disk_size_factor = 1.5
+    Int additional_disk_gb = 10
 
     # for both EUR and AFR cohort, 16G memory is sufficient for default filter "--geno 0.05 --maf 0.01 --max-alleles 2"
-    memory_gb = 16
+    Int memory_gb = 16
 
     String? target_gcp_folder
   }
