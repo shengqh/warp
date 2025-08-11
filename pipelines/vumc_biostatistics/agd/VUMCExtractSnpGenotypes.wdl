@@ -92,7 +92,7 @@ workflow VUMCExtractSnpGenotypes {
     File psam_file = input_psam_files[old_ind]
     String chromosome = chromosomes[old_ind]
 
-    call Plink2Utils.Plink2FilterPgen as Plink2FilterPgen {
+    call Plink2Utils.PgenFilter as Plink2FilterPgen {
       input:
         input_pgen = pgen_file,
         input_pvar = pvar_file,

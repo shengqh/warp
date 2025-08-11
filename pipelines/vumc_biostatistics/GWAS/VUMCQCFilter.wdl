@@ -1,7 +1,7 @@
 version 1.0
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
-import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
+import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
 
 workflow VUMCQCFilter {
   input {
@@ -16,13 +16,13 @@ workflow VUMCQCFilter {
     String? target_gcp_folder
   }
 
-  call BioUtils.PgenQCFilter {
+  call Plink2Utils.PgenFilter as PgenQCFilter {
     input:
       input_pgen = input_pgen,
       input_pvar = input_pvar,
       input_psam = input_psam,
       output_prefix = output_prefix,
-      qc_option = qc_option
+      plink2_filter_option = qc_option
   }
 
   if(defined(target_gcp_folder)){

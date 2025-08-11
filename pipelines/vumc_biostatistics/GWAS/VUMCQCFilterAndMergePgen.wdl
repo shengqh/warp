@@ -28,13 +28,13 @@ workflow VUMCQCFilterAndMergePgen {
     File psam_file = psam_files[i]
     String cur_output_prefix = output_prefix + "." + chromosome
 
-    call BioUtils.QCFilterPgen {
+    call Plink2Utils.PgenFilter as QCFilterPgen {
       input:
         input_pgen = pgen_file,
         input_pvar = pvar_file,
         input_psam = psam_file,
         output_prefix = cur_output_prefix,
-        qc_filter_option = qc_option
+        plink2_filter_option = qc_option
     }
   }
 

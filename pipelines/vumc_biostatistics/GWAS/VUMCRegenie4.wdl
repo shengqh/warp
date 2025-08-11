@@ -72,12 +72,12 @@ workflow VUMCRegenie4 {
 
   if(defined(step2_plink2_option)){
     if (step2_plink2_option != ""){
-      call BioUtils.QCFilterPgen as Step2Filter {
+      call Plink2Utils.PgenFilter as Step2Filter {
         input:
           input_pgen = input_pgen,
           input_pvar = input_pvar,
           input_psam = input_psam,
-          qc_filter_option = select_first([step2_plink2_option]),
+          plink2_filter_option = select_first([step2_plink2_option]),
           output_prefix = output_prefix + ".step2"
       }
     }
@@ -105,24 +105,24 @@ workflow VUMCRegenie4 {
 
   if(!defined(qc_pgen)){
     if(step1_prune){
-      call BioUtils.QCFilterAndPrunePgen as Step1FilterPrune {
+      call Plink2Utils.PgenFilterAndPrune as Step1FilterPrune {
         input:
           input_pgen = input_pgen,
           input_pvar = input_pvar,
           input_psam = input_psam,
-          qc_filter_option = step1_plink2_option,
+          plink2_filter_option = step1_plink2_option,
           indep_pairwise_option = step1_prune_option,
           output_prefix = output_prefix + ".step1"
       }
     }
     
     if(!step1_prune){
-      call BioUtils.QCFilterPgen as Step1Filter {
+      call Plink2Utils.PgenFilter as Step1Filter {
         input:
           input_pgen = input_pgen,
           input_pvar = input_pvar,
           input_psam = input_psam,
-          qc_filter_option = step1_plink2_option,
+          plink2_filter_option = step1_plink2_option,
           output_prefix = output_prefix + ".step1"
       }
     }
