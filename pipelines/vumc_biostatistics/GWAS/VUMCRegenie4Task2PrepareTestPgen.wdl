@@ -37,7 +37,7 @@ version 1.0
 
 import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
-import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
+import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
 
 workflow VUMCRegenie4Task2PrepareTestPgen {
   input {
@@ -53,14 +53,6 @@ workflow VUMCRegenie4Task2PrepareTestPgen {
     
     String step2_plink2_option="--geno 0.05 --maf 0.01 --max-alleles 2"
 
-    # for EUR cohort, 1.5 size_factor with addtional 10G is sufficient for default filter "--geno 0.05 --maf 0.01 --max-alleles 2"
-    # for AFR cohort, 1.2 size_factor with addtional 10G is sufficient for default filter "--geno 0.05 --maf 0.01 --max-alleles 2"
-    Float disk_size_factor = 1.5
-    Int additional_disk_gb = 10
-
-    # for both EUR and AFR cohort, 16G memory is sufficient for default filter "--geno 0.05 --maf 0.01 --max-alleles 2"
-    Int memory_gb = 16
-
     String? target_gcp_folder
   }
 
@@ -73,17 +65,14 @@ workflow VUMCRegenie4Task2PrepareTestPgen {
     File psam_file = input_psam_files[chrom_ind]
     String chromosome = chromosomes[chrom_ind]
 
-    call BioUtils.QCFilterPgen as Step2Filter {
+    call Plink2Utils.PgenFilter as Step2Filter {
       input:
         input_pgen = pgen_file,
         input_pvar = pvar_file,
         input_psam = psam_file,
-        filter_psam_file = filter_psam_file,
-        qc_filter_option = step2_plink2_option,
-        output_prefix = output_prefix + "." + chromosome + ".step2",
-        disk_size_factor = disk_size_factor, 
-        memory_gb = memory_gb,
-        additional_disk_gb = additional_disk_gb
+        keep_psam = filter_psam_file,
+        plink2_filter_option = step2_plink2_option,
+        output_prefix = output_prefix + "." + chromosome + ".step2"
     }
   }
 
