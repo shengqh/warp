@@ -83,7 +83,7 @@ workflow VUMCRegenie4Task2PrepareTestPgen {
         output_prefix = output_prefix + "." + chromosome + ".step2",
         disk_size_factor = disk_size_factor, 
         memory_gb = memory_gb,
-        additional_disk_gb = additional_disk_gb,
+        additional_disk_gb = additional_disk_gb
     }
   }
 
