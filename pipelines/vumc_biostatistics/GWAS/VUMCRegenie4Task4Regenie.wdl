@@ -42,6 +42,7 @@ version 1.0
 
 import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
+import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
 import "../../../tasks/vumc_biostatistics/order_files_by_strings.wdl" as order_files_by_strings
 
 import "./GWASUtils.wdl" as GWASUtils
@@ -57,6 +58,9 @@ workflow VUMCRegenie4Task4Regenie {
     File model_pgen_file
     File model_pvar_file
     File model_psam_file
+
+    Boolean? filter_model_by_mac = false
+    String? filter_model_plink2_option_no_mac
 
     File phenoFile
     String phenoColList
@@ -127,11 +131,28 @@ workflow VUMCRegenie4Task4Regenie {
 
   Int step1_memory_gb = Regenie4MemoryEstimation.step1_memory_gb
 
+  if(defined(filter_model_by_mac)){
+    call BioUtils.FilterVariantsForModelling as GetVariants {
+      input:
+        phenoFile = phenoFile,
+        phenoColList = phenoColList,
+        covarFile = covarFile,
+        covarColList = covarColList,
+        catCovarColList = catCovarColList,
+        filter_model_plink2_option_no_mac = select_first([filter_model_plink2_option_no_mac]),
+        model_pgen_file = model_pgen_file,
+        model_pvar_file = model_pvar_file,
+        model_psam_file = model_psam_file,
+        output_prefix = output_prefix
+    }
+  }
+
   call GWASUtils.Regenie4Step1FitModel as RegenieStep1FitModel {
     input:
       input_pgen = model_pgen_file,
       input_pvar = model_pvar_file,
       input_psam = model_psam_file,
+      snp_list = GetVariants.output_snp_list,
       phenoFile = phenoFile,
       phenoColList = phenoColList,
       is_binary_traits = is_binary_traits,
