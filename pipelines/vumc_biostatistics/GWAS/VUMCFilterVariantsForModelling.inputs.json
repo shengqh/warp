@@ -1,0 +1,12 @@
+{
+  "VUMCFilterVariantsForModelling.model_pgen_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/qcv2/agd35k_afr.step1.pgen",
+  "VUMCFilterVariantsForModelling.model_psam_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/qcv2/agd35k_afr.step1.psam",
+  "VUMCFilterVariantsForModelling.model_pvar_file": "/nobackup/h_cqs/shengq2/biovu/agd35k/qcv2/agd35k_afr.step1.pvar",
+  "VUMCFilterVariantsForModelling.step1_regenie_option": "--maf 0.01 --geno 0.1 --hwe 1e-15 --mind 0.1 --snps-only --not-chr 23-27 --max-alleles 2",
+  "VUMCFilterVariantsForModelling.phenoFile": "/nobackup/h_cqs/shengq2/biovu/agd35k/AGD35K_RegenieSubset/AGD_35k_code_data_floor_binarized_wide_format_phecode_12_gwas.txt",
+  "VUMCFilterVariantsForModelling.phenoColList": "250.2,250",
+  "VUMCFilterVariantsForModelling.covarFile": "/nobackup/h_cqs/shengq2/biovu/agd35k/AGD35K_RegenieSubset/AGD35KcovariateList.txt",
+  "VUMCFilterVariantsForModelling.covarColList": "Sex,Age,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10",
+  "VUMCFilterVariantsForModelling.output_prefix": "agd35k_afr"
+}
+
