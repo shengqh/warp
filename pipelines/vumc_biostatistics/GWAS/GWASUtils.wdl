@@ -117,6 +117,8 @@ task Regenie4Step1FitModel {
     File input_pvar
     File input_psam
 
+    File? snp_list
+
     File phenoFile
     String phenoColList
     Boolean is_binary_traits
@@ -200,7 +202,7 @@ regenie --step 1 \
   -p ~{phenoFile} \
   --phenoColList ~{phenoColList} \
   -c ~{covarFile} \
-  --covarColList ~{covarColList} ~{"--catCovarList " + catCovarColList} \
+  --covarColList ~{covarColList} ~{"--catCovarList " + catCovarColList} ~{"--extract " + snp_list} \
   ~{step1_option} \
   --threads ~{cpu} \
   --out ~{output_prefix} \
