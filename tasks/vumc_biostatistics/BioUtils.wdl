@@ -803,3 +803,114 @@ echo `date`: done.
   }
 }
 
+task FilterVariantsForModelling {
+  input {
+    File phenoFile
+    String phenoColList
+    File covarFile
+    String covarColList
+    String? catCovarColList
+
+    String filter_model_plink2_option_no_mac
+
+    File model_pgen_file
+    File model_psam_file
+    File model_pvar_file
+
+    String output_prefix
+
+    String docker = "shengqh/plink_1.9_2.0:20250304"
+  }
+  
+  Int disk_size = ceil(size([model_pgen_file, model_psam_file, model_pvar_file, phenoFile, covarFile], "GB")) + 5
+
+  command <<<
+#!/bin/bash
+
+set -e
+
+cat <<EOF> get_variants.py 
+#! /usr/bin/env python3
+import re
+
+phenoFile = "~{phenoFile}"
+covarFile = "~{covarFile}"
+phenoColList = "~{phenoColList}"
+covarColList = "~{covarColList}"
+catCovarColList = "~{catCovarColList}"
+output_prefix = "~{output_prefix}"
+
+fn_samlist_non_na = "samplelist.psam"
+
+phenoColList_l = phenoColList.split(',')
+covarColList_l = covarColList.split(',') if covarColList != "" else []
+catCovarColList_l = catCovarColList.split(',') if catCovarColList != "" else []
+
+if covarFile != phenoFile:
+    id_selected = set()
+    with open(covarFile) as f:
+        header = f.readline().rstrip('\n\r').split('\t')
+        idIdx = header.index('IID')
+        covarColIdx = [header.index(x) for x in covarColList_l]
+        catCovarColIdx = [header.index(x) for x in catCovarColList_l]
+        all_covarColIdx = covarColIdx + catCovarColIdx
+        for line in f:
+            line = line.rstrip('\n\r').split('\t')
+            if all(line[i].upper() not in {'', 'NA', 'NAN'} for i in all_covarColIdx):
+                id_selected.add(line[idIdx])
+else:
+    id_selected = None
+
+with open(phenoFile) as f, open(fn_samlist_non_na, 'w') as out:
+    header = f.readline().rstrip('\n\r').split('\t')
+    phenoColIdx = [header.index(x) for x in phenoColList_l]
+    idIdx = [header.index(x) for x in ['FID', 'IID']]
+    print('#FID\tIID', file=out)
+    n_kept = 0
+    n_total = 0
+    for line in f:
+        n_total += 1
+        line = line.rstrip('\n\r').split('\t')
+        if (id_selected is None or line[idIdx[1]] in id_selected) and all(line[i].upper() not in {'', 'NA', 'NAN'} for i in phenoColIdx):
+            print('\t'.join([line[i] for i in idIdx]), file=out)
+            n_kept += 1
+
+print(f'total sample input = {n_total}, sample with non-missing phenotype and covariates = {n_kept}')
+min_ac_in_use = 2 if n_kept < 200 else 5 if n_kept < 500 else 10
+
+# Plink2 QC command before regenie step 1
+plink_qc_cmd = f"""
+plink2 \\
+    --pgen ~{model_pgen_file} \\
+    --psam ~{model_psam_file} \\
+    --pvar ~{model_pvar_file} \\
+    --keep {fn_samlist_non_na} \\
+    ~{filter_model_plink2_option_no_mac} \\
+    --mac {min_ac_in_use} \\
+    --write-snplist  --no-id-header \\
+    --out {output_prefix}.model
+"""
+
+with open("filter.sh", "w") as file:
+    file.writelines(plink_qc_cmd)
+
+EOF
+
+python3 get_variants.py 
+
+bash filter.sh
+
+>>>
+
+  runtime {
+    cpu: 1
+    docker: docker
+    preemptible: 1
+    disks: "local-disk " + disk_size + " HDD"
+    memory: "10 GiB"
+  }
+
+  output {
+    File output_snp_list = "~{output_prefix}.model.snplist"
+  }
+}
