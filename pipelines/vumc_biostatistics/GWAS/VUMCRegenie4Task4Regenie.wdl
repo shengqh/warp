@@ -59,7 +59,7 @@ workflow VUMCRegenie4Task4Regenie {
     File model_pvar_file
     File model_psam_file
 
-    Boolean? filter_model_by_mac = false
+    Boolean filter_model_by_mac = false
     String? filter_model_plink2_option_no_mac
 
     File phenoFile
@@ -131,7 +131,7 @@ workflow VUMCRegenie4Task4Regenie {
 
   Int step1_memory_gb = Regenie4MemoryEstimation.step1_memory_gb
 
-  if(defined(filter_model_by_mac)){
+  if(filter_model_by_mac){
     call BioUtils.FilterVariantsForModelling as GetVariants {
       input:
         phenoFile = phenoFile,
