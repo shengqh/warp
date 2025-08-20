@@ -1,0 +1,8 @@
+{
+  "VUMCRegenie4Task1CreateCohortPsam.input_ancestry": "AFR",
+  "VUMCRegenie4Task1CreateCohortPsam.input_ancestry_file": "/nobackup/h_cqs/shengq2/biovu/20250820_agd250k_ancestry_v6/20250820_agd250k_v6_202504_ancestry.unsupervised_0.5.txt",
+  "VUMCRegenie4Task1CreateCohortPsam.input_psam": "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chr20.primary_pass.psam",
+  "VUMCRegenie4Task1CreateCohortPsam.remove_grid_file": "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/test_grid.txt",
+  "VUMCRegenie4Task1CreateCohortPsam.output_prefix": "agd250k_AFR"
+}
+

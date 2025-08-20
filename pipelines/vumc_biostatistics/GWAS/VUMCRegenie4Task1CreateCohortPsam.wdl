@@ -39,6 +39,8 @@ workflow VUMCRegenie4Task1CreateCohortPsam {
   input {
     File input_psam
 
+    File? remove_grid_file
+
     File? input_grid
     Int input_grid_column = 0
 
@@ -56,6 +58,7 @@ workflow VUMCRegenie4Task1CreateCohortPsam {
       input_psam = input_psam,
       input_grid = input_grid,
       input_grid_column = input_grid_column,
+      remove_grid_file = remove_grid_file,
       input_ancestry = input_ancestry,
       input_ancestry_column = input_ancestry_column,
       input_ancestry_file = input_ancestry_file,

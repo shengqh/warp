@@ -72,6 +72,8 @@ task CreateCohortPsam {
     File? input_grid
     Int input_grid_column = 0
 
+    File? remove_grid_file
+
     String? input_ancestry
     String input_ancestry_column="ANCESTRY" #"supervised_ancestry_cluster" for original ancestry file
     File? input_ancestry_file
@@ -84,6 +86,11 @@ task CreateCohortPsam {
 cat <<CODE> script.py
 
 import os
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 # Ensure required inputs are provided
 if "~{input_grid}" == "" and ("~{input_ancestry}" == "" or "~{input_ancestry_file}" == ""):
@@ -100,7 +107,7 @@ if "~{input_grid}" != "":
             columns = line.rstrip().split('\t')
             if len(columns) > ~{input_grid_column}:
                 grids.add(columns[~{input_grid_column}])
-print(f"Grids from grid file: {len(grids)}")
+logger.info(f"Grids from grid file: {len(grids)}")
 
 # Read the ancenstry file and store the GRID in a set 
 ancestry_grids = set()
@@ -116,7 +123,7 @@ if "~{input_ancestry}" != "":
                     columns = line.rstrip().split('\t')
                     if len(columns) > ancestry_index and columns[ancestry_index] == "~{input_ancestry}":
                         ancestry_grids.add(columns[1])
-print(f"Grids from ancestry file: {len(ancestry_grids)}")
+logger.info(f"Grids from ancestry file: {len(ancestry_grids)}")
 
 # generate final grids
 if has_grid_file and has_ancestry_file:
@@ -124,8 +131,18 @@ if has_grid_file and has_ancestry_file:
 elif has_ancestry_file:
     grids = ancestry_grids
 
+delete_grids = set()
+if "~{remove_grid_file}" != "":
+    logger.info(f"Removing grid in ~{remove_grid_file} ...")
+    with open("~{remove_grid_file}", "rt") as fin:
+        for line in fin:
+            delete_grids.add(line.rstrip())
+    grids = grids - delete_grids
+
 if len(grids) == 0:
     raise ValueError("No grid found.")
+
+logger.info(f"Candidate grids: {len(grids)}")
 
 # Open the input PSAM file and the output file
 output_file = "~{output_prefix}.psam"
@@ -139,6 +156,8 @@ with open("~{input_psam}", "rt") as fin, open(output_file, "wt") as fout:
             columns = line.split('\t')
             if columns[1] in grids:
                 fout.write(line)
+
+logger.info("Finished writing PSAM file to ~{output_prefix}.psam")
 
 CODE
 
