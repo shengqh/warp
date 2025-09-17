@@ -61,7 +61,7 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCAgdPathogenicVariantInGeneToPvar {
   input {
-    String annovar_url='working-set-385118.agd250k.annovar_pvar_clinvar20250721'
+    String annovar_url='working-set-385118.agd250k.cb_clinvar_variant'
 
     String input_genes_url
     String output_prefix
@@ -141,9 +141,7 @@ FROM
 WHERE 
     anno.Gene_refGene = g.GENE 
     and 
-    (anno.CLNSIG = 'Pathogenic/Likely_pathogenic' or 
-     anno.CLNSIG = 'Pathogenic' or 
-     anno.CLNSIG = 'Likely_pathogenic') 
+    anno.CLNSIG LIKE '%athogenic%'
     and
     (anno.CLNREVSTAT = 'criteria_provided,_multiple_submitters,_no_conflicts' or 
      anno.CLNREVSTAT = 'reviewed_by_expert_panel' or 
