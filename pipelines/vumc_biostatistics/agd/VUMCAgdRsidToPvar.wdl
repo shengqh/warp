@@ -14,8 +14,8 @@ version 1.0
 ## 2. Optionally copy the output PVAR file to a specified GCP folder.
 ##
 ## ### Inputs:
-## - annovar_url: BigQuery table URL for Annovar data (default: working-set-385118.agd250k.annovar_pvar)
-## - input_rsid_url: GCS path to file containing RSIDs to query, with column name "RSID"
+## - annovar_url: BigQuery table URL for Annovar data (default: working-set-385118.agd250k.cb_avsnp_variant)
+## - input_rsid_url: GCS path to file containing RSIDs to query, with column name "RSID" or without column name
 ## - output_prefix: Prefix for output files
 ## - target_gcp_folder: Optional target GCP folder for the output file
 ##
@@ -88,7 +88,9 @@ external_config.schema = [
     bigquery.SchemaField("RSID", "STRING"),
 ]
 assert external_config.csv_options is not None
-external_config.csv_options.skip_leading_rows = 1
+
+# Even if there is header, using it in query will get identical result as removing it, so just pretend it is a unmatchable rsid.
+external_config.csv_options.skip_leading_rows = 0
 
 print(f"annovar_url: ~{annovar_url}")
 
