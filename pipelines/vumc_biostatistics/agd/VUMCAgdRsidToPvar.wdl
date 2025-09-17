@@ -30,7 +30,7 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCAgdRsidToPvar {
   input {
-    String annovar_url='working-set-385118.agd250k.annovar_pvar_clinvar20250721'
+    String annovar_url='working-set-385118.agd250k.cb_avsnp_variant'
 
     String input_rsid_url
     String output_prefix
