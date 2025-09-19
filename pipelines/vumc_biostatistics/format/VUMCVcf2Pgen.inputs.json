@@ -1,0 +1,6 @@
+{
+  "VUMCVcf2Pgen.input_vcf": "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-msvcf/agd250k_chrM.primary_pass.vcf.gz",
+  "VUMCVcf2Pgen.input_vcf_index": "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-msvcf/agd250k_chrM.primary_pass.vcf.gz.tbi",
+  "VUMCVcf2Pgen.output_prefix": "agd250k_chrM.primary_pass"
+}
+

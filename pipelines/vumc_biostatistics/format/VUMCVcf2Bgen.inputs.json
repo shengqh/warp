@@ -1,8 +1,8 @@
 {
-  "VUMCVcf2Bgen.input_vcf": "/nobackup/h_cqs/shengq2/biovu/agd163k/primary-pass-vcf/agd163k_chrM.primary_pass.vcf.gz",
-  "VUMCVcf2Bgen.input_vcf_index": "/nobackup/h_cqs/shengq2/biovu/agd163k/primary-pass-vcf/agd163k_chrM.primary_pass.vcf.gz.tbi",
-  "VUMCVcf2Bgen.input_psam": "/nobackup/h_cqs/shengq2/biovu/agd163k/primary-pass-pgen/agd163k_chrM.primary_pass.psam",
-  "VUMCVcf2Bgen.output_prefix": "agd163k_chrM.primary_pass",
+  "VUMCVcf2Bgen.input_vcf": "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-msvcf/agd250k_chrM.primary_pass.vcf.gz",
+  "VUMCVcf2Bgen.input_vcf_index": "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-msvcf/agd250k_chrM.primary_pass.vcf.gz.tbi",
+  "VUMCVcf2Bgen.output_prefix": "agd250k_chrM.primary_pass",
+  "VUMCVcf2Bgen.input_psam": "/nobackup/h_cqs/shengq2/biovu/agd250k/primary-pass-pgen/agd250k_chrM.primary_pass.psam",
   "VUMCVcf2Bgen.chromosome": "chrM"
 }
 
