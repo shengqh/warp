@@ -528,3 +528,7 @@ workflows:
   - name: VUMCUpdateFilesInDataTableNoValidation
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCUpdateFilesInDataTableNoValidation.wdl
+
+  - name: VUMCHLAGenotyping
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/hla/VUMCHLAGenotyping.wdl

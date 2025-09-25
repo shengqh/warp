@@ -1,0 +1,16 @@
+{
+  "VUMCHLAGenotyping.sample_name": "100022391",
+  "VUMCHLAGenotyping.original_bam": "/nobackup/h_cqs/shengq2/biovu/AGD5000/data/100022391.cram",
+  "VUMCHLAGenotyping.original_bam_idx": "/nobackup/h_cqs/shengq2/biovu/AGD5000/data/100022391.cram.crai",
+  "VUMCHLAGenotyping.convert_alleles_python_script": "/nobackup/h_cqs/shengq2/program/warp/all_of_us/hla/convert_to_g_group.py",
+  "VUMCHLAGenotyping.count_two_field_alleles_python_script": "/nobackup/h_cqs/shengq2/program/warp/all_of_us/hla/detect_two_field.py",
+  "VUMCHLAGenotyping.gatk_docker": "us.gcr.io/broad-gatk/gatk",
+  "VUMCHLAGenotyping.hla_groups_file": "/data/cqs/references/hla/hla_genotype_wdl/hla_nom_g.txt",
+  "VUMCHLAGenotyping.hla_intervals": "/data/cqs/references/hla/hla_genotype_wdl/hg38_chr6_hla_region.bed",
+  "VUMCHLAGenotyping.hlahd_docker": "gcr.io/broad-dsde-methods/aou-auxiliary/hla/hlahd",
+  "VUMCHLAGenotyping.optitype_docker": "gcr.io/broad-dsde-methods/aou-auxiliary/hla/optitype",
+  "VUMCHLAGenotyping.polysolver_docker": "gcr.io/broad-dsde-methods/aou-auxiliary/hla/polysolver",
+  "VUMCHLAGenotyping.ref_dict": "/nobackup/h_cqs/shengq2/biovu/dragen/ica/hg38.dict",
+  "VUMCHLAGenotyping.ref_fai": "/nobackup/h_cqs/shengq2/biovu/dragen/ica/hg38.fa.fai",
+  "VUMCHLAGenotyping.ref_fasta": "/nobackup/h_cqs/shengq2/biovu/dragen/ica/hg38.fa"
+}
