@@ -187,18 +187,17 @@ task MakeHLAOnlyBamsAndFastqs {
         echo "We are running ValidateSamFile on the output of PrintReads:"
         gatk ValidateSamFile -I hla-unsorted.bam
 
-        samtools sort -@ ~{num_threads} hla-unsorted.bam > ~{sample_name}.hla.bam
+        samtools sort --threads ~{num_threads} hla-unsorted.bam > ~{sample_name}.hla.bam
 
         # using gatk instead of samtools for indexing avoids ERROR:INVALID_INDEX_FILE_POINTER in the output
         # of ValidateSamFile.  I'm not sure what that means or if it's important, but might as well not have it.
         gatk BuildBamIndex -I ~{sample_name}.hla.bam
-        #samtools index -@ ~{num_threads} hla.bam > hla.bai
 
         echo "We are running ValidateSamFile on the output of samtools sorting and re-indexing"
         gatk ValidateSamFile -I ~{sample_name}.hla.bam
 
         # The "*" MUST be in quotes.  -T "*" indicates that all tags are copied to output.
-        samtools fastq -@ ~{num_threads} -n -T "*" -0 /dev/null -1 first_end.fq -2 second_end.fq ~{sample_name}.hla.bam
+        samtools fastq --threads ~{num_threads} -n -T "*" -0 /dev/null -1 first_end.fq -2 second_end.fq ~{sample_name}.hla.bam
     >>>
 
     runtime {

@@ -774,7 +774,7 @@ task VcfIndexAndInfo {
 ln -s ~{input_vcf} ~{target_vcf}
 
 echo `date`: tabix ...
-tabix -@ ~{cpu} -p vcf ~{target_vcf}
+tabix --threads ~{cpu} -p vcf ~{target_vcf}
 
 echo `date`: bcftools query number of samples ...
 bcftools query -l ~{target_vcf} > ~{output_sample_file}
