@@ -145,8 +145,8 @@ workflow VUMCExomeGermlineSingleSampleFromFastqLessQC {
 
         validate_cram_file_report = broad.validate_cram_file_report,
 
-        output_vcf = broad.output_vcf,
-        output_vcf_index = broad.output_vcf_index,
+        output_vcf = broad.output_gvcf,
+        output_vcf_index = broad.output_gvcf_index,
     }
   }
 
@@ -183,8 +183,8 @@ workflow VUMCExomeGermlineSingleSampleFromFastqLessQC {
 
     File validate_cram_file_report = select_first([mf.target_validate_cram_file_report, broad.validate_cram_file_report])
 
-    File output_gvcf = select_first([mf.target_output_vcf, broad.output_vcf])
-    File output_gvcf_index = select_first([mf.target_output_vcf_index, broad.output_vcf_index])
+    File output_gvcf = select_first([mf.target_output_vcf, broad.output_gvcf])
+    File output_gvcf_index = select_first([mf.target_output_vcf_index, broad.output_gvcf_index])
   }
   meta {
     allowNestedInputs: true
