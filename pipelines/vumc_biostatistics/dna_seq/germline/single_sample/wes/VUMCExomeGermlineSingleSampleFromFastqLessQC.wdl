@@ -23,10 +23,14 @@ version 1.0
 ## licensing information pertaining to the included programs.
 
 ## By Quanhu Sheng
+## 
 ## Some samples always failed at QC converting unmapped bam to bam, so I remove the following tasks:
 ## CollectUnsortedReadgroupBamQualityMetrics
 ## CrossCheckFingerprints
 ## CheckContamination
+## 
+## Since the output files are actually gVCF file, I rename the output_vcf to output_gvcf
+## and output_vcf_index to output_gvcf_index
 
 import "../../../../../../tasks/vumc_biostatistics/PairedFastQsToUnmappedBAM.wdl" as ToUnmappedBam
 import "./VUMCExomeGermlineSingleSample.wdl" as VUMCPipeline
@@ -179,8 +183,8 @@ workflow VUMCExomeGermlineSingleSampleFromFastqLessQC {
 
     File validate_cram_file_report = select_first([mf.target_validate_cram_file_report, broad.validate_cram_file_report])
 
-    File output_vcf = select_first([mf.target_output_vcf, broad.output_vcf])
-    File output_vcf_index = select_first([mf.target_output_vcf_index, broad.output_vcf_index])
+    File output_gvcf = select_first([mf.target_output_vcf, broad.output_vcf])
+    File output_gvcf_index = select_first([mf.target_output_vcf_index, broad.output_vcf_index])
   }
   meta {
     allowNestedInputs: true

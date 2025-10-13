@@ -147,8 +147,8 @@ workflow VUMCExomeGermlineSingleSampleFromFastq {
 
     File validate_cram_file_report = broad.validate_cram_file_report
 
-    File output_vcf = broad.output_vcf
-    File output_vcf_index = broad.output_vcf_index
+    File output_gvcf = broad.output_vcf
+    File output_gvcf_index = broad.output_vcf_index
   }
   meta {
     allowNestedInputs: true

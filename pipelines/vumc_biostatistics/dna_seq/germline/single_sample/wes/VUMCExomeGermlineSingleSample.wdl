@@ -199,8 +199,8 @@ workflow VUMCExomeGermlineSingleSampleNoQC {
 
     File validate_cram_file_report = BamToCram.validate_cram_file_report
 
-    File output_vcf = BamToGvcf.output_vcf
-    File output_vcf_index = BamToGvcf.output_vcf_index
+    File output_gvcf = BamToGvcf.output_vcf
+    File output_gvcf_index = BamToGvcf.output_vcf_index
   }
   meta {
     allowNestedInputs: true
