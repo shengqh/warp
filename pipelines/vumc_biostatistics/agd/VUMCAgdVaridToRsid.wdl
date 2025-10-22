@@ -1,26 +1,26 @@
 version 1.0
-## VUMC AGD RSID to PVAR Workflow
+## VUMC AGD VARID to RSID Workflow
 ##
-## This workflow converts a list of RSIDs to a PVAR file by querying the AGD BigQuery database.
+## This workflow converts a list of variant IDs to RSIDs by querying the AGD BigQuery database.
 ## Developed by VUMC Biostatistics for genetic analysis projects.
 ## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
 ##
 ## ### Workflow Purpose:
-## This pipeline queries a BigQuery Annovar table to extract variant information from AGD based on input RSIDs,
-## and produces a PVAR file as output.
+## This pipeline queries a BigQuery Annovar table to extract RSID information from AGD based on input variant IDs,
+## and produces a CSV file mapping variant IDs to RSIDs as output.
 ##
 ## ### Workflow Steps:
-## 1. AgdRsidToPvar: Query BigQuery Annovar table using input RSIDs to generate a PVAR file.
-## 2. Optionally copy the output PVAR file to a specified GCP folder.
+## 1. AgdVaridToRsid: Query BigQuery Annovar table using input variant IDs to generate a CSV file with RSID mappings.
+## 2. Optionally copy the output CSV file to a specified GCP folder.
 ##
 ## ### Inputs:
 ## - annovar_url: BigQuery table URL for Annovar data (default: working-set-385118.agd250k.cb_avsnp_variant)
-## - input_rsid_url: GCS path to file containing RSIDs to query, with column name "RSID" or without column name
+## - input_varid_url: GCS path to file containing variant IDs to query, with column name "VARIANT_ID"
 ## - output_prefix: Prefix for output files
 ## - target_gcp_folder: Optional target GCP folder for the output file
 ##
 ## ### Outputs:
-## - output_pvar: Path to the output PVAR file containing variant information
+## - output_rsid_csv: Path to the output CSV file containing variant ID to RSID mappings
 ##
 ## ### Notes:
 ## - Uses GcpUtils for file copy operations.
