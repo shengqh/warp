@@ -532,3 +532,7 @@ workflows:
   - name: VUMCHLAGenotyping
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/hla/VUMCHLAGenotyping.wdl
+
+  - name: VUMCAgdVaridToRsid
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCAgdVaridToRsid.wdl
