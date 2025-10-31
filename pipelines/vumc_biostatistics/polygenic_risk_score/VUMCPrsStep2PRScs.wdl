@@ -169,11 +169,13 @@ task EffectToPvar {
 
     String output_prefix
 
+    Int addtional_disk_space_gb = 5
+
     Int preemptible=3
     Int memory_gb=2
   }
 
-  Int disk_size = ceil(size([input_effect_file], "GB") * 2)
+  Int disk_size = ceil(size([input_effect_file], "GB") * 2) + addtional_disk_space_gb
   String suffix = ".pvar"
 
   command <<<
