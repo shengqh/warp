@@ -1,5 +1,6 @@
 {
   "VUMCPrsStep1Regenie2PRScsSST.input_regenie": "/nobackup/h_cqs/shengq2/biovu/prs/gwas_eur.499.regenie.gz",
+  "VUMCPrsStep1Regenie2PRScsSST.rsid_variantid_map_file": "/nobackup/h_cqs/shengq2/biovu/agd250k/rsid/rsid-variantid-map.csv.gz",
   "VUMCPrsStep1Regenie2PRScsSST.output_prefix": "gwas_eur.499"
 }
 

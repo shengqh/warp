@@ -22,6 +22,7 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 workflow VUMCPrsStep1Regenie2PRScsSST {
   input {
     File input_regenie
+    File? rsid_variantid_map_file
 
     String output_prefix
 
@@ -34,17 +35,26 @@ workflow VUMCPrsStep1Regenie2PRScsSST {
       output_prefix = output_prefix
   }
 
+  if(defined(rsid_variantid_map_file)){
+    call variantID2rsID {
+      input:
+        input_sst = Regenie2PRScsSST.output_sst_file,
+        rsid_variantid_map_file = select_first([rsid_variantid_map_file]),
+        output_prefix = output_prefix
+    }
+  }
+
   if(defined(target_gcp_folder)){
     call GcpUtils.MoveOrCopyOneFile as CopyFile {
       input:
-        source_file = Regenie2PRScsSST.output_sst_file,
+        source_file = select_first([variantID2rsID.output_sst_file, Regenie2PRScsSST.output_sst_file]),
         is_move_file = false,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }
 
   output {
-    String output_sst_file = select_first([CopyFile.output_file, Regenie2PRScsSST.output_sst_file])
+    String output_sst_file = select_first([CopyFile.output_file, variantID2rsID.output_sst_file, Regenie2PRScsSST.output_sst_file])
   }
 }
 
@@ -67,14 +77,77 @@ task Regenie2PRScsSST {
 
   >>>
 
-  runtime{
+  runtime {
     docker: "ubuntu:20.04"
     preemptible: preemptible
     disks: "local-disk " + disk_size + " HDD"
     memory: memory_gb + " GiB"
-   }
+  }
 
   output {
     File output_sst_file = "~{output_prefix}.sst"
+  }
+}
+
+task variantID2rsID {
+  input {
+    File input_sst
+    File rsid_variantid_map_file
+
+    String output_prefix
+
+    Int preemptible=3
+    Int memory_gb=200
+    Int additional_disk_size_gb = 2
+  }
+
+  Int disk_size = ceil(size([input_sst], "GB") * 3) + additional_disk_size_gb
+
+  command <<<
+
+cat <<CODE> rsid_variantid_map.R
+
+library(data.table)
+
+cat("Reading VariantID to rsID map file: ~{rsid_variantid_map_file} ...\n")
+rsmap=fread("~{rsid_variantid_map_file}",header=T,sep=",",colClasses=c("character","character"))
+
+cat("Reading sst file: ~{input_sst} ...\n")
+old_sst=fread("~{input_sst}",header=T,sep="\t",colClasses=c("character","character","character","numeric","numeric"))
+
+cat("Merge sst and map file ...\n")
+new_sst=merge(old_sst,rsmap,by.x="SNP",by.y="ID",all.x=TRUE)
+
+new_sst=new_sst |>
+  dplyr::rename(VARIANT_ID=SNP,
+                SNP=avsnp151)
+
+new_sst=new_sst |>
+  dplyr::filter(!is.na(SNP)) |>
+  dplyr::select(SNP,A1,A2,BETA,P,VARIANT_ID)
+
+cat("Save sst file ...\n")
+fwrite(new_sst,
+       file="~{output_prefix}.rsid.sst",
+       sep="\t",
+       col.names=TRUE,
+       quote=FALSE)
+
+cat("Done ...\n")
+
+CODE
+
+R --vanilla -f rsid_variantid_map.R
+  >>>
+
+  runtime {
+    docker: "shengqh/report:20250415"
+    preemptible: preemptible
+    disks: "local-disk " + disk_size + " HDD"
+    memory: memory_gb + " GiB"
+  }
+
+  output {
+    File output_sst_file = "~{output_prefix}.rsid.sst"
   }
 }
