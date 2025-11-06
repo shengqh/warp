@@ -1,0 +1,21 @@
+{
+  "VUMCPrsStep3Score.input_effort_file": "/nobackup/h_cqs/shengq2/biovu/prs/gwas_eur.499.variantID.effect.txt",
+  "VUMCPrsStep3Score.input_effort_pvar_file": "/nobackup/h_cqs/shengq2/biovu/prs/gwas_eur.499.effect.pvar",
+  "VUMCPrsStep3Score.input_psam_files": [
+    "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chr21.primary_pass.psam",
+    "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chr22.primary_pass.psam"
+  ],
+  "VUMCPrsStep3Score.input_pvar_files": [
+    "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chr21.primary_pass.pvar",
+    "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chr22.primary_pass.pvar"
+  ],
+  "VUMCPrsStep3Score.input_pgen_files": [
+    "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chr21.primary_pass.pgen",
+    "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chr22.primary_pass.pgen"
+  ],
+  "VUMCPrsStep3Score.output_prefix": "gwas_eur.499",
+  "VUMCPrsStep3Score.chromosomes": [
+    "chr21",
+    "chr22"
+  ]
+}

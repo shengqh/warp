@@ -40,7 +40,7 @@ workflow VUMCPrsStep3Score {
 
     # for example, "2 4 6", 2:Variant IDs, 4:allele codes, 6:coefficients
     # for AGD dataset, the variant id should be: chr:pos:ref:alt
-    String input_effort_file_columns 
+    String input_effort_file_columns = "2 4 6"
 
     String output_prefix
 
@@ -143,12 +143,14 @@ task Plink2PolygenicRiskScore {
 
   command <<<
 
-  plink2 \
-    --pgen ~{input_pgen} \
-    --pvar ~{input_pvar} \
-    --psam ~{input_psam} \
-    --score ~{input_effort_file} ~{input_effort_file_columns} \
-    --out ~{output_prefix}
+plink2 \
+  --pgen ~{input_pgen} \
+  --pvar ~{input_pvar} \
+  --psam ~{input_psam} \
+  --score ~{input_effort_file} ~{input_effort_file_columns} \
+  --out ~{output_prefix}
+
+mv ~{output_prefix}.sscore ~{output_prefix}.sscore.txt
 
   >>>
 
@@ -160,6 +162,6 @@ task Plink2PolygenicRiskScore {
    }
 
   output {
-    File output_sscore_file = "~{output_prefix}.sscore"
+    File output_sscore_file = "~{output_prefix}.sscore.txt"
   }
 }
