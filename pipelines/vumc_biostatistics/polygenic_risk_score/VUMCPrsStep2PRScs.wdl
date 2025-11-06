@@ -49,11 +49,12 @@ workflow VUMCPrsStep2PRScs {
     String output_prefix
 
     String? target_gcp_folder
+
+    # Since the lkg and ukbb all use hg18, using locus for agd data is not correct.
+    # We will use "snplist" for all data.
+    String ld_snpname = "snplist"
   }
 
-  # Since the lkg and ukbb all use hg18, using locus for agd data is not correct.
-  # We will use "snplist" for all data.
-  String ld_snpname = "snplist"
   Int num_all_chromsome = length(chromosomes)
 
   scatter(all_chrom_ind in range(num_all_chromsome)){
