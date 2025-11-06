@@ -154,6 +154,7 @@ task PRScs {
       --out=~{output_prefix}
 
     echo "Done ..."
+    
   >>>
 
   runtime{
@@ -216,6 +217,10 @@ fwrite(new_effect,
        quote=FALSE)
 
 cat("Done ...\n")
+
+CODE
+
+R --vanilla -f rsid_variantid_map.R
 
   >>>
 
