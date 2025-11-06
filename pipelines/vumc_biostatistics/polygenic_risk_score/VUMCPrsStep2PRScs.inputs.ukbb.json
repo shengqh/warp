@@ -6,6 +6,7 @@
     "/data/cqs/references/PRScs/ldblk_ukbb_eur/ldblk_ukbb_chr22.hdf5",
     "/data/cqs/references/PRScs/ldblk_ukbb_eur/snpinfo_ukbb_hm3"],
   "VUMCPrsStep2PRScs.ld_folder_name": "ldblk_ukbb_eur",
+  "VUMCPrsStep2PRScs.convert_rsID_to_variantID": true,
   "VUMCPrsStep2PRScs.ld_snpname": "snplist",
   "VUMCPrsStep2PRScs.chromosomes": [21,22],
   "VUMCPrsStep2PRScs.output_prefix": "gwas_eur.499"

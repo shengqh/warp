@@ -106,7 +106,7 @@ workflow VUMCPrsStep2PRScs {
   }
 
   output {
-    String output_effect_file = select_first([CopyFile.output_file1, idconvert.output_effect_file, concat_files.concat_file])
+    File output_effect_file = select_first([CopyFile.output_file1, idconvert.output_effect_file, concat_files.concat_file])
     File output_effect_pvar_file = select_first([CopyFile.output_file2, EffectToPvar.output_pvar_file])
   }
 }
