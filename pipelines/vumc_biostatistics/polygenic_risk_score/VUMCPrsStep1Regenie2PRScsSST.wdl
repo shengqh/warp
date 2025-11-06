@@ -101,7 +101,7 @@ task variantID2rsID {
     Int additional_disk_size_gb = 2
   }
 
-  Int disk_size = ceil(size([input_sst], "GB") * 3) + additional_disk_size_gb
+  Int disk_size = ceil(size(rsid_variantid_map_file, "GB")) + ceil(size([input_sst], "GB") * 3) + additional_disk_size_gb
 
   command <<<
 
