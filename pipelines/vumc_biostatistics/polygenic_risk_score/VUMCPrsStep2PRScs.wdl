@@ -225,7 +225,7 @@ R --vanilla -f rsid_variantid_map.R
   >>>
 
   runtime{
-    docker: "ubuntu:20.04"
+    docker: "shengqh/report:20250415"
     preemptible: preemptible
     disks: "local-disk " + disk_size + " HDD"
     memory: memory_gb + " GiB"
