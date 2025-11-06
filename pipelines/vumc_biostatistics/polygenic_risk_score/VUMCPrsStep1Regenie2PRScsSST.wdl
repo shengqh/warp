@@ -9,20 +9,23 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 # Workflow steps:
 # 1. Transform Regenie output file into PRScs-SST compatible summary statistics format
 # 2. Format columns to match required PRScs-SST input format (SNP, A1, A2, BETA, P)
-# 3. Optionally copy results to a GCP storage location
+# 3. Optionally map variant IDs to rsIDs using provided mapping file (ID,RSID columns)
+# 4. Optionally copy results to a GCP storage location
 #
 # Inputs:
 # - input_regenie: Regenie output file containing summary statistics
+# - rsid_variantid_map_file: Optional CSV file mapping variant IDs to rsIDs (ID,RSID columns)
 # - output_prefix: Prefix for the output SST file
 # - target_gcp_folder: Optional GCP destination for result files
 #
 # Outputs:
 # - output_sst_file: Path to the formatted PRScs-SST summary statistics file
 
+
 workflow VUMCPrsStep1Regenie2PRScsSST {
   input {
     File input_regenie
-    File? rsid_variantid_map_file
+    File? rsid_variantid_map_file # ID,RSID map file
 
     String output_prefix
 
@@ -110,7 +113,8 @@ cat <<CODE> rsid_variantid_map.R
 library(data.table)
 
 cat("Reading VariantID to rsID map file: ~{rsid_variantid_map_file} ...\n")
-rsmap=fread("~{rsid_variantid_map_file}",header=T,sep=",",colClasses=c("character","character"))
+rsmap=fread("~{rsid_variantid_map_file}",header=T,sep=",",colClasses=c("character","character")) |>
+  dplyr::rename(ID=1,RSID=2)
 
 cat("Reading sst file: ~{input_sst} ...\n")
 old_sst=fread("~{input_sst}",header=T,sep="\t",colClasses=c("character","character","character","numeric","numeric"))
@@ -120,7 +124,7 @@ new_sst=merge(old_sst,rsmap,by.x="SNP",by.y="ID",all.x=TRUE)
 
 new_sst=new_sst |>
   dplyr::rename(VARIANT_ID=SNP,
-                SNP=avsnp151)
+                SNP=RSID)
 
 new_sst=new_sst |>
   dplyr::filter(!is.na(SNP)) |>
