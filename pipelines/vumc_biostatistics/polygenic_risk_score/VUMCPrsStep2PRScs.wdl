@@ -30,7 +30,6 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 workflow VUMCPrsStep2PRScs {
   input {
     Array[Int] chromosomes
-    Array[File] input_pvar_files
 
     Int n_gwas
     File input_sst
@@ -53,13 +52,11 @@ workflow VUMCPrsStep2PRScs {
 
   scatter(all_chrom_ind in range(num_all_chromsome)){
     Int chromosome = chromosomes[all_chrom_ind]
-    File input_pvar = input_pvar_files[all_chrom_ind]
 
     String output_prefix_chromosome = output_prefix + ".chr" + chromosome
 
     call PRScs as PRScs {
       input:
-        input_pvar = input_pvar,
         n_gwas = n_gwas,
         input_sst = input_sst,
         ld_files = ld_files,
@@ -100,8 +97,6 @@ workflow VUMCPrsStep2PRScs {
 
 task PRScs {
   input {
-    File input_pvar
-
     Int n_gwas
     File input_sst
 
@@ -114,7 +109,7 @@ task PRScs {
 
     String output_prefix
 
-    String docker = "shengqh/prs:20250707"
+    String docker = "shengqh/prs:20251106"
     String PRSsc_script = "/opt/PRScs/PRScs.py"
 
     Int preemptible=3
@@ -122,9 +117,9 @@ task PRScs {
     Int addtional_disk_space_gb = 10
   }
 
-  Int disk_size = ceil(size([input_pvar], "GB") + size(ld_files, "GB") + size(input_sst, "GB")) + addtional_disk_space_gb
+  Int disk_size = ceil(size(ld_files, "GB") + size(input_sst, "GB")) + addtional_disk_space_gb
 
-  Int memory_gb = ceil(size([input_pvar], "GB") + size(ld_files, "GB") + size(input_sst, "GB")) + addtional_memory_gb # 10 GB is the minimum memory for PRScs
+  Int memory_gb = ceil(size(ld_files, "GB") + size(input_sst, "GB")) + addtional_memory_gb # 10 GB is the minimum memory for PRScs
 
   String suffix = ".pvar"
 
@@ -133,15 +128,10 @@ task PRScs {
     ln -s ${ld_cur_folder} ~{ld_folder_name}
     echo "ld_folder: ~{ld_folder_name} : $ld_cur_folder"
 
-    pvar_file="~{input_pvar}"
-    pvar_prefix="${pvar_file%~{suffix}}"
-    echo "pvar_prefix: $pvar_prefix"
-
     echo "Running PRScs ..."
     python3 ~{PRSsc_script} \
       --ref_dir=~{ld_folder_name} \
       --ref_snpname=~{ld_snpname} \
-      --bim_prefix=${pvar_prefix} \
       --sst_file=~{input_sst} \
       --chrom=~{chromosome} \
       --n_gwas=~{n_gwas} \
