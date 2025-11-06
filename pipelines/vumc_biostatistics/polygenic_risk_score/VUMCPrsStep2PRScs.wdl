@@ -199,15 +199,15 @@ old_effect=fread("~{input_effect_file}",header=F) |>
   dplyr::rename(CHROM=1,
                 SNP=2,
                 POS=3,
-                REF=4,
-                ALT=5,
+                A1=4,
+                A2=5,
                 EFFECT=6)
 
 cat("Merge sst and effect file ...\n")
 new_effect=merge(old_effect,rsmap,by.x="SNP",by.y="SNP",all.x=TRUE)
 
 new_effect=new_effect |>
-  dplyr::select(CHROM,VARIANT_ID,POS,REF,ALT,EFFECT,SNP)
+  dplyr::select(CHROM,VARIANT_ID,POS,A1,A2,EFFECT,SNP)
 
 cat("Save effect file ...\n")
 fwrite(new_effect,
