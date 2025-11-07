@@ -50,11 +50,12 @@ workflow VUMCPrsStep3Score {
   Int num_all_chromsome = length(chromosomes)
 
   scatter(all_chrom_ind in range(num_all_chromsome)){
-    call BioUtils.CheckOverlapVariants as CheckOverlapVariants {
+    call BioUtils.CheckOverlapVariantsByID as CheckOverlapVariants {
       input:
         chromosome = chromosomes[all_chrom_ind],
         input_pgen_pvar = input_pvar_files[all_chrom_ind],
-        input_ucsc_bed = input_effort_pvar_file,
+        input_id_file = input_effort_pvar_file,
+        input_id_col = 2
     }
   }
 

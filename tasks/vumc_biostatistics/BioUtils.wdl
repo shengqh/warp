@@ -664,11 +664,11 @@ task CheckOverlapVariantsByID {
   input {
     String chromosome
     File input_pgen_pvar
-    File input_ucsc_bed
-    Int input_ucsc_bed_id_col = 3
+    File input_id_file
+    Int input_id_col # 3 for bed file and 2 for pvar file
     String docker = "shengqh/hail_gcp:20241127"
   }
-  Int disk_size = ceil(size([input_pgen_pvar, input_ucsc_bed], "GB")) + 5
+  Int disk_size = ceil(size([input_pgen_pvar, input_id_file], "GB")) + 5
   command <<<
 #!/bin/bash
 
@@ -679,17 +679,17 @@ cat <<EOF> get_chrom_indices.py
 import pandas as pd
 import sys
 
-bed_file = "~{input_ucsc_bed}"
-bed_id_col = ~{input_ucsc_bed_id_col}
+id_file = "~{input_id_file}"
+id_col = ~{input_id_col}
 
 pvar_chrom = "~{chromosome}"
 pvar_file = "~{input_pgen_pvar}"
 
-# Read the bed file (assuming standard BED format: chrom start end ...)
-bed_df = pd.read_csv(bed_file, sep='\t', header=None)
+# Read the id file
+bed_df = pd.read_csv(id_file, sep='\t', header=None)
 
 # Group bed file entries by chromosome
-bed_by_chrom = {}
+id_by_chrom = {}
 for _, row in bed_df.iterrows():
     chrom = str(row[0])
     if chrom == "#CHROM": # input is a pvar file
@@ -698,28 +698,27 @@ for _, row in bed_df.iterrows():
     if chrom.startswith("chr"):
         chrom = chrom[3:]
 
-    id = int(row[bed_id_col])
-    if chrom not in bed_by_chrom:
-        bed_by_chrom[chrom] = set()
-    bed_by_chrom[chrom].add(id)
+    id = str(row[id_col])
+    if chrom not in id_by_chrom:
+        id_by_chrom[chrom] = set()
+    id_by_chrom[chrom].add(id)
 
 if pvar_chrom.startswith("chr"):
     pvar_chrom = pvar_chrom[3:]
 
 found_match = False
-if pvar_chrom in bed_by_chrom:
+if pvar_chrom in id_by_chrom:
   print(f"Checking chromosome: {pvar_chrom} with pvar file: {pvar_file}")
-  id_set = bed_by_chrom[pvar_chrom]
+  id_set = id_by_chrom[pvar_chrom]
 
-  # Check if any SNV in this chromosome's pvar file matches positions in bed
   with open(pvar_file, 'r') as f:
       for line in f:
           if line.startswith('#'):
               continue
-          fields = line.strip().split('\t', 2)
-          id = fields[3]
+          fields = line.strip().split('\t', 4)
+          id = fields[2]
           if id in id_set:
-              print(f"Found match at position: {line}")
+              print(f"Found match: {line}")
               found_match = True
               break
 else:
