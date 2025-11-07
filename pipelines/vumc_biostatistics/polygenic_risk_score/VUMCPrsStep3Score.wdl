@@ -8,20 +8,19 @@ version 1.0
 # 1. Checks for overlapping variants between input genotypes and effect file
 # 2. Filters input genotypes to keep only variants present in the effect file
 # 3. Merges filtered chromosome-specific files if multiple chromosomes are present
-# 4. Calculates polygenic risk scores using the filtered genotypes and effect file
+# 4. Calculates polygenic risk scores using PLINK2 --score command
 # 5. Optionally copies result files to a GCP storage location
 #
 # Inputs:
-# - chromosomes: List of chromosomes to analyze
 # - input_pvar/pgen/psam_files: PLINK2 format genotype files for each chromosome
-# - input_effort_file: File containing variant IDs and effect sizes for PRS calculation
-# - input_effort_pvar_file: File containing variants to be used in PRS calculation
-# - input_effort_file_columns: Column specification for the effort file
+# - input_effort_file: File containing variant IDs, allele codes, and effect sizes for PRS calculation
+# - input_effort_pvar_file: File containing variant IDs to be filtered from input genotypes
+# - input_effort_file_columns: Column specification for the effort file (e.g., "2 4 6" for variant ID, allele, coefficient)
 # - output_prefix: Prefix for output files
 # - target_gcp_folder: Optional GCP destination for result files
 #
 # Outputs:
-# - output_sscore_file: Path to the calculated PRS score file
+# - output_sscore_file: Path to the calculated PRS score file (.sscore.txt format)
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WdlUtils
