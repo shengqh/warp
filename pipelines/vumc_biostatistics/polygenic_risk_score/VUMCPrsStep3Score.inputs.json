@@ -13,9 +13,5 @@
     "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chr21.primary_pass.pgen",
     "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chr22.primary_pass.pgen"
   ],
-  "VUMCPrsStep3Score.output_prefix": "gwas_eur.499",
-  "VUMCPrsStep3Score.chromosomes": [
-    "chr21",
-    "chr22"
-  ]
+  "VUMCPrsStep3Score.output_prefix": "gwas_eur.499"
 }

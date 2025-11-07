@@ -30,7 +30,6 @@ import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
 
 workflow VUMCPrsStep3Score {
   input {
-    Array[String] chromosomes
     Array[File] input_pvar_files
     Array[File] input_pgen_files
     Array[File] input_psam_files
@@ -47,12 +46,11 @@ workflow VUMCPrsStep3Score {
     String? target_gcp_folder
   }
 
-  Int num_all_chromsome = length(chromosomes)
+  Int num_all_chromsome = length(input_pvar_files)
 
   scatter(all_chrom_ind in range(num_all_chromsome)){
     call BioUtils.CheckOverlapVariantsByID as CheckOverlapVariants {
       input:
-        chromosome = chromosomes[all_chrom_ind],
         input_pgen_pvar = input_pvar_files[all_chrom_ind],
         input_id_file = input_effort_pvar_file,
         input_id_col = 2
@@ -71,7 +69,6 @@ workflow VUMCPrsStep3Score {
     File pgen_file = input_pgen_files[old_ind]
     File pvar_file = input_pvar_files[old_ind]
     File psam_file = input_psam_files[old_ind]
-    String chromosome = chromosomes[old_ind]
 
     call Plink2Utils.PgenFilter as PgenFilter_variants {
       input:
@@ -80,7 +77,7 @@ workflow VUMCPrsStep3Score {
         input_psam = psam_file,
         keep_pvar = input_effort_pvar_file,
         plink2_filter_option = "",
-        output_prefix = output_prefix + "." + chromosome + ".snp"
+        output_prefix = output_prefix + "." + chrom_ind + ".snp"
     }
   }
 
