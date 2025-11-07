@@ -662,7 +662,6 @@ python3 get_chrom_indices.py
 
 task CheckOverlapVariantsByID {
   input {
-    String chromosome
     File input_pgen_pvar
     File input_id_file
     Int input_id_col # 3 for bed file and 2 for pvar file
@@ -675,66 +674,57 @@ task CheckOverlapVariantsByID {
 set -e
 
 # Create Python script
-cat <<EOF> get_chrom_indices.py 
-import pandas as pd
+cat <<EOF> find_id.py 
 import sys
+import logging
+
+logger = logging.getLogger("find_id")
+logging.basicConfig(level=logging.INFO)
 
 id_file = "~{input_id_file}"
 id_col = ~{input_id_col}
 
-pvar_chrom = "~{chromosome}"
 pvar_file = "~{input_pgen_pvar}"
 
-# Read the id file
-bed_df = pd.read_csv(id_file, sep='\t', header=None)
+logger.info(f"Reading IDs from column {id_col} of file {id_file}")
+id_set = set()
+with open(id_file, 'r') as f:
+    for line in f:
+        if line.startswith('#'):
+            continue
+        fields = line.strip().split('\t', id_col + 1)
+        id = fields[id_col]
+        id_set.add(id)
 
-# Group bed file entries by chromosome
-id_by_chrom = {}
-for _, row in bed_df.iterrows():
-    chrom = str(row[0])
-    if chrom == "#CHROM": # input is a pvar file
-        continue  # Skip header line
+logger.info(f"Total IDs read: {len(id_set)}")
 
-    if chrom.startswith("chr"):
-        chrom = chrom[3:]
-
-    id = str(row[id_col])
-    if chrom not in id_by_chrom:
-        id_by_chrom[chrom] = set()
-    id_by_chrom[chrom].add(id)
-
-if pvar_chrom.startswith("chr"):
-    pvar_chrom = pvar_chrom[3:]
-
+logger.info(f"Checking for matches in pvar file: {pvar_file}")
 found_match = False
-if pvar_chrom in id_by_chrom:
-  print(f"Checking chromosome: {pvar_chrom} with pvar file: {pvar_file}")
-  id_set = id_by_chrom[pvar_chrom]
-
-  with open(pvar_file, 'r') as f:
-      for line in f:
-          if line.startswith('#'):
-              continue
-          fields = line.strip().split('\t', 4)
-          id = fields[2]
-          if id in id_set:
-              print(f"Found match: {line}")
-              found_match = True
-              break
-else:
-  print(f"Chromosome {pvar_chrom} not found in bed file.")
+with open(pvar_file, 'r') as f:
+    for line in f:
+        if line.startswith('#'):
+            continue
+        fields = line.strip().split('\t', 4)
+        id = fields[2]
+        if id in id_set:
+            print(f"Found match: {line}")
+            found_match = True
+            break
         
-# Write indices to output file
+logger.info(f"Match found: {found_match}")
+
 with open("has_match.txt", "w") as f:
   if found_match:
     f.write("true\n")
   else:
     f.write("false\n")
 
+logger.info("Finished checking for matches.")
+
 EOF
 
 # Run the Python script
-python3 get_chrom_indices.py 
+python3 find_id.py 
 
 >>>
 
