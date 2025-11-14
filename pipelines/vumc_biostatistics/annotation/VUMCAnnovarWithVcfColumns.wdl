@@ -82,7 +82,7 @@ task AnnovarWithVcfColumns {
     Int cpu = 1
 
     String docker = "shengqh/annovar:20250805"
-    Float vcf_disk_size_factor = 5
+    Float vcf_disk_size_factor = 10
   }
 
   Float true_annovar_db_umcompressed_gb = if(defined(annovar_db_umcompressed_gb)) then annovar_db_umcompressed_gb else 0
