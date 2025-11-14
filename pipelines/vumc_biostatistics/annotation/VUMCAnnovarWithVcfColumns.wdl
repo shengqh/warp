@@ -93,6 +93,7 @@ task AnnovarWithVcfColumns {
   String real_annovar_param= if(defined(annovar_db_tar_gz)) then annovar_param else "-protocol refGene -operation g --remove"
 
   command <<<
+set -e
 
 # decompress and keep only the first 9 columns
 zcat ~{input_vcf} | cut -f1-9 > ~{target_prefix}.avinput.vcf
@@ -117,7 +118,13 @@ fi
 # run annovar
 table_annovar.pl ~{target_prefix}.avinput ~{real_annovar_db} -buildver ~{buildver} ~{real_annovar_param} --outfile ~{target_prefix}.annovar
 
-if [[ ! -f ~{target_prefix}.annovar.hg38_multianno.txt ]]; then
+status=\$?
+if [[ \$status -ne 0 ]]; then
+  echo "convert2annovar.pl failed with status \$status"
+  exit 1
+fi
+
+if [[ ! -f ~{target_prefix}.annovar.hg38_multianno.txt ]]; then #it is possible that there is no enough space but the file is generated.
   echo "table_annovar.pl failed: output file ~{target_prefix}.annovar.hg38_multianno.txt not found"
   exit 1
 fi
