@@ -72,7 +72,7 @@ task Untar {
 
     Int? disk_size_override
 
-    String docker = "shengqh/plink_1.9_2.0:20250304"
+    String docker = "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
   }
 
   Int disk_size = select_first([disk_size_override, ceil(disk_size_factor * size(input_tar_gz, "GB")) + additional_disk_gb])
