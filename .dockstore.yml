@@ -536,3 +536,8 @@ workflows:
   - name: VUMCAgdVaridToRsid
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCAgdVaridToRsid.wdl
+
+  - name: VUMCUntar
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCUntar.wdl
+  
