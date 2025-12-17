@@ -140,7 +140,7 @@ set -ex
 shopt -s nullglob
 
 if [[ "~{fusion_inspector}" != "validate" && "~{fusion_inspector}" != "inspect" ]]; then
-  echo "Error: ~{fusion_inspector} is not valid. It should be either 'validate' or 'inspect'."
+  echo "Error: fusion_inspector ~{fusion_inspector} is not valid. It should be either 'validate' or 'inspect'."
   exit 1
 fi
 
