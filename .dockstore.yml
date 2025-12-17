@@ -425,13 +425,9 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/rnaseq/VUMCStarFeaturecounts.wdl
 
-  - name: VUMCStarFeaturecountsNoBam
+  - name: VUMCStarFusion
     subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/rnaseq/VUMCStarFeaturecountsNoBam.wdl
-
-  - name: VUMCStarFusionAndCount
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/rnaseq/VUMCStarFusionAndCount.wdl
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/rnaseq/VUMCStarFusion.wdl
 
   - name: VUMCConvertRsidToBed
     subclass: WDL

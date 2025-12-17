@@ -1,0 +1,6 @@
+{
+  "VUMCStarFusion.fastq_pair_tar_gz": "/nobackup/h_cqs/jennifer_pietenpol_projects/20251216_brian_aws_rnaseq/data/TL-25-ZZ9D50NI4G.tar.gz",
+  "VUMCStarFusion.sample_name": "TL-25-ZZ9D50NI4G",
+  "VUMCStarFusion.genome_plug_n_play_tar_gz": "/nobackup/h_cqs/references/star_fusion/GRCh38_gencode_v44_CTAT_lib_Oct292023.plug-n-play.tar.gz"
+}
+
