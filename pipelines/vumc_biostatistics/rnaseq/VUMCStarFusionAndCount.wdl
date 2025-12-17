@@ -93,31 +93,12 @@ workflow VUMCStarFusionAndCount {
         use_ssd = use_ssd
   }
 
-  call Processing.SortSam {
-    input:
-      input_bam = STARFusion.fusion_unsorted_bam,
-      output_bam_basename = sample_name + "_Aligned.sortedByCoord.out",
-      compression_level = 2,
-      preemptible_tries = 3
-  }
-
   call RNAseqUtils.FeatureCounts {
     input:
-      bam = SortSam.output_bam,
-      bam_index = SortSam.output_bam_index,
+      bam = STARFusion.fusion_unsorted_bam,
       sample_name = sample_name,
       gtf = gtf
   }
-
-    File? fusion_inspector_validate_fusions_abridged = "~{sample_name}_validate_finspector.FusionInspector.fusions.abridged.tsv.gz"
-    File? fusion_inspector_validate_web = "~{sample_name}_validate_finspector.fusion_inspector_web.html"
-
-    File? fusion_inspector_inspect_fusions_abridged = "~{sample_name}_inspect_finspector.FusionInspector.fusions.abridged.tsv.gz"
-    File? fusion_inspector_inspect_web = "~{sample_name}_inspect_finspector.fusion_inspector_web.html"
-
-    File fusion_log_final = "~{sample_name}_star-fusion.Log.final.out"
-    File fusion_unsorted_bam = "~{sample_name}.STAR.aligned.UNsorted.bam"
-
 
   if (defined(target_gcp_folder)) {
     call GcpUtils.MoveOrCopyFiles as CopyFile {
@@ -125,8 +106,8 @@ workflow VUMCStarFusionAndCount {
         source_file1 = STARFusion.fusion_coding_effect,
         source_file2 = STARFusion.fusion_predictions_abridged,
         source_file3 = STARFusion.fusion_predictions,
-        source_file4 = select_first([STARFusion.fusion_inspector_validate_web, STARFusion.fusion_inspector_inspect_web]),
-        source_file5 = select_first([STARFusion.fusion_inspector_validate_fusions_abridged, STARFusion.fusion_inspector_inspect_fusions_abridged]),
+        source_file4 = STARFusion.fusion_inspector_web,
+        source_file5 = STARFusion.fusion_inspector_fusions_abridged,
         source_file6 = STARFusion.fusion_log_final,
         source_file7 = FeatureCounts.output_count,
         source_file8 = FeatureCounts.output_count_summary,
@@ -136,13 +117,13 @@ workflow VUMCStarFusionAndCount {
   }
   # Outputs that will be retained when execution is complete
   output {
-    String fusion_coding_effect = select_first([CopyFile.output_file1, STARFusion.fusion_coding_effect])
-    String fusion_predictions_abridged = select_first([CopyFile.output_file2, STARFusion.fusion_predictions_abridged])
-    String fusion_predictions = select_first([CopyFile.output_file3, STARFusion.fusion_predictions])
-    String fusion_inspector_web = select_first([CopyFile.output_file4, STARFusion.fusion_inspector_validate_web, STARFusion.fusion_inspector_inspect_web])
-    String fusion_inspector_fusions = select_first([CopyFile.output_file5, STARFusion.fusion_inspector_validate_fusions_abridged, STARFusion.fusion_inspector_inspect_fusions_abridged])
-    String fusion_log_final = select_first([CopyFile.output_file6, STARFusion.fusion_log_final])
-    String featurecounts_count = select_first([CopyFile.output_file7, FeatureCounts.output_count])
-    String featurecounts_count_summary = select_first([CopyFile.output_file8, FeatureCounts.output_count_summary])
+    File fusion_coding_effect = select_first([CopyFile.output_file1, STARFusion.fusion_coding_effect])
+    File fusion_predictions_abridged = select_first([CopyFile.output_file2, STARFusion.fusion_predictions_abridged])
+    File fusion_predictions = select_first([CopyFile.output_file3, STARFusion.fusion_predictions])
+    File fusion_inspector_web = select_first([CopyFile.output_file4, STARFusion.fusion_inspector_web])
+    File fusion_inspector_fusions = select_first([CopyFile.output_file5, STARFusion.fusion_inspector_fusions_abridged])
+    File fusion_log_final = select_first([CopyFile.output_file6, STARFusion.fusion_log_final])
+    File featurecounts_count = select_first([CopyFile.output_file7, FeatureCounts.output_count])
+    File featurecounts_count_summary = select_first([CopyFile.output_file8, FeatureCounts.output_count_summary])
   }
 }
