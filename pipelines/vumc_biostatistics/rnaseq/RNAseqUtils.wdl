@@ -101,77 +101,81 @@ featureCounts ~{featureCounts_option} \
   }
 }
 
+# Modified based on https://github.com/STAR-Fusion/STAR-Fusion/blob/master/WDL/star_fusion_workflow.wdl
+
 task STARFusion {
   input {
-    File fastq_1
-    File fastq_2
     String sample_name
 
+    File left_fq
+    File right_fq
+
+    File genome_plug_n_play_tar_gz
+    
     String star_fusion_option = ""
     
-    File chrLength_txt
-    File chrNameLength_txt
-    File chrName_txt
-    File chrStart_txt
-    File exonGeTrInfo_tab
-    File exonInfo_tab
-    File geneInfo_tab
-    File Genome
-    File genomeParameters_txt
-    File SA
-    File SAindex
-    File sjdbInfo_txt
-    File sjdbList_fromGTF_out_tab
-    File sjdbList_out_tab
-    File transcriptInfo_tab
+    Float min_FFPM = 0.1
 
-    Int memory_gb = 40
-    Float disk_size_factor = 4
-    Int additional_disk_size_gb = 10
-    Int threads = 8
+    # runtime params
+    String docker = "trinityctat/starfusion:latest"
+    Int cpu = 12
+    Float fastq_disk_space_multiplier = 3.25
+    String memory_gb = "50G"
+    Float genome_disk_space_multiplier = 2.5
+    Int preemptible = 2
+    Float extra_disk_space = 10
+    Boolean use_ssd = true
   }
-  Int disk_size_gb = ceil(size([Genome, SA, SAindex], "GB") + size([fastq_1, fastq_2], "GB") * disk_size_factor + additional_disk_size_gb)
+  
+  Int disk_size_gb = ceil((fastq_disk_space_multiplier * (size(left_fq, "GB") + size(right_fq, "GB"))) + size(genome_plug_n_play_tar_gz, "GB") * genome_disk_space_multiplier + extra_disk_space)
 
   command <<<
 
 set -euo pipefail
 
-star_index_folder_name=$(dirname ~{Genome})
-echo "star_index_folder_name: $star_index_folder_name"
+mkdir -p ~{sample_name}
+
+mkdir -p genome_dir
+
+tar xf ~{genome_plug_n_play_tar_gz} -C genome_dir --strip-components 1
 
 STAR-Fusion ~{star_fusion_option} \
-  --genome_lib_dir $star_index_folder_name \
-  --left_fq ~{fastq_1} \
-  --right_fq ~{fastq_2} \
-  --output_dir . \
-  --CPU ~{threads} \
-  --STAR_limitBAMsortRAM ~{memory_gb}G \
-  --FusionInspector validate \
-  --examine_coding_effect \
-  --STAR_SortedByCoordinate \
-  --denovo_reconstruct
+  --genome_lib_dir `pwd`/genome_dir/ctat_genome_lib_build_dir \
+  --left_fq ~{left_fq} \
+  --right_fq ~{right_fq} \
+  --output_dir ~{sample_name} \
+  --CPU ~{cpu} \
+  --FusionInspector inspect \
+  --min_FFPM ~{min_FFPM}
 
-mv star-fusion.fusion_predictions.abridged.coding_effect.tsv ~{sample_name}_star-fusion.fusion_predictions.abridged.coding_effect.tsv
-mv star-fusion.fusion_predictions.abridged.tsv ~{sample_name}_star-fusion.fusion_predictions.abridged.tsv
-mv star-fusion.fusion_predictions.tsv ~{sample_name}_star-fusion.fusion_predictions.tsv
-mv FusionInspector-validate/finspector.fusion_inspector_web.html ~{sample_name}_finspector.fusion_inspector_web.html
-mv FusionInspector-validate/finspector.FusionInspector.fusions.tsv ~{sample_name}_finspector.FusionInspector.fusions.tsv
+# rename outputs to include the sample ID
+mv ~{sample_name}/star-fusion.fusion_predictions.abridged.coding_effect.tsv ~{sample_name}_star-fusion.fusion_predictions.abridged.coding_effect.tsv && gzip ~{sample_name}_star-fusion.fusion_predictions.abridged.coding_effect.tsv
+mv ~{sample_name}/star-fusion.fusion_predictions.abridged.tsv ~{sample_name}.star-fusion.fusion_predictions.abridged.tsv && gzip ~{sample_name}.star-fusion.fusion_predictions.abridged.tsv
+mv ~{sample_name}/star-fusion.fusion_predictions.tsv ~{sample_name}.star-fusion.fusion_predictions.tsv && gzip ~{sample_name}.star-fusion.fusion_predictions.tsv
+
+mv ~{sample_name}/FusionInspector-inspect/finspector.FusionInspector.fusions.tsv ~{sample_name}_finspector.FusionInspector.fusions.tsv && gzip ~{sample_name}_finspector.FusionInspector.fusions.tsv
+mv ~{sample_name}/FusionInspector-inspect/finspector.fusion_inspector_web.html ~{sample_name}_finspector.fusion_inspector_web.html
+
+mv ~{sample_name}/Log.final.out ~{sample_name}_star-fusion.Log.final.out
+mv ~{sample_name}/Aligned.out.bam ~{sample_name}.STAR.aligned.UNsorted.bam
 
   >>>
 
   runtime {
-    docker: "trinityctat/starfusion:1.10.0"
+    docker: docker
     memory: memory_gb + " GiB"
-    disks: "local-disk " + disk_size_gb + " HDD"
-    cpu: threads
+    disks: "local-disk " + disk_size_gb + (if use_ssd then "SSD" else "HDD")
+    cpu: cpu
     preemptible: 3
   }
 
   output {
-    File output_fusion_predictions_abridged_coding_effect = "~{sample_name}_star-fusion.fusion_predictions.abridged.coding_effect.tsv"
-    File output_fusion_predictions_abridged = "~{sample_name}_star-fusion.fusion_predictions.abridged.tsv"
-    File output_fusion_predictions = "~{sample_name}_star-fusion.fusion_predictions.tsv"
-    File output_fusion_inspector_web = "~{sample_name}_finspector.fusion_inspector_web.html"
-    File output_fusion_inspector_fusions = "~{sample_name}_finspector.FusionInspector.fusions.tsv"
+    File fusion_coding_effect = "~{sample_name}_star-fusion.fusion_predictions.abridged.coding_effect.tsv.gz"
+    File fusion_predictions_abridged = "~{sample_name}_star-fusion.fusion_predictions.abridged.tsv.gz"
+    File fusion_predictions = "~{sample_name}_star-fusion.fusion_predictions.tsv.gz"
+    File fusion_inspector_fusions = "~{sample_name}_finspector.FusionInspector.fusions.tsv.gz"
+    File fusion_inspector_web = "~{sample_name}_finspector.fusion_inspector_web.html"
+    File fusion_log_final = "~{sample_name}_star-fusion.Log.final.out"
+    File fusion_unsorted_bam = "~{sample_name}.STAR.aligned.UNsorted.bam"
   }
 }
