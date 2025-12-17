@@ -1,35 +1,42 @@
 version 1.0
 
-## VUMC STAR-Fusion Analysis Workflow
+## VUMC STAR-Fusion and FeatureCounts Workflow
 ##
-## This workflow processes RNA-Seq data to detect gene fusions using STAR-Fusion.
-## Developed by VUMC/VANGARD team for efficient detection of fusion transcripts in RNA-Seq data.
+## This workflow processes RNA-Seq data to detect gene fusions using STAR-Fusion and quantify gene expression using FeatureCounts.
+## Developed by VUMC/VANGARD team for comprehensive RNA-Seq analysis including fusion detection and gene counting.
 ## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
 ## 
 ## ### Workflow Purpose:
-## This pipeline handles RNA-Seq data processing from FASTQ files to fusion detection,
-## enabling identification of gene fusions for cancer and other disease research.
+## This pipeline handles RNA-Seq data processing from FASTQ files to fusion detection and gene expression quantification,
+## enabling identification of gene fusions and expression profiles for cancer and other disease research.
 ##
 ## ### Workflow Steps:
 ## 1. STAR-Fusion: Detect gene fusions from paired-end FASTQ files using STAR alignment
-## 2. Optionally copy output files to a specified GCP folder
+## 2. SortSam: Sort the output BAM file by coordinates
+## 3. FeatureCounts: Count reads mapped to genomic features using GTF annotation
+## 4. Optionally copy output files to a specified GCP folder
 ##
 ## ### Inputs:
-## - fastq_1, fastq_2: Paired-end FASTQ files
+## - left_fq, right_fq, fastq_pair_tar_gz: Input FASTQ files (paired-end or tar.gz archive)
 ## - sample_name: Identifier for the sample
-## - Reference genome files (chrLength_txt, chrNameLength_txt, Genome, SA, SAindex, etc.)
+## - genome_plug_n_play_tar_gz: STAR-Fusion genome reference package
+## - gtf: Gene annotation file for feature counting
 ## - target_gcp_folder: Optional target GCP folder for the output files
 ##
 ## ### Outputs:
-## - output_fusion_predictions_abridged_coding_effect: Fusion predictions with coding effect annotations
-## - output_fusion_predictions_abridged: Abridged fusion predictions
-## - output_fusion_predictions: Complete fusion predictions
-## - output_fusion_inspector_web: Fusion Inspector web visualization files
-## - output_fusion_inspector_fusions: Fusion Inspector fusion details
+## - fusion_coding_effect: Fusion predictions with coding effect annotations
+## - fusion_predictions_abridged: Abridged fusion predictions
+## - fusion_predictions: Complete fusion predictions
+## - fusion_inspector_web: Fusion Inspector web visualization files
+## - fusion_inspector_fusions: Fusion Inspector fusion details
+## - fusion_log_final: STAR-Fusion log file
+## - featurecounts_count: Gene expression count matrix
+## - featurecounts_count_summary: FeatureCounts summary statistics
 ##
 ## ### Notes:
 ## - Utilizes STAR-Fusion for sensitive and accurate fusion detection
-## - Provides multiple output formats for downstream analysis and visualization
+## - Provides gene expression quantification via FeatureCounts
+## - Multiple output formats available for downstream analysis and visualization
 ## - File copy operation to GCP is optional and only executed if a target folder is provided
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
