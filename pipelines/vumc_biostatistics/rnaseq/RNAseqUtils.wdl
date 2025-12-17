@@ -223,7 +223,7 @@ mv ~{sample_name}/Aligned.out.bam ~{sample_name}.STAR.aligned.UNsorted.bam
   runtime {
     docker: docker
     memory: memory_gb + " GiB"
-    disks: "local-disk " + disk_size_gb + (if use_ssd then "SSD" else "HDD")
+    disks: "local-disk " + disk_size_gb + " " + (if use_ssd then "SSD" else "HDD")
     cpu: cpu
     preemptible: 3
   }
