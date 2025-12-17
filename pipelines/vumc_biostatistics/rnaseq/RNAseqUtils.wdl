@@ -201,21 +201,21 @@ STAR-Fusion ~{star_fusion_option} \
   --min_FFPM ~{min_FFPM}
 
 # rename outputs to include the sample ID
-mv ~{sample_name}/star-fusion.fusion_predictions.abridged.coding_effect.tsv ~{sample_name}_star-fusion.fusion_predictions.abridged.coding_effect.tsv && gzip ~{sample_name}_star-fusion.fusion_predictions.abridged.coding_effect.tsv
+mv ~{sample_name}/star-fusion.fusion_predictions.abridged.coding_effect.tsv ~{sample_name}.star-fusion.fusion_predictions.abridged.coding_effect.tsv && gzip ~{sample_name}.star-fusion.fusion_predictions.abridged.coding_effect.tsv
 mv ~{sample_name}/star-fusion.fusion_predictions.abridged.tsv ~{sample_name}.star-fusion.fusion_predictions.abridged.tsv && gzip ~{sample_name}.star-fusion.fusion_predictions.abridged.tsv
 mv ~{sample_name}/star-fusion.fusion_predictions.tsv ~{sample_name}.star-fusion.fusion_predictions.tsv && gzip ~{sample_name}.star-fusion.fusion_predictions.tsv
 
 if [[ -s "~{sample_name}/FusionInspector-validate/finspector.FusionInspector.fusions.abridged.tsv" ]]; then
-  mv ~{sample_name}/FusionInspector-validate/finspector.FusionInspector.fusions.abridged.tsv ~{sample_name}_validate_finspector.FusionInspector.fusions.abridged.tsv && gzip ~{sample_name}_validate_finspector.FusionInspector.fusions.abridged.tsv
-  mv ~{sample_name}/FusionInspector-validate/finspector.fusion_inspector_web.html ~{sample_name}_validate_finspector.fusion_inspector_web.html
+  mv ~{sample_name}/FusionInspector-validate/finspector.FusionInspector.fusions.abridged.tsv ~{sample_name}.FusionInspector.validate.fusions.abridged.tsv && gzip ~{sample_name}.FusionInspector.validate.fusions.abridged.tsv
+  mv ~{sample_name}/FusionInspector-validate/finspector.fusion_inspector_web.html ~{sample_name}.FusionInspector.validate.fusion_inspector_web.html
 fi
 
 if [[ -s "~{sample_name}/FusionInspector-inspect/finspector.FusionInspector.fusions.abridged.tsv" ]]; then
-  mv ~{sample_name}/FusionInspector-inspect/finspector.FusionInspector.fusions.abridged.tsv ~{sample_name}_inspect_finspector.FusionInspector.fusions.abridged.tsv && gzip ~{sample_name}_inspect_finspector.FusionInspector.fusions.abridged.tsv
-  mv ~{sample_name}/FusionInspector-inspect/finspector.fusion_inspector_web.html ~{sample_name}_inspect_finspector.fusion_inspector_web.html
+  mv ~{sample_name}/FusionInspector-inspect/finspector.FusionInspector.fusions.abridged.tsv ~{sample_name}.FusionInspector.inspect.fusions.abridged.tsv && gzip ~{sample_name}.FusionInspector.inspect.fusions.abridged.tsv
+  mv ~{sample_name}/FusionInspector-inspect/finspector.fusion_inspector_web.html ~{sample_name}.FusionInspector.inspect.fusion_inspector_web.html
 fi
 
-mv ~{sample_name}/Log.final.out ~{sample_name}_star-fusion.Log.final.out
+mv ~{sample_name}/Log.final.out ~{sample_name}.star-fusion.Log.final.out
 mv ~{sample_name}/Aligned.out.bam ~{sample_name}.STAR.aligned.UNsorted.bam
 
   >>>
@@ -229,17 +229,17 @@ mv ~{sample_name}/Aligned.out.bam ~{sample_name}.STAR.aligned.UNsorted.bam
   }
 
   output {
-    File fusion_coding_effect = "~{sample_name}_star-fusion.fusion_predictions.abridged.coding_effect.tsv.gz"
-    File fusion_predictions_abridged = "~{sample_name}_star-fusion.fusion_predictions.abridged.tsv.gz"
-    File fusion_predictions = "~{sample_name}_star-fusion.fusion_predictions.tsv.gz"
+    File fusion_coding_effect = "~{sample_name}.star-fusion.fusion_predictions.abridged.coding_effect.tsv.gz"
+    File fusion_predictions_abridged = "~{sample_name}.star-fusion.fusion_predictions.abridged.tsv.gz"
+    File fusion_predictions = "~{sample_name}.star-fusion.fusion_predictions.tsv.gz"
     
-    File? fusion_inspector_validate_fusions_abridged = "~{sample_name}_validate_finspector.FusionInspector.fusions.abridged.tsv.gz"
-    File? fusion_inspector_validate_web = "~{sample_name}_validate_finspector.fusion_inspector_web.html"
+    File? fusion_inspector_validate_fusions_abridged = "~{sample_name}.FusionInspector.validate.fusions.abridged.tsv.gz"
+    File? fusion_inspector_validate_web = "~{sample_name}.FusionInspector.validate.fusion_inspector_web.html"
 
-    File? fusion_inspector_inspect_fusions_abridged = "~{sample_name}_inspect_finspector.FusionInspector.fusions.abridged.tsv.gz"
-    File? fusion_inspector_inspect_web = "~{sample_name}_inspect_finspector.fusion_inspector_web.html"
-
-    File fusion_log_final = "~{sample_name}_star-fusion.Log.final.out"
+    File? fusion_inspector_inspect_fusions_abridged = "~{sample_name}.FusionInspector.inspect.fusions.abridged.tsv.gz"
+    File? fusion_inspector_inspect_web = "~{sample_name}.FusionInspector.inspect.fusion_inspector_web.html"
+    
+    File fusion_log_final = "~{sample_name}.star-fusion.Log.final.out"
     File fusion_unsorted_bam = "~{sample_name}.STAR.aligned.UNsorted.bam"
   }
 }
