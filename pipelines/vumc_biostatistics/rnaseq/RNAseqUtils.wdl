@@ -67,7 +67,7 @@ task FeatureCounts {
   input {
     String featureCounts_option = "-g gene_id -t exon -p --countReadPairs"
     File bam
-    File bam_index
+    File? bam_index
     File gtf
     String sample_name
     Int threads = 8
@@ -131,10 +131,19 @@ task STARFusion {
   
   Int disk_size_gb = ceil((fastq_disk_space_multiplier * (size(left_fq, "GB") + size(right_fq, "GB"))) + size(genome_plug_n_play_tar_gz, "GB") * genome_disk_space_multiplier + extra_disk_space)
 
+  String finspect_tsv=if (fusion_inspector == "validate") then sample_name + ".FusionInspector.validate.fusions.abridged.tsv.gz" else sample_name + ".FusionInspector.inspect.fusions.abridged.tsv.gz"
+  String finspect_html=if (fusion_inspector == "validate") then sample_name + ".FusionInspector.validate.fusion_inspector_web.html" else sample_name + ".FusionInspector.inspect.fusion_inspector_web.html"
+
   command <<<
 
 set -ex
 shopt -s nullglob
+
+if [[ "~{fusion_inspector}" != "validate" && "~{fusion_inspector}" != "inspect" ]]; then
+  echo "Error: ~{fusion_inspector} is not valid. It should be either 'validate' or 'inspect'."
+  exit 1
+fi
+
 
 mkdir -p ~{sample_name}
 
@@ -205,12 +214,12 @@ mv ~{sample_name}/star-fusion.fusion_predictions.abridged.coding_effect.tsv ~{sa
 mv ~{sample_name}/star-fusion.fusion_predictions.abridged.tsv ~{sample_name}.star-fusion.fusion_predictions.abridged.tsv && gzip ~{sample_name}.star-fusion.fusion_predictions.abridged.tsv
 mv ~{sample_name}/star-fusion.fusion_predictions.tsv ~{sample_name}.star-fusion.fusion_predictions.tsv && gzip ~{sample_name}.star-fusion.fusion_predictions.tsv
 
-if [[ -s "~{sample_name}/FusionInspector-validate/finspector.FusionInspector.fusions.abridged.tsv" ]]; then
+if [[ "~{fusion_inspector}" == "validate" ]]; then
   mv ~{sample_name}/FusionInspector-validate/finspector.FusionInspector.fusions.abridged.tsv ~{sample_name}.FusionInspector.validate.fusions.abridged.tsv && gzip ~{sample_name}.FusionInspector.validate.fusions.abridged.tsv
   mv ~{sample_name}/FusionInspector-validate/finspector.fusion_inspector_web.html ~{sample_name}.FusionInspector.validate.fusion_inspector_web.html
 fi
 
-if [[ -s "~{sample_name}/FusionInspector-inspect/finspector.FusionInspector.fusions.abridged.tsv" ]]; then
+if [[ "~{fusion_inspector}" == "inspect" ]]; then
   mv ~{sample_name}/FusionInspector-inspect/finspector.FusionInspector.fusions.abridged.tsv ~{sample_name}.FusionInspector.inspect.fusions.abridged.tsv && gzip ~{sample_name}.FusionInspector.inspect.fusions.abridged.tsv
   mv ~{sample_name}/FusionInspector-inspect/finspector.fusion_inspector_web.html ~{sample_name}.FusionInspector.inspect.fusion_inspector_web.html
 fi
@@ -233,12 +242,9 @@ mv ~{sample_name}/Aligned.out.bam ~{sample_name}.STAR.aligned.UNsorted.bam
     File fusion_predictions_abridged = "~{sample_name}.star-fusion.fusion_predictions.abridged.tsv.gz"
     File fusion_predictions = "~{sample_name}.star-fusion.fusion_predictions.tsv.gz"
     
-    File? fusion_inspector_validate_fusions_abridged = "~{sample_name}.FusionInspector.validate.fusions.abridged.tsv.gz"
-    File? fusion_inspector_validate_web = "~{sample_name}.FusionInspector.validate.fusion_inspector_web.html"
+    File fusion_inspector_fusions_abridged = finspect_tsv
+    File fusion_inspector_web = finspect_html
 
-    File? fusion_inspector_inspect_fusions_abridged = "~{sample_name}.FusionInspector.inspect.fusions.abridged.tsv.gz"
-    File? fusion_inspector_inspect_web = "~{sample_name}.FusionInspector.inspect.fusion_inspector_web.html"
-    
     File fusion_log_final = "~{sample_name}.star-fusion.Log.final.out"
     File fusion_unsorted_bam = "~{sample_name}.STAR.aligned.UNsorted.bam"
   }
