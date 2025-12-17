@@ -2,8 +2,10 @@ version 1.0
 
 task STAR_Unsorted {
   input {
-    File fastq_1
-    File fastq_2
+    File? fastq_pair_tar_gz
+    File? left_fq
+    File? right_fq
+
     String sample_name
 
     String star_option = "--twopassMode Basic --outSAMmapqUnique 60 --outSAMprimaryFlag AllBestScore"
@@ -24,16 +26,64 @@ task STAR_Unsorted {
     File sjdbList_out_tab
     File transcriptInfo_tab
 
-    Int memory_gb = 40
-    Float disk_size_factor = 2.5
+    Int memory_gb = 50
+    Float disk_size_factor = 3.25
     Int additional_disk_size_gb = 10
     Int threads = 8
   }
-  Int disk_size_gb = ceil(size([Genome, SA, SAindex], "GB") + size([fastq_1, fastq_2], "GB") * disk_size_factor + additional_disk_size_gb)
+  Int disk_size_gb = ceil(size([Genome, SA, SAindex], "GB") + size([fastq_pair_tar_gz, left_fq, right_fq], "GB") * disk_size_factor + additional_disk_size_gb)
 
   command <<<
 
 set -euo pipefail
+
+if [[ ! -z "~{fastq_pair_tar_gz}" ]]; then
+  # untar the fq pair
+  mv ~{fastq_pair_tar_gz} reads.tar.gz
+  tar xzvf reads.tar.gz
+  rm reads.tar.gz
+
+  # left reads
+  if compgen -G "*_1.fastq*" > /dev/null; then
+    left_fq=(*_1.fastq*)
+  elif compgen -G "*_1.fq*" > /dev/null; then
+    left_fq=(*_1.fq*)
+  fi
+
+  # right reads (_2 preferred, fallback to _3)
+  if compgen -G "*_2.fastq*" > /dev/null; then
+    right_fq=(*_2.fastq*)
+  elif compgen -G "*_2.fq*" > /dev/null; then
+    right_fq=(*_2.fq*)
+  elif compgen -G "*_3.fastq*" > /dev/null; then
+    right_fq=(*_3.fastq*)
+  elif compgen -G "*_3.fq*" > /dev/null; then
+    right_fq=(*_3.fq*)
+  fi
+else
+  left_fq="~{left_fq}"
+  right_fq="~{right_fq}"
+fi
+
+# sanity check
+if [[ -z "${left_fq[0]:-}" || -z "${right_fq[0]:-}" ]]; then
+  echo "Error: fastq files not found"
+  ls -ltr
+  exit 1
+fi
+
+echo "left_fq:  ${left_fq[@]}"
+echo "right_fq: ${right_fq[@]}"
+
+left_fqs=$(IFS=, ; echo "${left_fq[*]}")
+
+read_params="--readFilesIn ${left_fqs}"
+if [[ "${right_fq[0]}" != "" ]]; then
+  right_fqs=$(IFS=, ; echo "${right_fq[*]}")   
+  read_params="${read_params} ${right_fqs}"
+fi
+
+echo "read_params: ${read_params}"
 
 star_index_folder_name=$(dirname ~{Genome})
 echo "star_index_folder_name: $star_index_folder_name"
@@ -42,7 +92,7 @@ STAR ~{star_option} \
   --outSAMattrRGline ID:~{sample_name} SM:~{sample_name} LB:~{sample_name} PL:ILLUMINA PU:ILLUMINA \
   --runThreadN ~{threads} \
   --genomeDir $star_index_folder_name \
-  --readFilesIn ~{fastq_1} ~{fastq_2} \
+  ${read_params} \
   --readFilesCommand zcat \
   --outFileNamePrefix ~{sample_name}_ \
   --outSAMtype BAM Unsorted
@@ -102,6 +152,7 @@ featureCounts ~{featureCounts_option} \
 }
 
 # Modified based on https://github.com/STAR-Fusion/STAR-Fusion/blob/master/WDL/star_fusion_workflow.wdl
+# Since the STAR-Fusion bam file cannot be used in FeatureCounts directly, we will not output the bam file here.
 
 task STARFusion {
   input {
@@ -116,7 +167,6 @@ task STARFusion {
     String star_fusion_option = ""
     
     String fusion_inspector = "validate" # inspect or validate
-    Float min_FFPM = 0.1
 
     # runtime params
     String docker = "trinityctat/starfusion:latest"
@@ -131,8 +181,8 @@ task STARFusion {
   
   Int disk_size_gb = ceil((fastq_disk_space_multiplier * (size(left_fq, "GB") + size(right_fq, "GB"))) + size(genome_plug_n_play_tar_gz, "GB") * genome_disk_space_multiplier + extra_disk_space)
 
-  String finspect_tsv=if (fusion_inspector == "validate") then sample_name + ".FusionInspector.validate.fusions.abridged.tsv.gz" else sample_name + ".FusionInspector.inspect.fusions.abridged.tsv.gz"
-  String finspect_html=if (fusion_inspector == "validate") then sample_name + ".FusionInspector.validate.fusion_inspector_web.html" else sample_name + ".FusionInspector.inspect.fusion_inspector_web.html"
+  String finspect_tsv=if (fusion_inspector == "validate") then sample_name + "_finspector_validate.fusions.abridged.tsv.gz" else sample_name + "_finspector_inspect.fusions.abridged.tsv.gz"
+  String finspect_html=if (fusion_inspector == "validate") then sample_name + "_finspector_validate.fusion_inspector_web.html" else sample_name + "_finspector_inspect.fusion_inspector_web.html"
 
   command <<<
 
@@ -144,9 +194,7 @@ if [[ "~{fusion_inspector}" != "validate" && "~{fusion_inspector}" != "inspect" 
   exit 1
 fi
 
-
 mkdir -p ~{sample_name}
-
 
 if [[ ! -z "~{fastq_pair_tar_gz}" ]]; then
   # untar the fq pair
@@ -205,29 +253,26 @@ STAR-Fusion ~{star_fusion_option} \
   ${read_params} \
   --output_dir ~{sample_name} \
   --CPU ~{cpu} \
-  ~{"--FusionInspector " + fusion_inspector} \
+  --FusionInspector ~{fusion_inspector} \
   --examine_coding_effect \
-  --min_FFPM ~{min_FFPM}
+  --denovo_reconstruct
 
 # rename outputs to include the sample ID
-mv ~{sample_name}/star-fusion.fusion_predictions.abridged.coding_effect.tsv ~{sample_name}.star-fusion.fusion_predictions.abridged.coding_effect.tsv && gzip ~{sample_name}.star-fusion.fusion_predictions.abridged.coding_effect.tsv
-mv ~{sample_name}/star-fusion.fusion_predictions.abridged.tsv ~{sample_name}.star-fusion.fusion_predictions.abridged.tsv && gzip ~{sample_name}.star-fusion.fusion_predictions.abridged.tsv
-mv ~{sample_name}/star-fusion.fusion_predictions.tsv ~{sample_name}.star-fusion.fusion_predictions.tsv && gzip ~{sample_name}.star-fusion.fusion_predictions.tsv
+mv ~{sample_name}/star-fusion.fusion_predictions.abridged.coding_effect.tsv ~{sample_name}_star-fusion.fusion_predictions.abridged.coding_effect.tsv && gzip ~{sample_name}_star-fusion.fusion_predictions.abridged.coding_effect.tsv
+mv ~{sample_name}/star-fusion.fusion_predictions.abridged.tsv ~{sample_name}_star-fusion.fusion_predictions.abridged.tsv && gzip ~{sample_name}_star-fusion.fusion_predictions.abridged.tsv
+mv ~{sample_name}/star-fusion.fusion_predictions.tsv ~{sample_name}_star-fusion.fusion_predictions.tsv && gzip ~{sample_name}_star-fusion.fusion_predictions.tsv
 
-if [[ "~{fusion_inspector}" == "validate" ]]; then
-  ls -ltr ~{sample_name}/FusionInspector-validate/
-  mv ~{sample_name}/FusionInspector-validate/finspector.FusionInspector.fusions.abridged.tsv ~{sample_name}.FusionInspector.validate.fusions.abridged.tsv && gzip ~{sample_name}.FusionInspector.validate.fusions.abridged.tsv
-  mv ~{sample_name}/FusionInspector-validate/finspector.fusion_inspector_web.html ~{sample_name}.FusionInspector.validate.fusion_inspector_web.html
+if [[ -s ~{sample_name}/FusionInspector-validate/finspector.FusionInspector.fusions.abridged.tsv ]]; then
+  mv ~{sample_name}/FusionInspector-validate/finspector.FusionInspector.fusions.abridged.tsv ~{sample_name}_finspector_validate.fusions.abridged.tsv && gzip ~{sample_name}_finspector_validate.fusions.abridged.tsv
+  mv ~{sample_name}/FusionInspector-validate/finspector.fusion_inspector_web.html ~{sample_name}_finspector_validate.fusion_inspector_web.html
 fi
 
-if [[ "~{fusion_inspector}" == "inspect" ]]; then
-  ls -ltr ~{sample_name}/FusionInspector-inspect/
-  mv ~{sample_name}/FusionInspector-inspect/finspector.FusionInspector.fusions.abridged.tsv ~{sample_name}.FusionInspector.inspect.fusions.abridged.tsv && gzip ~{sample_name}.FusionInspector.inspect.fusions.abridged.tsv
-  mv ~{sample_name}/FusionInspector-inspect/finspector.fusion_inspector_web.html ~{sample_name}.FusionInspector.inspect.fusion_inspector_web.html
+if [[ -s ~{sample_name}/FusionInspector-inspect/finspector.FusionInspector.fusions.abridged.tsv ]]; then
+  mv ~{sample_name}/FusionInspector-inspect/finspector.FusionInspector.fusions.abridged.tsv ~{sample_name}_finspector_inspect.fusions.abridged.tsv && gzip ~{sample_name}_finspector_inspect.fusions.abridged.tsv
+  mv ~{sample_name}/FusionInspector-inspect/finspector.fusion_inspector_web.html ~{sample_name}_finspector_inspect.fusion_inspector_web.html
 fi
 
-mv ~{sample_name}/Log.final.out ~{sample_name}.star-fusion.Log.final.out
-mv ~{sample_name}/Aligned.out.bam ~{sample_name}.STAR.aligned.UNsorted.bam
+mv ~{sample_name}/Log.final.out ~{sample_name}_star-fusion.Log.final.out
 
   >>>
 
@@ -240,14 +285,13 @@ mv ~{sample_name}/Aligned.out.bam ~{sample_name}.STAR.aligned.UNsorted.bam
   }
 
   output {
-    File fusion_coding_effect = "~{sample_name}.star-fusion.fusion_predictions.abridged.coding_effect.tsv.gz"
-    File fusion_predictions_abridged = "~{sample_name}.star-fusion.fusion_predictions.abridged.tsv.gz"
-    File fusion_predictions = "~{sample_name}.star-fusion.fusion_predictions.tsv.gz"
-    
-    File fusion_inspector_fusions_abridged = finspect_tsv
-    File fusion_inspector_web = finspect_html
-
+    File fusion_coding_effect = "~{sample_name}_star-fusion.fusion_predictions.abridged.coding_effect.tsv.gz"
+    File fusion_predictions_abridged = "~{sample_name}_star-fusion.fusion_predictions.abridged.tsv.gz"
+    File fusion_predictions = "~{sample_name}_star-fusion.fusion_predictions.tsv.gz"
     File fusion_log_final = "~{sample_name}.star-fusion.Log.final.out"
-    File fusion_unsorted_bam = "~{sample_name}.STAR.aligned.UNsorted.bam"
+    
+    # Those file might not be generated if no fusions are found
+    File? fusion_inspector_fusions_abridged = finspect_tsv
+    File? fusion_inspector_web = finspect_html
   }
 }
