@@ -215,11 +215,13 @@ mv ~{sample_name}/star-fusion.fusion_predictions.abridged.tsv ~{sample_name}.sta
 mv ~{sample_name}/star-fusion.fusion_predictions.tsv ~{sample_name}.star-fusion.fusion_predictions.tsv && gzip ~{sample_name}.star-fusion.fusion_predictions.tsv
 
 if [[ "~{fusion_inspector}" == "validate" ]]; then
+  ls -ltr ~{sample_name}/FusionInspector-validate/
   mv ~{sample_name}/FusionInspector-validate/finspector.FusionInspector.fusions.abridged.tsv ~{sample_name}.FusionInspector.validate.fusions.abridged.tsv && gzip ~{sample_name}.FusionInspector.validate.fusions.abridged.tsv
   mv ~{sample_name}/FusionInspector-validate/finspector.fusion_inspector_web.html ~{sample_name}.FusionInspector.validate.fusion_inspector_web.html
 fi
 
 if [[ "~{fusion_inspector}" == "inspect" ]]; then
+  ls -ltr ~{sample_name}/FusionInspector-inspect/
   mv ~{sample_name}/FusionInspector-inspect/finspector.FusionInspector.fusions.abridged.tsv ~{sample_name}.FusionInspector.inspect.fusions.abridged.tsv && gzip ~{sample_name}.FusionInspector.inspect.fusions.abridged.tsv
   mv ~{sample_name}/FusionInspector-inspect/finspector.fusion_inspector_web.html ~{sample_name}.FusionInspector.inspect.fusion_inspector_web.html
 fi
