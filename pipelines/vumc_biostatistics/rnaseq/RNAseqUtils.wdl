@@ -288,7 +288,7 @@ mv ~{sample_name}/Log.final.out ~{sample_name}_star-fusion.Log.final.out
     File fusion_coding_effect = "~{sample_name}_star-fusion.fusion_predictions.abridged.coding_effect.tsv.gz"
     File fusion_predictions_abridged = "~{sample_name}_star-fusion.fusion_predictions.abridged.tsv.gz"
     File fusion_predictions = "~{sample_name}_star-fusion.fusion_predictions.tsv.gz"
-    File fusion_log_final = "~{sample_name}.star-fusion.Log.final.out"
+    File fusion_log_final = "~{sample_name}_star-fusion.Log.final.out"
     
     # Those file might not be generated if no fusions are found
     File? fusion_inspector_fusions_abridged = finspect_tsv
