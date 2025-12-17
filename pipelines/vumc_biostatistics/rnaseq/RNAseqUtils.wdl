@@ -107,13 +107,15 @@ task STARFusion {
   input {
     String sample_name
 
-    File left_fq
-    File right_fq
+    File? fastq_pair_tar_gz
+    File? left_fq
+    File? right_fq
 
     File genome_plug_n_play_tar_gz
     
     String star_fusion_option = ""
     
+    String fusion_inspector = "validate" # inspect or validate
     Float min_FFPM = 0.1
 
     # runtime params
@@ -131,21 +133,71 @@ task STARFusion {
 
   command <<<
 
-set -euo pipefail
+set -ex
+shopt -s nullglob
 
 mkdir -p ~{sample_name}
 
+
+if [[ ! -z "~{fastq_pair_tar_gz}" ]]; then
+  # untar the fq pair
+  mv ~{fastq_pair_tar_gz} reads.tar.gz
+  tar xzvf reads.tar.gz
+  rm reads.tar.gz
+
+  # left reads
+  if compgen -G "*_1.fastq*" > /dev/null; then
+    left_fq=(*_1.fastq*)
+  elif compgen -G "*_1.fq*" > /dev/null; then
+    left_fq=(*_1.fq*)
+  fi
+
+  # right reads (_2 preferred, fallback to _3)
+  if compgen -G "*_2.fastq*" > /dev/null; then
+    right_fq=(*_2.fastq*)
+  elif compgen -G "*_2.fq*" > /dev/null; then
+    right_fq=(*_2.fq*)
+  elif compgen -G "*_3.fastq*" > /dev/null; then
+    right_fq=(*_3.fastq*)
+  elif compgen -G "*_3.fq*" > /dev/null; then
+    right_fq=(*_3.fq*)
+  fi
+else
+  left_fq="~{left_fq}"
+  right_fq="~{right_fq}"
+fi
+
+# sanity check
+if [[ -z "${left_fq[0]:-}" || -z "${right_fq[0]:-}" ]]; then
+  echo "Error: fastq files not found"
+  ls -ltr
+  exit 1
+fi
+
+echo "left_fq:  ${left_fq[@]}"
+echo "right_fq: ${right_fq[@]}"
+
+left_fqs=$(IFS=, ; echo "${left_fq[*]}")
+
+read_params="--left_fq ${left_fqs}"
+if [[ "${right_fq[0]}" != "" ]]; then
+  right_fqs=$(IFS=, ; echo "${right_fq[*]}")   
+  read_params="${read_params} --right_fq ${right_fqs}"
+fi
+
+echo "read_params: ${read_params}"
+
 mkdir -p genome_dir
 
-tar xf ~{genome_plug_n_play_tar_gz} -C genome_dir --strip-components 1
+tar xzvf ~{genome_plug_n_play_tar_gz} -C genome_dir --strip-components 1
 
 STAR-Fusion ~{star_fusion_option} \
   --genome_lib_dir `pwd`/genome_dir/ctat_genome_lib_build_dir \
-  --left_fq ~{left_fq} \
-  --right_fq ~{right_fq} \
+  ${read_params} \
   --output_dir ~{sample_name} \
   --CPU ~{cpu} \
-  --FusionInspector inspect \
+  ~{"--FusionInspector " + fusion_inspector} \
+  --examine_coding_effect \
   --min_FFPM ~{min_FFPM}
 
 # rename outputs to include the sample ID
@@ -153,8 +205,15 @@ mv ~{sample_name}/star-fusion.fusion_predictions.abridged.coding_effect.tsv ~{sa
 mv ~{sample_name}/star-fusion.fusion_predictions.abridged.tsv ~{sample_name}.star-fusion.fusion_predictions.abridged.tsv && gzip ~{sample_name}.star-fusion.fusion_predictions.abridged.tsv
 mv ~{sample_name}/star-fusion.fusion_predictions.tsv ~{sample_name}.star-fusion.fusion_predictions.tsv && gzip ~{sample_name}.star-fusion.fusion_predictions.tsv
 
-mv ~{sample_name}/FusionInspector-inspect/finspector.FusionInspector.fusions.tsv ~{sample_name}_finspector.FusionInspector.fusions.tsv && gzip ~{sample_name}_finspector.FusionInspector.fusions.tsv
-mv ~{sample_name}/FusionInspector-inspect/finspector.fusion_inspector_web.html ~{sample_name}_finspector.fusion_inspector_web.html
+if [[ -s "~{sample_name}/FusionInspector-validate/finspector.FusionInspector.fusions.abridged.tsv" ]]; then
+  mv ~{sample_name}/FusionInspector-validate/finspector.FusionInspector.fusions.abridged.tsv ~{sample_name}_validate_finspector.FusionInspector.fusions.abridged.tsv && gzip ~{sample_name}_validate_finspector.FusionInspector.fusions.abridged.tsv
+  mv ~{sample_name}/FusionInspector-validate/finspector.fusion_inspector_web.html ~{sample_name}_validate_finspector.fusion_inspector_web.html
+fi
+
+if [[ -s "~{sample_name}/FusionInspector-inspect/finspector.FusionInspector.fusions.abridged.tsv" ]]; then
+  mv ~{sample_name}/FusionInspector-inspect/finspector.FusionInspector.fusions.abridged.tsv ~{sample_name}_inspect_finspector.FusionInspector.fusions.abridged.tsv && gzip ~{sample_name}_inspect_finspector.FusionInspector.fusions.abridged.tsv
+  mv ~{sample_name}/FusionInspector-inspect/finspector.fusion_inspector_web.html ~{sample_name}_inspect_finspector.fusion_inspector_web.html
+fi
 
 mv ~{sample_name}/Log.final.out ~{sample_name}_star-fusion.Log.final.out
 mv ~{sample_name}/Aligned.out.bam ~{sample_name}.STAR.aligned.UNsorted.bam
@@ -173,8 +232,13 @@ mv ~{sample_name}/Aligned.out.bam ~{sample_name}.STAR.aligned.UNsorted.bam
     File fusion_coding_effect = "~{sample_name}_star-fusion.fusion_predictions.abridged.coding_effect.tsv.gz"
     File fusion_predictions_abridged = "~{sample_name}_star-fusion.fusion_predictions.abridged.tsv.gz"
     File fusion_predictions = "~{sample_name}_star-fusion.fusion_predictions.tsv.gz"
-    File fusion_inspector_fusions = "~{sample_name}_finspector.FusionInspector.fusions.tsv.gz"
-    File fusion_inspector_web = "~{sample_name}_finspector.fusion_inspector_web.html"
+    
+    File? fusion_inspector_validate_fusions_abridged = "~{sample_name}_validate_finspector.FusionInspector.fusions.abridged.tsv.gz"
+    File? fusion_inspector_validate_web = "~{sample_name}_validate_finspector.fusion_inspector_web.html"
+
+    File? fusion_inspector_inspect_fusions_abridged = "~{sample_name}_inspect_finspector.FusionInspector.fusions.abridged.tsv.gz"
+    File? fusion_inspector_inspect_web = "~{sample_name}_inspect_finspector.fusion_inspector_web.html"
+
     File fusion_log_final = "~{sample_name}_star-fusion.Log.final.out"
     File fusion_unsorted_bam = "~{sample_name}.STAR.aligned.UNsorted.bam"
   }

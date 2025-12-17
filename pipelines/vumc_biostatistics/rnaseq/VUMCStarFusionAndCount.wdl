@@ -44,10 +44,16 @@ workflow VUMCStarFusionAndCount {
     File gtf
     
     # input data options
-    File left_fq
-    File right_fq
+    File? left_fq
+    File? right_fq
+    File? fastq_pair_tar_gz
     
-    # STARFusion runtime params
+    # STAR-Fusion parameters
+    String fusion_inspector = "validate"  # inspect or validate
+    Boolean examine_coding_effect = true
+    Float min_FFPM = 0.1
+
+    # STAR-Fusion runtime params
     String docker = "trinityctat/starfusion:latest"
     Int cpu = 12
     Float fastq_disk_space_multiplier = 3.25
@@ -60,12 +66,16 @@ workflow VUMCStarFusionAndCount {
     String? target_gcp_folder
   }
 
-  call RNAseqUtils.STARFusion {
+  call RNAseqUtils.STARFusion as STARFusion {
       input:
+        fastq_pair_tar_gz = fastq_pair_tar_gz,
         left_fq = left_fq,
         right_fq = right_fq,
         genome_plug_n_play_tar_gz = genome_plug_n_play_tar_gz,
         sample_name = sample_name,
+        fusion_inspector = fusion_inspector,
+        min_FFPM = min_FFPM,
+
         preemptible = preemptible,
         docker = docker,
         cpu = cpu,
@@ -92,14 +102,24 @@ workflow VUMCStarFusionAndCount {
       gtf = gtf
   }
 
+    File? fusion_inspector_validate_fusions_abridged = "~{sample_name}_validate_finspector.FusionInspector.fusions.abridged.tsv.gz"
+    File? fusion_inspector_validate_web = "~{sample_name}_validate_finspector.fusion_inspector_web.html"
+
+    File? fusion_inspector_inspect_fusions_abridged = "~{sample_name}_inspect_finspector.FusionInspector.fusions.abridged.tsv.gz"
+    File? fusion_inspector_inspect_web = "~{sample_name}_inspect_finspector.fusion_inspector_web.html"
+
+    File fusion_log_final = "~{sample_name}_star-fusion.Log.final.out"
+    File fusion_unsorted_bam = "~{sample_name}.STAR.aligned.UNsorted.bam"
+
+
   if (defined(target_gcp_folder)) {
     call GcpUtils.MoveOrCopyFiles as CopyFile {
       input:
         source_file1 = STARFusion.fusion_coding_effect,
         source_file2 = STARFusion.fusion_predictions_abridged,
         source_file3 = STARFusion.fusion_predictions,
-        source_file4 = STARFusion.fusion_inspector_web,
-        source_file5 = STARFusion.fusion_inspector_fusions,
+        source_file4 = select_first([STARFusion.fusion_inspector_validate_web, STARFusion.fusion_inspector_inspect_web]),
+        source_file5 = select_first([STARFusion.fusion_inspector_validate_fusions_abridged, STARFusion.fusion_inspector_inspect_fusions_abridged]),
         source_file6 = STARFusion.fusion_log_final,
         source_file7 = FeatureCounts.output_count,
         source_file8 = FeatureCounts.output_count_summary,
@@ -112,8 +132,8 @@ workflow VUMCStarFusionAndCount {
     String fusion_coding_effect = select_first([CopyFile.output_file1, STARFusion.fusion_coding_effect])
     String fusion_predictions_abridged = select_first([CopyFile.output_file2, STARFusion.fusion_predictions_abridged])
     String fusion_predictions = select_first([CopyFile.output_file3, STARFusion.fusion_predictions])
-    String fusion_inspector_web = select_first([CopyFile.output_file4, STARFusion.fusion_inspector_web])
-    String fusion_inspector_fusions = select_first([CopyFile.output_file5, STARFusion.fusion_inspector_fusions])
+    String fusion_inspector_web = select_first([CopyFile.output_file4, STARFusion.fusion_inspector_validate_web, STARFusion.fusion_inspector_inspect_web])
+    String fusion_inspector_fusions = select_first([CopyFile.output_file5, STARFusion.fusion_inspector_validate_fusions_abridged, STARFusion.fusion_inspector_inspect_fusions_abridged])
     String fusion_log_final = select_first([CopyFile.output_file6, STARFusion.fusion_log_final])
     String featurecounts_count = select_first([CopyFile.output_file7, FeatureCounts.output_count])
     String featurecounts_count_summary = select_first([CopyFile.output_file8, FeatureCounts.output_count_summary])
