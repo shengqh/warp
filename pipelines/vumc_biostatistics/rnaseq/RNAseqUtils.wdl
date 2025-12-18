@@ -309,3 +309,134 @@ rm -rf genome_dir
     File? fusion_inspector_inspect_fusions_abridged = "~{sample_name}_finspector_inspect.fusions.abridged.tsv.gz"
   }
 }
+
+task STARForFusion {
+  input {
+    String sample_name
+
+    File? fastq_pair_tar_gz
+    File? left_fq
+    File? right_fq
+
+    File genome_plug_n_play_tar_gz
+    
+    # runtime params
+    String docker = "trinityctat/starfusion:1.15.1"
+    Int cpu = 12
+    Float fastq_disk_space_multiplier = 3.25
+    Int memory_gb = 50
+    Float genome_disk_space_multiplier = 2.5
+    Int preemptible = 2
+    Float extra_disk_space = 10
+    Boolean use_ssd = true
+  }
+  
+  Int disk_size_gb = ceil((fastq_disk_space_multiplier * (size(left_fq, "GB") + size(right_fq, "GB"))) + size(genome_plug_n_play_tar_gz, "GB") * genome_disk_space_multiplier + extra_disk_space)
+
+  command <<<
+
+set -ex
+shopt -s nullglob
+
+if [[ ! -z "~{fastq_pair_tar_gz}" ]]; then
+  # untar the fq pair
+  mv ~{fastq_pair_tar_gz} reads.tar.gz
+  tar xzvf reads.tar.gz
+  rm reads.tar.gz
+
+  # left reads
+  if compgen -G "*_1.fastq*" > /dev/null; then
+    left_fq=(*_1.fastq*)
+  elif compgen -G "*_1.fq*" > /dev/null; then
+    left_fq=(*_1.fq*)
+  fi
+
+  # right reads (_2 preferred, fallback to _3)
+  if compgen -G "*_2.fastq*" > /dev/null; then
+    right_fq=(*_2.fastq*)
+  elif compgen -G "*_2.fq*" > /dev/null; then
+    right_fq=(*_2.fq*)
+  elif compgen -G "*_3.fastq*" > /dev/null; then
+    right_fq=(*_3.fastq*)
+  elif compgen -G "*_3.fq*" > /dev/null; then
+    right_fq=(*_3.fq*)
+  fi
+else
+  left_fq="~{left_fq}"
+  right_fq="~{right_fq}"
+fi
+
+# sanity check
+if [[ -z "${left_fq[0]:-}" || -z "${right_fq[0]:-}" ]]; then
+  echo "Error: fastq files not found"
+  ls -ltr
+  exit 1
+fi
+
+echo "left_fq:  ${left_fq[@]}"
+echo "right_fq: ${right_fq[@]}"
+
+left_fqs=$(IFS=, ; echo "${left_fq[*]}")
+
+read_params="${left_fqs}"
+if [[ "${right_fq[0]}" != "" ]]; then
+  right_fqs=$(IFS=, ; echo "${right_fq[*]}")   
+  read_params="${read_params} ${right_fqs}"
+fi
+
+echo "read_params: ${read_params}"
+
+mkdir -p genome_dir
+
+tar xzvf ~{genome_plug_n_play_tar_gz} -C genome_dir --strip-components 1
+
+STAR --version
+
+STAR --genomeDir `pwd`/genome_dir/ctat_genome_lib_build_dir/ref_genome.fa.star.idx \
+  --outReadsUnmapped None \
+  --chimSegmentMin 12 \
+  --chimJunctionOverhangMin 8 \
+  --chimOutJunctionFormat 1 \
+  --alignSJDBoverhangMin 10 \
+  --alignMatesGapMax 100000 \
+  --alignIntronMax 100000 \
+  --alignSJstitchMismatchNmax 5 -1 5 5 \
+  --runThreadN ~{cpu} \
+  --outSAMstrandField intronMotif \
+  --outSAMunmapped Within \
+  --alignInsertionFlush Right \
+  --alignSplicedMateMapLminOverLmate 0 \
+  --alignSplicedMateMapLmin 30 \
+  --outSAMtype BAM Unsorted \
+  --readFilesIn ${read_params} \
+  --outSAMattrRGline ID:GRPundef \
+  --chimMultimapScoreRange 3 \
+  --chimScoreJunctionNonGTAG -4 \
+  --chimMultimapNmax 20 \
+  --chimOutType Junctions WithinBAM \
+  --chimNonchimScoreDropMin 10 \
+  --peOverlapNbasesMin 12 \
+  --peOverlapMMp 0.1 \
+  --genomeLoad NoSharedMemory \
+  --twopassMode None \
+  --readFilesCommand "gunzip -c" \
+  --quantMode GeneCounts
+
+mv Chimeric.out.junction ~{sample_name}_Chimeric.out.junction && gzip ~{sample_name}_Chimeric.out.junction
+
+rm -rf genome_dir
+
+  >>>
+
+  runtime {
+    docker: docker
+    memory: memory_gb + " GiB"
+    disks: "local-disk " + disk_size_gb + " " + (if use_ssd then "SSD" else "HDD")
+    cpu: cpu
+    preemptible: 3
+  }
+
+  output {
+    File fusion_chimeric_out_junction = "~{sample_name}_Chimeric.out.junction.gz"
+  }
+}
