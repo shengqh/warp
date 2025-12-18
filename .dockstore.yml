@@ -540,4 +540,10 @@ workflows:
   - name: VUMCUntar
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCUntar.wdl
+
+  - name: VUMCUntarPairFASTQ
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCUntarPairFASTQ.wdl
+
+    
   
