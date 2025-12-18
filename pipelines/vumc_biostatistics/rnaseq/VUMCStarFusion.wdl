@@ -41,25 +41,12 @@ workflow VUMCStarFusion {
   input {
     String sample_name
 
-    File genome_plug_n_play_tar_gz
-    
     # input data options
     File? left_fq
     File? right_fq
     File? fastq_pair_tar_gz
-    
-    # STAR-Fusion parameters
-    String fusion_inspector = "validate"  # inspect or validate
 
-    # STAR-Fusion runtime params
-    String docker = "trinityctat/starfusion:latest"
-    Int cpu = 12
-    Float fastq_disk_space_multiplier = 3.25
-    Int memory_gb = 50
-    Float genome_disk_space_multiplier = 2.5
-    Int preemptible = 2
-    Float extra_disk_space = 10
-    Boolean use_ssd = true
+    File genome_plug_n_play_tar_gz
 
     String? target_gcp_folder
   }
@@ -70,17 +57,7 @@ workflow VUMCStarFusion {
       left_fq = left_fq,
       right_fq = right_fq,
       genome_plug_n_play_tar_gz = genome_plug_n_play_tar_gz,
-      sample_name = sample_name,
-      fusion_inspector = fusion_inspector,
-
-      preemptible = preemptible,
-      docker = docker,
-      cpu = cpu,
-      memory_gb = memory_gb,
-      extra_disk_space = extra_disk_space,
-      fastq_disk_space_multiplier = fastq_disk_space_multiplier,
-      genome_disk_space_multiplier = genome_disk_space_multiplier,
-      use_ssd = use_ssd
+      sample_name = sample_name
   }
 
   if (defined(target_gcp_folder)) {
