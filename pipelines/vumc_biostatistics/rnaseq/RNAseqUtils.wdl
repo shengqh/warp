@@ -88,6 +88,8 @@ echo "read_params: ${read_params}"
 star_index_folder_name=$(dirname ~{Genome})
 echo "star_index_folder_name: $star_index_folder_name"
 
+STAR --version
+
 STAR ~{star_option} \
   --outSAMattrRGline ID:~{sample_name} SM:~{sample_name} LB:~{sample_name} PL:ILLUMINA PU:ILLUMINA \
   --runThreadN ~{threads} \
@@ -126,6 +128,8 @@ task FeatureCounts {
   command <<<
 
 set -euo pipefail
+
+featureCounts --version
 
 featureCounts ~{featureCounts_option} \
   -g gene_id \
@@ -169,7 +173,7 @@ task STARFusion {
     String fusion_inspector = "validate" # inspect or validate
 
     # runtime params
-    String docker = "trinityctat/starfusion:latest"
+    String docker = "trinityctat/starfusion:1.15.1"
     Int cpu = 12
     Float fastq_disk_space_multiplier = 3.25
     String memory_gb = "50G"
@@ -193,8 +197,6 @@ if [[ "~{fusion_inspector}" != "validate" && "~{fusion_inspector}" != "inspect" 
   echo "Error: fusion_inspector ~{fusion_inspector} is not valid. It should be either 'validate' or 'inspect'."
   exit 1
 fi
-
-mkdir -p ~{sample_name}
 
 if [[ ! -z "~{fastq_pair_tar_gz}" ]]; then
   # untar the fq pair
@@ -248,31 +250,37 @@ mkdir -p genome_dir
 
 tar xzvf ~{genome_plug_n_play_tar_gz} -C genome_dir --strip-components 1
 
+STAR --version
+
+STAR-Fusion --version
+
 STAR-Fusion ~{star_fusion_option} \
   --genome_lib_dir `pwd`/genome_dir/ctat_genome_lib_build_dir \
   ${read_params} \
-  --output_dir ~{sample_name} \
+  --output_dir . \
   --CPU ~{cpu} \
   --FusionInspector ~{fusion_inspector} \
   --examine_coding_effect \
   --denovo_reconstruct
 
 # rename outputs to include the sample ID
-mv ~{sample_name}/star-fusion.fusion_predictions.abridged.coding_effect.tsv ~{sample_name}_star-fusion.fusion_predictions.abridged.coding_effect.tsv && gzip ~{sample_name}_star-fusion.fusion_predictions.abridged.coding_effect.tsv
-mv ~{sample_name}/star-fusion.fusion_predictions.abridged.tsv ~{sample_name}_star-fusion.fusion_predictions.abridged.tsv && gzip ~{sample_name}_star-fusion.fusion_predictions.abridged.tsv
-mv ~{sample_name}/star-fusion.fusion_predictions.tsv ~{sample_name}_star-fusion.fusion_predictions.tsv && gzip ~{sample_name}_star-fusion.fusion_predictions.tsv
+mv star-fusion.fusion_predictions.abridged.coding_effect.tsv ~{sample_name}_star-fusion.fusion_predictions.abridged.coding_effect.tsv && gzip ~{sample_name}_star-fusion.fusion_predictions.abridged.coding_effect.tsv
+mv star-fusion.fusion_predictions.abridged.tsv ~{sample_name}_star-fusion.fusion_predictions.abridged.tsv && gzip ~{sample_name}_star-fusion.fusion_predictions.abridged.tsv
+mv star-fusion.fusion_predictions.tsv ~{sample_name}_star-fusion.fusion_predictions.tsv && gzip ~{sample_name}_star-fusion.fusion_predictions.tsv
 
-if [[ -s ~{sample_name}/FusionInspector-validate/finspector.FusionInspector.fusions.abridged.tsv ]]; then
-  mv ~{sample_name}/FusionInspector-validate/finspector.FusionInspector.fusions.abridged.tsv ~{sample_name}_finspector_validate.fusions.abridged.tsv && gzip ~{sample_name}_finspector_validate.fusions.abridged.tsv
-  mv ~{sample_name}/FusionInspector-validate/finspector.fusion_inspector_web.html ~{sample_name}_finspector_validate.fusion_inspector_web.html
+if [[ -s FusionInspector-validate/finspector.FusionInspector.fusions.abridged.tsv ]]; then
+  mv FusionInspector-validate/finspector.FusionInspector.fusions.abridged.tsv ~{sample_name}_finspector_validate.fusions.abridged.tsv && gzip ~{sample_name}_finspector_validate.fusions.abridged.tsv
+  mv FusionInspector-validate/finspector.fusion_inspector_web.html ~{sample_name}_finspector_validate.fusion_inspector_web.html
 fi
 
-if [[ -s ~{sample_name}/FusionInspector-inspect/finspector.FusionInspector.fusions.abridged.tsv ]]; then
-  mv ~{sample_name}/FusionInspector-inspect/finspector.FusionInspector.fusions.abridged.tsv ~{sample_name}_finspector_inspect.fusions.abridged.tsv && gzip ~{sample_name}_finspector_inspect.fusions.abridged.tsv
-  mv ~{sample_name}/FusionInspector-inspect/finspector.fusion_inspector_web.html ~{sample_name}_finspector_inspect.fusion_inspector_web.html
+if [[ -s FusionInspector-inspect/finspector.FusionInspector.fusions.abridged.tsv ]]; then
+  mv FusionInspector-inspect/finspector.FusionInspector.fusions.abridged.tsv ~{sample_name}_finspector_inspect.fusions.abridged.tsv && gzip ~{sample_name}_finspector_inspect.fusions.abridged.tsv
+  mv FusionInspector-inspect/finspector.fusion_inspector_web.html ~{sample_name}_finspector_inspect.fusion_inspector_web.html
 fi
 
-mv ~{sample_name}/Log.final.out ~{sample_name}_star-fusion.Log.final.out
+mv star-fusion.Log.final.out ~{sample_name}_star-fusion.Log.final.out
+
+rm -rf genome_dir
 
   >>>
 
