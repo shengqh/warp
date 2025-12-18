@@ -176,7 +176,7 @@ task STARFusion {
     String docker = "trinityctat/starfusion:1.15.1"
     Int cpu = 12
     Float fastq_disk_space_multiplier = 3.25
-    String memory_gb = "50G"
+    Int memory_gb = 50
     Float genome_disk_space_multiplier = 2.5
     Int preemptible = 2
     Float extra_disk_space = 10
