@@ -284,7 +284,7 @@ if [[ -s FusionInspector-inspect/finspector.FusionInspector.fusions.abridged.tsv
   mv FusionInspector-inspect/finspector.fusion_inspector_web.html ~{sample_name}_finspector_inspect.fusion_inspector_web.html
 fi
 
-mv star-fusion.Log.final.out ~{sample_name}_star-fusion.Log.final.out
+mv Log.final.out ~{sample_name}_star-fusion.Log.final.out
 
 rm -rf genome_dir
 
