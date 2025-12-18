@@ -166,6 +166,8 @@ task STARFusion {
     File? left_fq
     File? right_fq
 
+    File? AnnotFilterRule_pm
+
     File genome_plug_n_play_tar_gz
     
     String star_fusion_option = ""
@@ -249,6 +251,10 @@ echo "read_params: ${read_params}"
 mkdir -p genome_dir
 
 tar xzvf ~{genome_plug_n_play_tar_gz} -C genome_dir --strip-components 1
+
+if [[ -f "~{AnnotFilterRule_pm}" ]]; then
+  cp "~{AnnotFilterRule_pm}" genome_dir/ctat_genome_lib_build_dir/AnnotFilterRule.pm
+fi
 
 STAR --version
 
