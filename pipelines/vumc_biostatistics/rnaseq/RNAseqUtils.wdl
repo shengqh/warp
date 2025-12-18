@@ -187,9 +187,6 @@ task STARFusion {
   
   Int disk_size_gb = ceil((fastq_disk_space_multiplier * (size(left_fq, "GB") + size(right_fq, "GB"))) + size(genome_plug_n_play_tar_gz, "GB") * genome_disk_space_multiplier + extra_disk_space)
 
-  String finspect_tsv=if (fusion_inspector == "validate") then sample_name + "_finspector_validate.fusions.abridged.tsv.gz" else sample_name + "_finspector_inspect.fusions.abridged.tsv.gz"
-  String finspect_html=if (fusion_inspector == "validate") then sample_name + "_finspector_validate.fusion_inspector_web.html" else sample_name + "_finspector_inspect.fusion_inspector_web.html"
-
   command <<<
 
 set -ex
@@ -284,8 +281,6 @@ if [[ -s FusionInspector-inspect/finspector.FusionInspector.fusions.abridged.tsv
   mv FusionInspector-inspect/finspector.fusion_inspector_web.html ~{sample_name}_finspector_inspect.fusion_inspector_web.html
 fi
 
-mv Log.final.out ~{sample_name}_star-fusion.Log.final.out
-
 rm -rf genome_dir
 
   >>>
@@ -302,10 +297,11 @@ rm -rf genome_dir
     File fusion_coding_effect = "~{sample_name}_star-fusion.fusion_predictions.abridged.coding_effect.tsv.gz"
     File fusion_predictions_abridged = "~{sample_name}_star-fusion.fusion_predictions.abridged.tsv.gz"
     File fusion_predictions = "~{sample_name}_star-fusion.fusion_predictions.tsv.gz"
-    File fusion_log_final = "~{sample_name}_star-fusion.Log.final.out"
     
-    # Those file might not be generated if no fusions are found
-    File? fusion_inspector_fusions_abridged = finspect_tsv
-    File? fusion_inspector_web = finspect_html
+    File? fusion_inspector_validate_web = "~{sample_name}_finspector_validate.fusion_inspector_web.html"
+    File? fusion_inspector_validate_fusions_abridged = "~{sample_name}_finspector_validate.fusions.abridged.tsv.gz"
+    
+    File? fusion_inspector_inspect_web = "~{sample_name}_finspector_inspect.fusion_inspector_web.html"
+    File? fusion_inspector_inspect_fusions_abridged = "~{sample_name}_finspector_inspect.fusions.abridged.tsv.gz"
   }
 }
