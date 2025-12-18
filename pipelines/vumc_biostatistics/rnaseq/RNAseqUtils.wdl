@@ -129,7 +129,7 @@ task FeatureCounts {
 
 set -euo pipefail
 
-featureCounts --version
+featureCounts -v
 
 featureCounts ~{featureCounts_option} \
   -g gene_id \
