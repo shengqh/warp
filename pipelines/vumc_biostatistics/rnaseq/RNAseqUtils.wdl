@@ -271,6 +271,8 @@ mv star-fusion.fusion_predictions.abridged.coding_effect.tsv ~{sample_name}_star
 mv star-fusion.fusion_predictions.abridged.tsv ~{sample_name}_star-fusion.fusion_predictions.abridged.tsv && gzip ~{sample_name}_star-fusion.fusion_predictions.abridged.tsv
 mv star-fusion.fusion_predictions.tsv ~{sample_name}_star-fusion.fusion_predictions.tsv && gzip ~{sample_name}_star-fusion.fusion_predictions.tsv
 
+mv Chimeric.out.junction ~{sample_name}_Chimeric.out.junction && gzip ~{sample_name}_Chimeric.out.junction
+
 if [[ -s FusionInspector-validate/finspector.FusionInspector.fusions.abridged.tsv ]]; then
   mv FusionInspector-validate/finspector.FusionInspector.fusions.abridged.tsv ~{sample_name}_finspector_validate.fusions.abridged.tsv && gzip ~{sample_name}_finspector_validate.fusions.abridged.tsv
   mv FusionInspector-validate/finspector.fusion_inspector_web.html ~{sample_name}_finspector_validate.fusion_inspector_web.html
@@ -297,6 +299,8 @@ rm -rf genome_dir
     File fusion_coding_effect = "~{sample_name}_star-fusion.fusion_predictions.abridged.coding_effect.tsv.gz"
     File fusion_predictions_abridged = "~{sample_name}_star-fusion.fusion_predictions.abridged.tsv.gz"
     File fusion_predictions = "~{sample_name}_star-fusion.fusion_predictions.tsv.gz"
+
+    File fusion_chimeric_out_junction = "~{sample_name}_Chimeric.out.junction.gz"
     
     File? fusion_inspector_validate_web = "~{sample_name}_finspector_validate.fusion_inspector_web.html"
     File? fusion_inspector_validate_fusions_abridged = "~{sample_name}_finspector_validate.fusions.abridged.tsv.gz"

@@ -67,10 +67,11 @@ workflow VUMCStarFusion {
         source_file1 = STARFusion.fusion_coding_effect,
         source_file2 = STARFusion.fusion_predictions_abridged,
         source_file3 = STARFusion.fusion_predictions,
-        source_file4 = STARFusion.fusion_inspector_validate_web,
-        source_file5 = STARFusion.fusion_inspector_validate_fusions_abridged,
-        source_file6 = STARFusion.fusion_inspector_inspect_web,
-        source_file7 = STARFusion.fusion_inspector_inspect_fusions_abridged,
+        source_file4 = STARFusion.fusion_chimeric_out_junction,
+        source_file5 = STARFusion.fusion_inspector_validate_web,
+        source_file6 = STARFusion.fusion_inspector_validate_fusions_abridged,
+        source_file7 = STARFusion.fusion_inspector_inspect_web,
+        source_file8 = STARFusion.fusion_inspector_inspect_fusions_abridged,
         is_move_file = false,
         target_gcp_folder = gcs_output_dir
     }
@@ -80,8 +81,9 @@ workflow VUMCStarFusion {
     String fusion_coding_effect = select_first([CopyFile.output_file1, STARFusion.fusion_coding_effect])
     String fusion_predictions_abridged = select_first([CopyFile.output_file2, STARFusion.fusion_predictions_abridged])
     String fusion_predictions = select_first([CopyFile.output_file3, STARFusion.fusion_predictions])
-    String? fusion_inspector_validate_web = select_first([CopyFile.output_file4, STARFusion.fusion_inspector_validate_web, ""])
-    String? fusion_inspector_validate_fusions_abridged = select_first([CopyFile.output_file5, STARFusion.fusion_inspector_validate_fusions_abridged, ""])
-    String? fusion_inspector_inspect_web = select_first([CopyFile.output_file6, STARFusion.fusion_inspector_inspect_web, ""])
-    String? fusion_inspector_inspect_fusions_abridged = select_first([CopyFile.output_file7, STARFusion.fusion_inspector_inspect_fusions_abridged, ""])}
+    String fusion_chimeric_out_junction = select_first([CopyFile.output_file4, STARFusion.fusion_chimeric_out_junction])
+    String? fusion_inspector_validate_web = select_first([CopyFile.output_file5, STARFusion.fusion_inspector_validate_web, ""])
+    String? fusion_inspector_validate_fusions_abridged = select_first([CopyFile.output_file6, STARFusion.fusion_inspector_validate_fusions_abridged, ""])
+    String? fusion_inspector_inspect_web = select_first([CopyFile.output_file7, STARFusion.fusion_inspector_inspect_web, ""])
+    String? fusion_inspector_inspect_fusions_abridged = select_first([CopyFile.output_file8, STARFusion.fusion_inspector_inspect_fusions_abridged, ""])}
 }
