@@ -52,18 +52,18 @@ workflow VUMCVcf2Pgen {
   if(defined(target_gcp_folder)){
     call GcpUtils.MoveOrCopyFiles as CopyFile {
       input:
-        source_file01 = Vcf2Pgen.output_pgen,
-        source_file02 = Vcf2Pgen.output_psam,
-        source_file03 = Vcf2Pgen.output_pvar,
+        source_file1 = Vcf2Pgen.output_pgen,
+        source_file2 = Vcf2Pgen.output_psam,
+        source_file3 = Vcf2Pgen.output_pvar,
         is_move_file = false,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }
 
   output {
-    File output_pgen = select_first([CopyFile.output_file01, Vcf2Pgen.output_pgen])
-    File output_psam = select_first([CopyFile.output_file02, Vcf2Pgen.output_psam])
-    File output_pvar = select_first([CopyFile.output_file03, Vcf2Pgen.output_pvar])
+    File output_pgen = select_first([CopyFile.output_file1, Vcf2Pgen.output_pgen])
+    File output_psam = select_first([CopyFile.output_file2, Vcf2Pgen.output_psam])
+    File output_pvar = select_first([CopyFile.output_file3, Vcf2Pgen.output_pvar])
   }
 }
 
