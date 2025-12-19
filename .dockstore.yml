@@ -1,10 +1,6 @@
 version: 1.2
 workflows:
 
-  - name: VUMCStarFusionAndCount
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCStarFusionAndCount.wdl
-
   - name: VUMCFastqQC
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCFastqQC.wdl
@@ -436,6 +432,10 @@ workflows:
   - name: VUMCStarForFusion
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/rnaseq/VUMCStarForFusion.wdl
+
+  - name: VUMCStarFusionAndCount
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/rnaseq/VUMCStarFusionAndCount.wdl
 
   - name: VUMCConvertRsidToBed
     subclass: WDL
