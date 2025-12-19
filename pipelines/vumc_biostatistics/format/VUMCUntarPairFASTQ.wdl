@@ -31,6 +31,7 @@ version 1.0
 ## - Disk space is automatically calculated based on archive size with a 3x factor and 5GB buffer
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
+import "./VUMCUntar.wdl" as UntarModule
 
 workflow VUMCUntarPairFASTQ {
   input {
@@ -41,7 +42,7 @@ workflow VUMCUntarPairFASTQ {
     String? target_gcp_folder
   }
 
-  call Untar {
+  call UntarModule.Untar {
     input:
       input_tar_gz = input_tar_gz,
       output_extension = output_extension,
@@ -63,43 +64,5 @@ workflow VUMCUntarPairFASTQ {
   output {
     File fastq1 = select_first([CopyFile.output_file1, untar_fastq1])
     File fastq2 = select_first([CopyFile.output_file2, untar_fastq2])
-  }
-}
-
-task Untar {
-  input {
-    File input_tar_gz
-
-    String output_extension
-
-    Int memory_gb = 20
-    Int cpu = 1
-    Float disk_size_factor = 3.0
-    Int additional_disk_gb = 5
-
-    Int? disk_size_override
-
-    String docker = "us.gcr.io/broad-dsde-methods/ubuntu:20.04"
-  }
-
-  Int disk_size = select_first([disk_size_override, ceil(disk_size_factor * size(input_tar_gz, "GB")) + additional_disk_gb])
-
-  command <<<
-set -euo pipefail
-
-tar -xzvf "~{input_tar_gz}"
-
-  >>>
-
-  runtime {
-    docker: docker
-    memory: "~{memory_gb} GiB"
-    cpu: cpu
-    disks: "local-disk " + disk_size + " HDD"
-    preemptible: 3
-  }
-
-  output {
-    Array[File] output_files = glob("*~{output_extension}")
   }
 }
