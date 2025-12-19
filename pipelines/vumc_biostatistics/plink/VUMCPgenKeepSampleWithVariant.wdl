@@ -60,10 +60,10 @@ workflow VUMCPgenKeepSampleWithVariant {
   }
 
   output {
-    String sample_with_variant_pgen = select_first([CopyFile.output_file1, KeepSampleWithVariant.output_pgen])
-    String sample_with_variant_pvar = select_first([CopyFile.output_file2, KeepSampleWithVariant.output_pvar])
-    String sample_with_variant_psam = select_first([CopyFile.output_file3, KeepSampleWithVariant.output_psam])
-    String sample_with_variant_allele_freq = select_first([CopyFile.output_file4, KeepSampleWithVariant.output_allele_freq])
+    File sample_with_variant_pgen = select_first([CopyFile.output_file1, KeepSampleWithVariant.output_pgen])
+    File sample_with_variant_pvar = select_first([CopyFile.output_file2, KeepSampleWithVariant.output_pvar])
+    File sample_with_variant_psam = select_first([CopyFile.output_file3, KeepSampleWithVariant.output_psam])
+    File sample_with_variant_allele_freq = select_first([CopyFile.output_file4, KeepSampleWithVariant.output_allele_freq])
     Int sample_with_variant_num_samples = KeepSampleWithVariant.output_num_samples
     Int sample_with_variant_num_variants = KeepSampleWithVariant.output_num_variants
   }

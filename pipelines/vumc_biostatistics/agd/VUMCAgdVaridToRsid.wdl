@@ -55,7 +55,7 @@ workflow VUMCAgdVaridToRsid {
   }
 
   output {
-    String output_rsid_csv = select_first([CopyFile.output_file , AgdVaridToRsid.output_rsid_csv])
+    File output_rsid_csv = select_first([CopyFile.output_file , AgdVaridToRsid.output_rsid_csv])
   }
 }
 

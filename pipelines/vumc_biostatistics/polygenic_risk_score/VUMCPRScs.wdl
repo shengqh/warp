@@ -59,7 +59,7 @@ workflow VUMCPRScs {
   }
 
   output {
-    String output_effect_file = select_first([CopyFile.output_file, concat_files.concat_file])
+    File output_effect_file = select_first([CopyFile.output_file, concat_files.concat_file])
   }
 }
 

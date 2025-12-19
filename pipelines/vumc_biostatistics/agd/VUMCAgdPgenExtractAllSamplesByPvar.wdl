@@ -99,8 +99,8 @@ workflow VUMCAgdPgenExtractAllSamplesByPvar {
   }
 
   output {
-    String output_allsamples_pgen = select_first([CopyFile.output_file1, all_samples_pgen])
-    String output_allsamples_pvar = select_first([CopyFile.output_file2, all_samples_pvar])
-    String output_allsamples_psam = select_first([CopyFile.output_file3, all_samples_psam])
+    File output_allsamples_pgen = select_first([CopyFile.output_file1, all_samples_pgen])
+    File output_allsamples_pvar = select_first([CopyFile.output_file2, all_samples_pvar])
+    File output_allsamples_psam = select_first([CopyFile.output_file3, all_samples_psam])
   }
 }

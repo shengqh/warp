@@ -114,7 +114,7 @@ workflow VUMCPrsStep3Score {
   }
 
   output {
-    String output_sscore_file = select_first([CopyFile.output_file, Plink2PolygenicRiskScore.output_sscore_file])
+    File output_sscore_file = select_first([CopyFile.output_file, Plink2PolygenicRiskScore.output_sscore_file])
   }
 }
 

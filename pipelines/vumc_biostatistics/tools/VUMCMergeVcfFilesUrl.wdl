@@ -35,7 +35,7 @@ workflow VUMCMergeVcfFilesUrl {
   }
   
   output {
-    String output_vcf = MergeVcfFiles.output_vcf
+    File output_vcf = MergeVcfFiles.output_vcf
   }
 }
 
@@ -77,6 +77,6 @@ echo `date`: done.
   }
 
   output {
-    String output_vcf = target_vcf
+    File output_vcf = target_vcf
   }
 }

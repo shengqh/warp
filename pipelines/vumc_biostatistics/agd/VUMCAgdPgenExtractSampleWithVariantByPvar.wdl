@@ -71,8 +71,8 @@ workflow VUMCAgdPgenExtractSampleWithVariantByPvar {
   }
 
   output {
-    String output_sample_with_variant_pgen = select_first([CopyFile.output_file1, KeepSampleWithVariant.output_pgen])
-    String output_sample_with_variant_pvar = select_first([CopyFile.output_file2, KeepSampleWithVariant.output_pvar])
-    String output_sample_with_variant_psam = select_first([CopyFile.output_file3, KeepSampleWithVariant.output_psam])
+    File output_sample_with_variant_pgen = select_first([CopyFile.output_file1, KeepSampleWithVariant.output_pgen])
+    File output_sample_with_variant_pvar = select_first([CopyFile.output_file2, KeepSampleWithVariant.output_pvar])
+    File output_sample_with_variant_psam = select_first([CopyFile.output_file3, KeepSampleWithVariant.output_psam])
   }
 }

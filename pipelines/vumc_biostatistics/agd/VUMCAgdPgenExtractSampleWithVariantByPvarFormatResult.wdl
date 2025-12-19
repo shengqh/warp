@@ -55,8 +55,8 @@ workflow VUMCAgdPgenExtractSampleWithVariantByPvarFormatResult {
   }
 
   output {
-    String output_by_variant_tsv = select_first([CopyFile.output_file1, FormatResult.output_by_variant_tsv])
-    String output_by_sample_tsv = select_first([CopyFile.output_file2, FormatResult.output_by_sample_tsv])
+    File output_by_variant_tsv = select_first([CopyFile.output_file1, FormatResult.output_by_variant_tsv])
+    File output_by_sample_tsv = select_first([CopyFile.output_file2, FormatResult.output_by_sample_tsv])
   }
 }
 

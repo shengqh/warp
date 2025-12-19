@@ -57,7 +57,7 @@ workflow VUMCPrsStep1Regenie2PRScsSST {
   }
 
   output {
-    String output_sst_file = select_first([CopyFile.output_file, variantID2rsID.output_sst_file, Regenie2PRScsSST.output_sst_file])
+    File output_sst_file = select_first([CopyFile.output_file, variantID2rsID.output_sst_file, Regenie2PRScsSST.output_sst_file])
   }
 }
 

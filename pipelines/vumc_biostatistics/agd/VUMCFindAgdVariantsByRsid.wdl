@@ -59,8 +59,8 @@ workflow VUMCFindAgdVariantsByRsid {
   }
 
   output {
-    String output_variant_bed = select_first([CopyFile.output_file1 , FindAgdVariantsByRsid.output_variant_bed])
-    String output_variant_txt = select_first([CopyFile.output_file2 , FindAgdVariantsByRsid.output_variant_txt])
+    File output_variant_bed = select_first([CopyFile.output_file1 , FindAgdVariantsByRsid.output_variant_bed])
+    File output_variant_txt = select_first([CopyFile.output_file2 , FindAgdVariantsByRsid.output_variant_txt])
   }
 }
 

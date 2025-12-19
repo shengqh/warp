@@ -48,6 +48,6 @@ workflow VUMCConvertRsidToBed {
   }
 
   output {
-    String output_variant_bed = select_first([CopyFile.output_file, ConvertRsidToBed.output_bed])
+    File output_variant_bed = select_first([CopyFile.output_file, ConvertRsidToBed.output_bed])
   }
 }

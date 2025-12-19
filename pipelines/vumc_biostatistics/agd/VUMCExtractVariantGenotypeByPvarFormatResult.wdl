@@ -54,9 +54,9 @@ workflow VUMCExtractVariantGenotypeByPvarFormatResult {
   }
 
   output {
-    String output_variant_csv = select_first([CopyFile.output_file1, FormatResult.output_variant_csv])
-    String output_sample_csv = select_first([CopyFile.output_file2, FormatResult.output_sample_csv])
-    String output_psam = select_first([CopyFile.output_file3, FormatResult.output_psam])
+    File output_variant_csv = select_first([CopyFile.output_file1, FormatResult.output_variant_csv])
+    File output_sample_csv = select_first([CopyFile.output_file2, FormatResult.output_sample_csv])
+    File output_psam = select_first([CopyFile.output_file3, FormatResult.output_psam])
     Int num_samples = FormatResult.num_samples
   }
 }

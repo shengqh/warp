@@ -151,12 +151,12 @@ workflow VUMCExtractVariantGenotypeByPvar {
   }
 
   output {
-    String output_pgen = select_first([CopyFile.output_file1, PgenFilter_samples.output_pgen])
-    String output_pvar = select_first([CopyFile.output_file2, PgenFilter_samples.output_pvar])
-    String output_psam = select_first([CopyFile.output_file3, PgenFilter_samples.output_psam])
-    String output_vcf = select_first([CopyFile.output_file4, Pgen2Vcf_samples.output_vcf])
-    String output_variant_csv = select_first([CopyFile.output_file5, FormatResult.output_variant_csv])
-    String output_sample_csv = select_first([CopyFile.output_file6, FormatResult.output_sample_csv])
+    File output_pgen = select_first([CopyFile.output_file1, PgenFilter_samples.output_pgen])
+    File output_pvar = select_first([CopyFile.output_file2, PgenFilter_samples.output_pvar])
+    File output_psam = select_first([CopyFile.output_file3, PgenFilter_samples.output_psam])
+    File output_vcf = select_first([CopyFile.output_file4, Pgen2Vcf_samples.output_vcf])
+    File output_variant_csv = select_first([CopyFile.output_file5, FormatResult.output_variant_csv])
+    File output_sample_csv = select_first([CopyFile.output_file6, FormatResult.output_sample_csv])
     Int output_num_variants = PgenFilter_samples.num_variants
     Int output_num_samples = PgenFilter_samples.num_samples
   }

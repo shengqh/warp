@@ -84,7 +84,7 @@ workflow VUMCAgdClinvarToPvar {
   }
 
   output {
-    String clinvar_pvar = select_first([CopyFile.output_file , AgdClinvarToPvar.clinvar_pvar])
+    File clinvar_pvar = select_first([CopyFile.output_file , AgdClinvarToPvar.clinvar_pvar])
     Int clinvar_num_variants = AgdClinvarToPvar.clinvar_num_variants
   }
 }

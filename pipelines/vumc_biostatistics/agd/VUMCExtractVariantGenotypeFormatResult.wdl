@@ -51,7 +51,7 @@ workflow VUMCExtractVariantGenotypeFormatResult {
   }
 
   output {
-    String output_genotype_csv = select_first([CopyFile.output_file, FormatResult.output_genotype_csv])
+    File output_genotype_csv = select_first([CopyFile.output_file, FormatResult.output_genotype_csv])
   }
 }
 

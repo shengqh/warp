@@ -38,9 +38,9 @@ workflow VUMCPgen2BigQueryMatrixPartition {
   }
 
   output {
-    String output_pvar_txt = select_first([CopyFile1.output_file1, Pgen2BigQueryMatrix.output_pvar_txt])
-    String output_psam_txt = select_first([CopyFile1.output_file2, Pgen2BigQueryMatrix.output_psam_txt])
-    Array[String] output_pgen_txt_files = select_first([CopyFile2.outputFiles, Pgen2BigQueryMatrix.output_pgen_txt_files])
+    File output_pvar_txt = select_first([CopyFile1.output_file1, Pgen2BigQueryMatrix.output_pvar_txt])
+    File output_psam_txt = select_first([CopyFile1.output_file2, Pgen2BigQueryMatrix.output_psam_txt])
+    Array[File] output_pgen_txt_files = select_first([CopyFile2.outputFiles, Pgen2BigQueryMatrix.output_pgen_txt_files])
   }
 }
 

@@ -55,7 +55,7 @@ workflow VUMCAgdRsidToPvar {
   }
 
   output {
-    String output_pvar = select_first([CopyFile.output_file , AgdRsidToPvar.output_pvar])
+    File output_pvar = select_first([CopyFile.output_file , AgdRsidToPvar.output_pvar])
   }
 }
 

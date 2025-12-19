@@ -47,7 +47,7 @@ workflow VUMCPlink2PolygenicRiskScore {
   }
 
   output {
-    String output_sscore = select_first([CopyFile.output_file, Plink2PolygenicRiskScore.output_sscore])
+    File output_sscore = select_first([CopyFile.output_file, Plink2PolygenicRiskScore.output_sscore])
   }
 }
 

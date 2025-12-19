@@ -130,10 +130,10 @@ workflow VUMCStarFeaturecounts {
   }
   # Outputs that will be retained when execution is complete
   output {
-    String output_star_summary = select_first([CopyFile.output_file1, STAR_Unsorted.output_star_summary])
-    String output_count = select_first([CopyFile.output_file2, FeatureCounts.output_count])
-    String output_count_summary = select_first([CopyFile.output_file3, FeatureCounts.output_count_summary])
-    String? output_bam = if (output_sorted_bam) then select_first([CopyFile.output_file4, SortSam.output_bam]) else SortSam.output_bam
-    String? output_bam_index = if (output_sorted_bam) then select_first([CopyFile.output_file5, SortSam.output_bam_index]) else SortSam.output_bam_index 
+    File output_star_summary = select_first([CopyFile.output_file1, STAR_Unsorted.output_star_summary])
+    File output_count = select_first([CopyFile.output_file2, FeatureCounts.output_count])
+    File output_count_summary = select_first([CopyFile.output_file3, FeatureCounts.output_count_summary])
+    File? output_bam = if (output_sorted_bam) then select_first([CopyFile.output_file4, SortSam.output_bam]) else SortSam.output_bam
+    File? output_bam_index = if (output_sorted_bam) then select_first([CopyFile.output_file5, SortSam.output_bam_index]) else SortSam.output_bam_index 
   }
 }

@@ -29,7 +29,7 @@ workflow VUMCHailMatrixInfo {
   }
 
   output {
-    String sample_file = select_first([CopyFile.output_file, HailMatrixInfo.sample_file])
+    File sample_file = select_first([CopyFile.output_file, HailMatrixInfo.sample_file])
     Int num_samples = HailMatrixInfo.num_samples
     Int num_variants = HailMatrixInfo.num_variants
   }
