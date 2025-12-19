@@ -406,14 +406,15 @@ gsutil -m ~{"-u " + project_id} ~{action} ~{source_file1} ~{source_file2} ~{sour
     memory: "2 GiB"
   }
   output {
+    # We cannot define output as File type, otherwise, those file would be delocalized automatically by Cromwell and cause failure.
     String output_file1 = new_file1
-    String output_file2 = new_file2
-    String output_file3 = new_file3
-    String output_file4 = new_file4
-    String output_file5 = new_file5
-    String output_file6 = new_file6
-    String output_file7 = new_file7
-    String output_file8 = new_file8
-    String output_file9 = new_file9
+    String? output_file2 = if(defined(source_file2)) then new_file2 else source_file2
+    String? output_file3 = if(defined(source_file3)) then new_file3 else source_file3
+    String? output_file4 = if(defined(source_file4)) then new_file4 else source_file4
+    String? output_file5 = if(defined(source_file5)) then new_file5 else source_file5
+    String? output_file6 = if(defined(source_file6)) then new_file6 else source_file6
+    String? output_file7 = if(defined(source_file7)) then new_file7 else source_file7
+    String? output_file8 = if(defined(source_file8)) then new_file8 else source_file8
+    String? output_file9 = if(defined(source_file9)) then new_file9 else source_file9
   }
 }
