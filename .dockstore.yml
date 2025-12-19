@@ -1,6 +1,10 @@
 version: 1.2
 workflows:
 
+  - name: VUMCStarFusionAndCount
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCStarFusionAndCount.wdl
+
   - name: VUMCFastqQC
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/preprocessing/VUMCFastqQC.wdl
