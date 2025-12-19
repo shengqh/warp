@@ -134,8 +134,8 @@ workflow VUMCStarFusionAndCount {
       input:
         source_file1 = STARFusion.fusion_predictions_abridged,
         source_file2 = STARFusion.fusion_predictions,
-        source_file3 = STARFusion.coding_effect,
-        source_file4 = STARFusion.junction,
+        source_file3 = STARFusion.junction,
+        source_file4 = STARFusion.coding_effect,
         source_file5 = STARFusion.fusion_inspector_validate_web,
         source_file6 = STARFusion.fusion_inspector_validate_fusions_abridged,
         source_file7 = STARFusion.fusion_inspector_inspect_web,
@@ -179,17 +179,18 @@ workflow VUMCStarFusionAndCount {
 
   # Outputs that will be retained when execution is complete
   output {
-    String fusion_predictions_abridged = select_first([CopyFile1.output_file1, STARFusion.fusion_predictions_abridged])
-    String fusion_predictions = select_first([CopyFile1.output_file2, STARFusion.fusion_predictions])
-    String fusion_coding_effect = select_first([CopyFile1.output_file3, STARFusion.coding_effect])
-    String fusion_chimeric_out_junction = select_first([CopyFile1.output_file4, STARFusion.junction])
-    String fusion_inspector_validate_web = select_first([CopyFile1.output_file5, STARFusion.fusion_inspector_validate_web, ""])
-    String fusion_inspector_validate_fusions_abridged = select_first([CopyFile1.output_file6, STARFusion.fusion_inspector_validate_fusions_abridged, ""])
-    String fusion_inspector_inspect_web = select_first([CopyFile1.output_file7, STARFusion.fusion_inspector_inspect_web, ""])
-    String fusion_inspector_inspect_fusions_abridged = select_first([CopyFile1.output_file8, STARFusion.fusion_inspector_inspect_fusions_abridged, ""])
+    File fusion_predictions_abridged = select_first([CopyFile1.output_file1, STARFusion.fusion_predictions_abridged])
+    File fusion_predictions = select_first([CopyFile1.output_file2, STARFusion.fusion_predictions])
+    File fusion_chimeric_out_junction = select_first([CopyFile1.output_file3, STARFusion.junction])
 
-    String star_summary = select_first([CopyFile2.output_file1, STAR_Unsorted.output_star_summary])
-    String featurecounts_count = select_first([CopyFile2.output_file2, FeatureCounts.output_count])
-    String featurecounts_count_summary = select_first([CopyFile2.output_file3, FeatureCounts.output_count_summary])
+    File? fusion_coding_effect = if(defined(CopyFile1.output_file4)) then CopyFile1.output_file4 else STARFusion.coding_effect
+    File? fusion_inspector_validate_web = if(defined(CopyFile1.output_file5)) then CopyFile1.output_file5 else STARFusion.fusion_inspector_validate_web
+    File? fusion_inspector_validate_fusions_abridged = if(defined(CopyFile1.output_file6)) then CopyFile1.output_file6 else STARFusion.fusion_inspector_validate_fusions_abridged
+    File? fusion_inspector_inspect_web = if(defined(CopyFile1.output_file7)) then CopyFile1.output_file7 else STARFusion.fusion_inspector_inspect_web
+    File? fusion_inspector_inspect_fusions_abridged = if(defined(CopyFile1.output_file8)) then CopyFile1.output_file8 else STARFusion.fusion_inspector_inspect_fusions_abridged
+
+    File star_summary = select_first([CopyFile2.output_file1, STAR_Unsorted.output_star_summary])
+    File featurecounts_count = select_first([CopyFile2.output_file2, FeatureCounts.output_count])
+    File featurecounts_count_summary = select_first([CopyFile2.output_file3, FeatureCounts.output_count_summary])
   }
 }
