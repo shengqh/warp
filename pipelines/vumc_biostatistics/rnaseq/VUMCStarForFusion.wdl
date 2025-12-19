@@ -67,6 +67,6 @@ workflow VUMCStarForFusion {
   }
   # Outputs that will be retained when execution is complete
   output {
-    String fusion_chimeric_out_junction = select_first([CopyFile.output_file1, STARForFusion.fusion_chimeric_out_junction])
+    File fusion_chimeric_out_junction = select_first([CopyFile.output_file1, STARForFusion.fusion_chimeric_out_junction])
   }
 }
