@@ -85,9 +85,9 @@ workflow VUMCPgenFilter {
   }
 
   output {
-    String output_pgen = select_first([CopyFile.output_file1, PgenFilter.output_pgen])
-    String output_pvar = select_first([CopyFile.output_file2, PgenFilter.output_pvar])
-    String output_psam = select_first([CopyFile.output_file3, PgenFilter.output_psam])
+    File output_pgen = select_first([CopyFile.output_file1, PgenFilter.output_pgen])
+    File output_pvar = select_first([CopyFile.output_file2, PgenFilter.output_pvar])
+    File output_psam = select_first([CopyFile.output_file3, PgenFilter.output_psam])
     Int output_num_samples = PgenFilter.num_samples
     Int output_num_variants = PgenFilter.num_variants
   }
