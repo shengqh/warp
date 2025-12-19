@@ -13,8 +13,8 @@ workflow TestOptionalValue {
   }
 
   output {
-    String target_duplicate_metrics = mf.target_duplicate_metrics
-    String? target_output_bqsr_reports = mf.target_output_bqsr_reports
+    File target_duplicate_metrics = mf.target_duplicate_metrics
+    File? target_output_bqsr_reports = mf.target_output_bqsr_reports
   }
 }
 
@@ -24,9 +24,8 @@ task OptionalValue {
     String? output_bqsr_reports
   }
 
-  String new_duplicate_metrics = "~{basename(duplicate_metrics)}"
-  String bqsr = "~{output_bqsr_reports}"
-  String new_output_bqsr_reports = if bqsr == "" then  "" else basename(bqsr)
+  String new_duplicate_metrics = basename(duplicate_metrics)
+  String? new_output_bqsr_reports = if(defined(output_bqsr_reports)) then basename("~{output_bqsr_reports}") else output_bqsr_reports
 
   command <<<
 move_file(){
@@ -59,7 +58,7 @@ move_file ~{output_bqsr_reports} ~{new_output_bqsr_reports}
     memory: "2 GiB"
   }
   output {
-    String target_duplicate_metrics = "~{new_duplicate_metrics}"
-    String? target_output_bqsr_reports = "~{new_output_bqsr_reports}"
+    File target_duplicate_metrics = new_duplicate_metrics
+    File? target_output_bqsr_reports = new_output_bqsr_reports
   }
 }
