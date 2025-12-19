@@ -132,10 +132,6 @@ set -euo pipefail
 featureCounts -v
 
 featureCounts ~{featureCounts_option} \
-  -g gene_id \
-  -t exon \
-  -p \
-  --countReadPairs \
   -T ~{threads} \
   -a ~{gtf} \
   -o ~{sample_name}.count \
@@ -438,5 +434,116 @@ rm -rf genome_dir
 
   output {
     File fusion_chimeric_out_junction = "~{sample_name}_Chimeric.out.junction.gz"
+  }
+}
+
+task STARForCount {
+  input {
+    String sample_name
+
+    File? fastq_pair_tar_gz
+    File? left_fq
+    File? right_fq
+
+    File genome_plug_n_play_tar_gz
+
+    String star_option = "--twopassMode Basic --outSAMmapqUnique 60 --outSAMprimaryFlag AllBestScore"
+    
+    # runtime params
+    String docker = "trinityctat/starfusion:1.15.1"
+    Int cpu = 12
+    Float fastq_disk_space_multiplier = 3.25
+    Int memory_gb = 50
+    Float genome_disk_space_multiplier = 2.5
+    Int preemptible = 2
+    Float extra_disk_space = 10
+    Boolean use_ssd = true
+  }
+  
+  Int disk_size_gb = ceil((fastq_disk_space_multiplier * (size(left_fq, "GB") + size(right_fq, "GB"))) + size(genome_plug_n_play_tar_gz, "GB") * genome_disk_space_multiplier + extra_disk_space)
+
+  command <<<
+
+set -ex
+shopt -s nullglob
+
+if [[ ! -z "~{fastq_pair_tar_gz}" ]]; then
+  # untar the fq pair
+  mv ~{fastq_pair_tar_gz} reads.tar.gz
+  tar xzvf reads.tar.gz
+  rm reads.tar.gz
+
+  # left reads
+  if compgen -G "*_1.fastq*" > /dev/null; then
+    left_fq=(*_1.fastq*)
+  elif compgen -G "*_1.fq*" > /dev/null; then
+    left_fq=(*_1.fq*)
+  fi
+
+  # right reads (_2 preferred, fallback to _3)
+  if compgen -G "*_2.fastq*" > /dev/null; then
+    right_fq=(*_2.fastq*)
+  elif compgen -G "*_2.fq*" > /dev/null; then
+    right_fq=(*_2.fq*)
+  elif compgen -G "*_3.fastq*" > /dev/null; then
+    right_fq=(*_3.fastq*)
+  elif compgen -G "*_3.fq*" > /dev/null; then
+    right_fq=(*_3.fq*)
+  fi
+else
+  left_fq="~{left_fq}"
+  right_fq="~{right_fq}"
+fi
+
+# sanity check
+if [[ -z "${left_fq[0]:-}" || -z "${right_fq[0]:-}" ]]; then
+  echo "Error: fastq files not found"
+  ls -ltr
+  exit 1
+fi
+
+echo "left_fq:  ${left_fq[@]}"
+echo "right_fq: ${right_fq[@]}"
+
+left_fqs=$(IFS=, ; echo "${left_fq[*]}")
+
+read_params="${left_fqs}"
+if [[ "${right_fq[0]}" != "" ]]; then
+  right_fqs=$(IFS=, ; echo "${right_fq[*]}")   
+  read_params="${read_params} ${right_fqs}"
+fi
+
+echo "read_params: ${read_params}"
+
+mkdir -p genome_dir
+
+tar xzvf ~{genome_plug_n_play_tar_gz} -C genome_dir --strip-components 1
+
+STAR --version
+
+STAR ~{star_option} \
+  --outSAMattrRGline ID:~{sample_name} SM:~{sample_name} LB:~{sample_name} PL:ILLUMINA PU:ILLUMINA \
+  --runThreadN ~{cpu} \
+  --genomeDir `pwd`/genome_dir/ctat_genome_lib_build_dir/ref_genome.fa.star.idx \
+  --readFilesIn ${read_params} \
+  --readFilesCommand "gunzip -c" \
+  --outFileNamePrefix ~{sample_name}_ \
+  --outSAMtype BAM Unsorted
+
+rm -rf genome_dir
+
+  >>>
+
+  runtime {
+    docker: docker
+    memory: memory_gb + " GiB"
+    disks: "local-disk " + disk_size_gb + " " + (if use_ssd then "SSD" else "HDD")
+    cpu: cpu
+    preemptible: 3
+  }
+
+  output {
+    File output_bam = "~{sample_name}_Aligned.out.bam"
+    File output_star_summary = "~{sample_name}_Log.final.out"  
   }
 }
