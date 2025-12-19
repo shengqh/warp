@@ -67,7 +67,12 @@ workflow VUMCStarFusionAndCount {
     File? fastq_pair_tar_gz
     File? fastq_pair_tar_gz_output_extension = ".fastq.gz"
 
-    File genome_plug_n_play_tar_gz = "gs://mdl-ctat-genome-libs/__genome_libs_StarFv1.10/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play.tar.gz"
+    # use "gs://mdl-ctat-genome-libs/__genome_libs_StarFv1.10/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play.tar.gz"
+    # or
+    # download from https://data.broadinstitute.org/Trinity/CTAT_RESOURCE_LIB/ and upload to your GCP bucket
+    File genome_plug_n_play_tar_gz 
+
+    # gtf extracted from genome_plug_n_play_tar_gz to keep consistent
     File gtf
 
     # STAR-Fusion parameters
