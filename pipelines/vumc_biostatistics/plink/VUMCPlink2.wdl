@@ -62,8 +62,11 @@ workflow VUMCPlink2 {
 
 task Plink2 {
   input {
+    String source_bed_key = "--bed"
     File source_bed
+    String source_bim_key = "--bim"
     File source_bim
+    String source_fam_key = "--fam"
     File source_fam
 
     String plink_option
@@ -91,9 +94,9 @@ task Plink2 {
   command <<<
 
 plink2 \
-  --bed ~{source_bed} \
-  --bim ~{source_bim} \
-  --fam ~{source_fam} \
+  ~{source_bed_key} ~{source_bed} \
+  ~{source_bim_key} ~{source_bim} \
+  ~{source_fam_key} ~{source_fam} \
   ~{parameter_file1_arg + " " + parameter_file1} \
   ~{parameter_file2_arg + " " + parameter_file2} \
   ~{parameter_file3_arg + " " + parameter_file3} \
