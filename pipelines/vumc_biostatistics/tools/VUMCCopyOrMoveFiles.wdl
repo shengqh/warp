@@ -35,16 +35,15 @@ workflow VUMCCopyOrMoveFiles {
   input {
     String? sub_folder
 
-    String source_file01
-    String? source_file02
-    String? source_file03
-    String? source_file04
-    String? source_file05
-    String? source_file06
-    String? source_file07
-    String? source_file08
-    String? source_file09
-    String? source_file10
+    String source_file1
+    String? source_file2
+    String? source_file3
+    String? source_file4
+    String? source_file5
+    String? source_file6
+    String? source_file7
+    String? source_file8
+    String? source_file9
 
     Boolean is_move_file = false
 
@@ -55,31 +54,29 @@ workflow VUMCCopyOrMoveFiles {
   call GcpUtils.MoveOrCopyFiles as MoveOrCopyFiles {
     input:
       sub_folder = sub_folder,
-      source_file01 = source_file01,
-      source_file02 = source_file02,
-      source_file03 = source_file03,
-      source_file04 = source_file04,
-      source_file05 = source_file05,
-      source_file06 = source_file06,
-      source_file07 = source_file07,
-      source_file08 = source_file08,
-      source_file09 = source_file09,
-      source_file10 = source_file10,
+      source_file1 = source_file1,
+      source_file2 = source_file2,
+      source_file3 = source_file3,
+      source_file4 = source_file4,
+      source_file5 = source_file5,
+      source_file6 = source_file6,
+      source_file7 = source_file7,
+      source_file8 = source_file8,
+      source_file9 = source_file9,
       is_move_file = is_move_file,
       project_id = project_id,
       target_gcp_folder = target_gcp_folder
   }
 
   output {
-    String output_file01 = MoveOrCopyFiles.output_file01
-    String output_file02 = MoveOrCopyFiles.output_file02
-    String output_file03 = MoveOrCopyFiles.output_file03
-    String output_file04 = MoveOrCopyFiles.output_file04
-    String output_file05 = MoveOrCopyFiles.output_file05
-    String output_file06 = MoveOrCopyFiles.output_file06
-    String output_file07 = MoveOrCopyFiles.output_file07
-    String output_file08 = MoveOrCopyFiles.output_file08
-    String output_file09 = MoveOrCopyFiles.output_file09
-    String output_file10 = MoveOrCopyFiles.output_file10
-  }
+    String output_file1 = MoveOrCopyFiles.output_file1
+    String? output_file2 = MoveOrCopyFiles.output_file2
+    String? output_file3 = MoveOrCopyFiles.output_file3
+    String? output_file4 = MoveOrCopyFiles.output_file4
+    String? output_file5 = MoveOrCopyFiles.output_file5
+    String? output_file6 = MoveOrCopyFiles.output_file6
+    String? output_file7 = MoveOrCopyFiles.output_file7
+    String? output_file8 = MoveOrCopyFiles.output_file8
+    String? output_file9 = MoveOrCopyFiles.output_file9
+    }
 }
