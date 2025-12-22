@@ -1,55 +1,58 @@
 version 1.0
 
-## VUMC STAR-Fusion and Gene Expression Count Workflow
+## VUMC STAR-Fusion and Gene Expression Quantification Workflow
 ##
-## This workflow processes RNA-Seq data to detect gene fusions using STAR-Fusion
-## and quantify gene expression using featureCounts.
-## Developed by VUMC/VANGARD team for comprehensive RNA-Seq fusion detection and expression analysis.
+## This WDL workflow performs comprehensive RNA-Seq analysis including gene fusion
+## detection via STAR-Fusion and transcript-level quantification using featureCounts.
+## Developed by the VUMC/VANGARD Bioinformatics Core for translational genomics research.
 ## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
 ## 
-## ### Workflow Purpose:
-## This pipeline handles RNA-Seq data processing from FASTQ files to fusion detection
-## and gene expression quantification, enabling identification of gene fusions and
-## expression profiling for cancer and other disease research.
+## ### Workflow Overview:
+## This pipeline processes paired-end RNA-Seq FASTQ data through fusion detection
+## and gene expression quantification workflows, providing comprehensive analysis
+## for oncology research, rare disease studies, and general transcriptomics applications.
 ##
-## ### Workflow Steps:
-## 1. Optional: Untar input FASTQ files if provided as tar.gz archive
-## 2. STAR-Fusion: Detect gene fusions from paired-end FASTQ files using STAR alignment
-## 3. STAR alignment: Generate BAM file for gene counting
-## 4. featureCounts: Quantify gene expression from aligned BAM file
-## 5. Optionally copy output files to a specified GCP folder
+## ### Processing Steps:
+## 1. Input preparation: Untar FASTQ files if provided as compressed archive
+## 2. STAR-Fusion analysis: Identify gene fusions using STAR aligner with fusion detection
+## 3. STAR alignment: Generate coordinate-sorted BAM file for downstream quantification
+## 4. featureCounts: Calculate gene-level expression counts from aligned reads
+## 5. Output management: Optionally transfer results to specified GCP bucket location
 ##
-## ### Inputs:
-## - left_fq, right_fq, fastq_pair_tar_gz: Input FASTQ files (paired-end or tar.gz archive)
-## - sample_name: Identifier for the sample
-## - genome_plug_n_play_tar_gz: STAR-Fusion genome reference package
-## - gtf: Gene annotation file for featureCounts
-## - fusion_inspector: FusionInspector mode (inspect or validate)
-## - examine_coding_effect: Enable coding effect prediction
-## - min_FFPM: Minimum fusion fragments per million threshold
-## - target_gcp_folder: Optional target GCP folder for the output files
+## ### Required Inputs:
+## - sample_name: Unique sample identifier for file naming and tracking
+## - left_fq, right_fq: Paired-end FASTQ files (R1/R2), or fastq_pair_tar_gz as alternative
+## - genome_plug_n_play_tar_gz: STAR-Fusion reference genome library (CTAT resource)
+## - gtf: Gene annotation file in GTF format for expression quantification
 ##
-## ### Outputs:
-## Fusion Detection:
-## - fusion_predictions_abridged: Abridged fusion predictions
-## - fusion_predictions: Complete fusion predictions
-## - fusion_coding_effect: Fusion predictions with coding effect annotations
-## - fusion_chimeric_out_junction: Chimeric junction information
-## - fusion_inspector_validate_web: FusionInspector validation web visualization (optional)
-## - fusion_inspector_validate_fusions_abridged: FusionInspector validation results (optional)
-## - fusion_inspector_inspect_web: FusionInspector inspection web visualization (optional)
-## - fusion_inspector_inspect_fusions_abridged: FusionInspector inspection results (optional)
+## ### Optional Parameters:
+## - fusion_inspector: FusionInspector mode - "validate" (default) or "inspect"
+## - examine_coding_effect: Predict coding consequences of detected fusions (default: true)
+## - min_FFPM: Minimum fusion fragments per million mapped reads threshold (default: 0.1)
+## - target_gcp_folder: Destination GCS path for automated output file transfer
 ##
-## Gene Expression:
-## - star_summary: STAR alignment summary statistics
-## - featurecounts_count: Gene expression count matrix
-## - featurecounts_count_summary: featureCounts summary statistics
+## ### Output Files:
+## Fusion Detection Results:
+## - fusion_predictions_abridged: Summary table of detected fusions
+## - fusion_predictions: Detailed fusion predictions with supporting evidence
+## - fusion_coding_effect: Predicted protein-level effects of fusions
+## - fusion_chimeric_out_junction: Chimeric junction reads from STAR alignment
+## - fusion_inspector_validate_web: HTML report for validated fusions (if fusion_inspector = "validate")
+## - fusion_inspector_validate_fusions_abridged: Validated fusion summary (if fusion_inspector = "validate")
+## - fusion_inspector_inspect_web: HTML report for inspected fusions (if fusion_inspector = "inspect")
+## - fusion_inspector_inspect_fusions_abridged: Inspected fusion summary (if fusion_inspector = "inspect")
+## - fusion_junction_file_size_mb: Size of the chimeric junction file in MB, usually it should be a few MBs. If it is too small, it may indicate an issue with the fusion detection.
 ##
-## ### Notes:
-## - Utilizes STAR-Fusion for sensitive and accurate fusion detection
-## - Uses featureCounts for reliable gene expression quantification
-## - Multiple output formats available for downstream analysis and visualization
-## - File copy operation to GCP is optional and only executed if a target folder is provided
+## Expression Quantification Results:
+## - star_summary: STAR alignment metrics and mapping statistics
+## - featurecounts_count: Gene-by-sample count matrix
+## - featurecounts_count_summary: Feature assignment statistics and QC metrics
+##
+## ### Implementation Notes:
+## - STAR-Fusion provides high-sensitivity fusion detection with low false-positive rates
+## - featureCounts offers fast, accurate gene-level quantification from BAM alignments
+## - All outputs compatible with standard downstream analysis tools and visualization platforms
+## - GCP file transfer is conditional and only executes when target_gcp_folder is specified
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../format/VUMCUntar.wdl" as UntarModule
@@ -128,6 +131,8 @@ workflow VUMCStarFusionAndCount {
       use_ssd = use_ssd
   }
 
+  Float junction_file_size_mb = size(STARFusion.junction, "MB")
+
   if (defined(target_gcp_folder)) {
     String gcs_output_dir_1 = sub(select_first([target_gcp_folder]), "/+$", "") + "/" + sample_name + "/"
     call GcpUtils.MoveOrCopyFiles as CopyFile1 {
@@ -192,5 +197,7 @@ workflow VUMCStarFusionAndCount {
     File star_summary = select_first([CopyFile2.output_file1, STAR_Unsorted.output_star_summary])
     File featurecounts_count = select_first([CopyFile2.output_file2, FeatureCounts.output_count])
     File featurecounts_count_summary = select_first([CopyFile2.output_file3, FeatureCounts.output_count_summary])
+
+    Float fusion_junction_file_size_mb = junction_file_size_mb
   }
 }
