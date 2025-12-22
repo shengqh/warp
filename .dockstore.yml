@@ -429,10 +429,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/rnaseq/VUMCStarFusion.wdl
 
-  - name: VUMCStarForFusion
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/rnaseq/VUMCStarForFusion.wdl
-
   - name: VUMCStarFusionAndCount
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/rnaseq/VUMCStarFusionAndCount.wdl
