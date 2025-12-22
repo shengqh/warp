@@ -2,42 +2,31 @@ version 1.0
 
 ## VUMC STAR-Fusion Workflow
 ##
-## This workflow processes RNA-Seq data to detect gene fusions using STAR-Fusion.
-## Developed by VUMC/VANGARD team for comprehensive RNA-Seq fusion detection analysis.
+## This workflow detects gene fusions from RNA-Seq data using STAR-Fusion.
 ## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
 ## 
-## ### Workflow Purpose:
-## This pipeline handles RNA-Seq data processing from FASTQ files to fusion detection,
-## enabling identification of gene fusions for cancer and other disease research.
-##
 ## ### Workflow Steps:
-## 1. Optional: Untar input FASTQ files if provided as tar.gz archive
-## 2. STAR-Fusion: Detect gene fusions from paired-end FASTQ files using STAR alignment
-## 3. Optionally copy output files to a specified GCP folder
+## 1. Untar input FASTQ files (optional, if provided as tar.gz archive)
+## 2. Run STAR-Fusion to detect gene fusions from paired-end FASTQ files
+## 3. Copy output files to GCP folder (optional)
 ##
-## ### Inputs:
-## - left_fq, right_fq, fastq_pair_tar_gz: Input FASTQ files (paired-end or tar.gz archive)
-## - sample_name: Identifier for the sample
+## ### Key Inputs:
+## - left_fq, right_fq: Paired-end FASTQ files (or fastq_pair_tar_gz as tar.gz archive)
+## - sample_name: Sample identifier
 ## - genome_plug_n_play_tar_gz: STAR-Fusion genome reference package
-## - fusion_inspector: FusionInspector mode (inspect or validate)
-## - examine_coding_effect: Enable coding effect prediction
-## - min_FFPM: Minimum fusion fragments per million threshold
-## - target_gcp_folder: Optional target GCP folder for the output files
+## - fusion_inspector: FusionInspector mode ("inspect" or "validate", default: "validate")
+## - examine_coding_effect: Enable coding effect prediction (default: true)
+## - min_FFPM: Minimum fusion fragments per million threshold (default: 0.1)
+## - target_gcp_folder: Optional GCP destination for output files
 ##
-## ### Outputs:
-## - fusion_predictions_abridged: Abridged fusion predictions
-## - fusion_predictions: Complete fusion predictions
-## - fusion_coding_effect: Fusion predictions with coding effect annotations (optional)
-## - fusion_chimeric_out_junction: Chimeric junction information
-## - fusion_inspector_validate_web: FusionInspector validation web visualization (optional)
-## - fusion_inspector_validate_fusions_abridged: FusionInspector validation results (optional)
-## - fusion_inspector_inspect_web: FusionInspector inspection web visualization (optional)
-## - fusion_inspector_inspect_fusions_abridged: FusionInspector inspection results (optional)
-##
-## ### Notes:
-## - Utilizes STAR-Fusion for sensitive and accurate fusion detection
-## - Multiple output formats available for downstream analysis and visualization
-## - File copy operation to GCP is optional and only executed if a target folder is provided
+## ### Key Outputs:
+## - fusion_predictions_abridged: Abridged fusion predictions table
+## - fusion_predictions: Complete fusion predictions table
+## - fusion_chimeric_out_junction: Chimeric junction information from STAR alignment
+## - fusion_coding_effect: Coding effect annotations (if examine_coding_effect enabled)
+## - fusion_inspector_validate_web: FusionInspector validation HTML report (if fusion_inspector="validate")
+## - fusion_inspector_inspect_web: FusionInspector inspection HTML report (if fusion_inspector="inspect")
+## - fusion_junction_file_size_mb: Size of the chimeric junction file in MB, usually it should be a few MBs. If it is too small, it may indicate an issue with the fusion detection.
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../format/VUMCUntar.wdl" as UntarModule
@@ -113,6 +102,8 @@ workflow VUMCStarFusion {
       use_ssd = use_ssd
   }
 
+  Float junction_file_size_mb = size(STARFusion.junction, "MB")
+
   if (defined(target_gcp_folder)) {
     String gcs_output_dir_1 = sub(select_first([target_gcp_folder]), "/+$", "") + "/" + sample_name + "/"
     call GcpUtils.MoveOrCopyFiles as CopyFile1 {
@@ -141,5 +132,7 @@ workflow VUMCStarFusion {
     File? fusion_inspector_validate_fusions_abridged = if(defined(CopyFile1.output_file6)) then CopyFile1.output_file6 else STARFusion.fusion_inspector_validate_fusions_abridged
     File? fusion_inspector_inspect_web = if(defined(CopyFile1.output_file7)) then CopyFile1.output_file7 else STARFusion.fusion_inspector_inspect_web
     File? fusion_inspector_inspect_fusions_abridged = if(defined(CopyFile1.output_file8)) then CopyFile1.output_file8 else STARFusion.fusion_inspector_inspect_fusions_abridged
+
+    Float fusion_junction_file_size_mb = junction_file_size_mb
   }
 }
