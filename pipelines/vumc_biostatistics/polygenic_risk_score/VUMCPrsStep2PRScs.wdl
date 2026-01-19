@@ -180,7 +180,7 @@ task rsID_to_variantID {
     Int addtional_disk_space_gb = 5
 
     Int preemptible=3
-    Int memory_gb=2
+    Int memory_gb=10
   }
 
   Int disk_size = ceil(size([input_effect_file], "GB") * 2) + addtional_disk_space_gb
@@ -246,7 +246,7 @@ task EffectToPvar {
     Int addtional_disk_space_gb = 5
 
     Int preemptible=3
-    Int memory_gb=2
+    Int memory_gb=10
   }
 
   Int disk_size = ceil(size([input_effect_file], "GB") * 2) + addtional_disk_space_gb
