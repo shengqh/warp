@@ -45,7 +45,7 @@
     "preemptible_tries": 3,
     "agg_preemptible_tries": 3
   },
-  "VUMCFastqToAlignedCramNoBamQCFast.MarkDuplicates.memory_multiplier": "2",
+  "VUMCFastqToAlignedCramNoBamQCFast.MarkDuplicates.memory_multiplier": "10",
   "VUMCFastqToAlignedCramNoBamQCFast.MarkDuplicates.sorting_collection_size_ratio": "0.1",
   "VUMCFastqToAlignedCramNoBamQCFast.SamToFastqAndBwaMemAndMba.bwa_mem": "20"
 }
