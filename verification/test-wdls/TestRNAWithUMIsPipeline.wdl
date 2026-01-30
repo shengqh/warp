@@ -1,9 +1,9 @@
 version 1.0
 
-import "../../tasks/broad/Utilities.wdl" as Utilities
+import "../../tasks/wdl/Utilities.wdl" as Utilities
 import "../../verification/VerifyRNAWithUMIs.wdl" as VerifyRNAWithUMIs
-import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
-import "../../pipelines/broad/rna_seq/RNAWithUMIsPipeline.wdl" as RNAWithUMIsPipeline
+import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
+import "../../pipelines/wdl/rna_seq/RNAWithUMIsPipeline.wdl" as RNAWithUMIsPipeline
 
 workflow TestRNAWithUMIsPipeline {
   
@@ -33,6 +33,8 @@ workflow TestRNAWithUMIsPipeline {
   
       File population_vcf
       File population_vcf_index
+
+      String? billing_project
 
       # transcriptome results will only be deterministic in both Fastp and STAR are run single threaded.
       # if expected to be deterministic, transcriptome comparisons should be exact.
@@ -77,6 +79,7 @@ workflow TestRNAWithUMIsPipeline {
         exonBedFile          = exonBedFile,
         population_vcf       = population_vcf,
         population_vcf_index = population_vcf_index,
+        billing_project      = billing_project
   }
 
   Array[String] pipeline_outputs = select_all([

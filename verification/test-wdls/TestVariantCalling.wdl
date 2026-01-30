@@ -1,10 +1,10 @@
 version 1.0
 
 
-import "../../pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl" as VariantCalling
+import "../../pipelines/wdl/dna_seq/germline/variant_calling/VariantCalling.wdl" as VariantCalling
 import "../../verification/VerifyGvcf.wdl" as VerifyGvcf
-import "../../tasks/broad/Utilities.wdl" as Utilities
-import "../../tasks/broad/TerraCopyFilesFromCloudToCloud.wdl" as Copy
+import "../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../tasks/wdl/TerraCopyFilesFromCloudToCloud.wdl" as Copy
 
 workflow TestVariantCalling {
 
@@ -70,7 +70,6 @@ workflow TestVariantCalling {
         skip_reblocking = skip_reblocking,
         use_dragen_hard_filtering = use_dragen_hard_filtering,
         cloud_provider = cloud_provider
-  
     }
 
     
