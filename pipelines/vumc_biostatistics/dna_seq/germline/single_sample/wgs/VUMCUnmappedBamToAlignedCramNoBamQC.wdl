@@ -17,8 +17,8 @@ version 1.0
 ## licensing information pertaining to the included programs.
 
 import "../../../../../../tasks/vumc_biostatistics/VUMCUnmappedBamToAlignedBamLessQC.wdl" as ToBam
-import "../../../../../../tasks/broad/AggregatedBamQC.wdl" as AggregatedQC
-import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
+import "../../../../../../tasks/wdl/AggregatedBamQC.wdl" as AggregatedQC
+import "../../../../../../tasks/wdl/Utilities.wdl" as Utilities
 
 ## Important notes by Quanhu Sheng, 20230815
 ## Higly recommended to use the following preset arguments:

@@ -28,8 +28,8 @@ version 1.0
 ## for detailed licensing information pertaining to the included programs.
 
 import "../../../../../structs/dna_seq/DNASeqStructs.wdl"
-import "../../../../../tasks/broad/BamProcessing.wdl" as Processing
-import "../../../../broad/dna_seq/germline/variant_calling/VariantCalling.wdl" as ToGvcf
+import "../../../../../tasks/wdl/BamProcessing.wdl" as Processing
+import "../../../../wdl/dna_seq/germline/variant_calling/VariantCalling.wdl" as ToGvcf
 import "./VUMCVariantCallingMoveResult.wdl" as Utils
 
 # WORKFLOW DEFINITION 

@@ -16,9 +16,9 @@ version 1.0
 ## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
 ## licensing information pertaining to the included programs.
 
-import "../../../../../../tasks/broad/UnmappedBamToAlignedBam.wdl" as ToBam
-import "../../../../../../tasks/broad/AggregatedBamQC.wdl" as AggregatedQC
-import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
+import "../../../../../../tasks/wdl/UnmappedBamToAlignedBam.wdl" as ToBam
+import "../../../../../../tasks/wdl/AggregatedBamQC.wdl" as AggregatedQC
+import "../../../../../../tasks/wdl/Utilities.wdl" as Utilities
 
 ## Important notes by Quanhu Sheng, 20230815
 ## Higly recommended to use the following preset arguments:

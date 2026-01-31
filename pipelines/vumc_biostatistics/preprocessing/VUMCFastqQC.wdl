@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../tasks/broad/Utilities.wdl" as Utils
+import "../../../tasks/wdl/Utilities.wdl" as Utils
 
 # WORKFLOW DEFINITION
 workflow VUMCFastqQC {

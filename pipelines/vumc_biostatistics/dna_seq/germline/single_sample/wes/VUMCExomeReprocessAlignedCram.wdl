@@ -23,7 +23,7 @@ version 1.0
 ## licensing information pertaining to the included programs.
 
 import "../../../../../../tasks/vumc_biostatistics/VUMCBamProcessing.wdl" as VUMCBamProcessing
-import "../../../../../../pipelines/broad/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl" as BroadPipeline
+import "../../../../../../pipelines/wdl/dna_seq/germline/single_sample/exome/ExomeGermlineSingleSample.wdl" as BroadPipeline
 import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
 import "./VUMCMoveSingleSampleWESResultLessQC.wdl" as MoveResults
 

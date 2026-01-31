@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../../broad/dna_seq/germline/joint_genotyping/JointGenotyping.wdl" as BroadJointGenotyping
+import "../../../../wdl/dna_seq/germline/joint_genotyping/JointGenotyping.wdl" as BroadJointGenotyping
 import "../../../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 

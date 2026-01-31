@@ -28,11 +28,11 @@ version 1.0
 ## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
 ## licensing information pertaining to the included programs.
 
-import "../../../../../../tasks/broad/AggregatedBamQC.wdl" as AggregatedQC
-import "../../../../../../tasks/broad/Qc.wdl" as QC
-import "../../../../../../tasks/broad/BamToCram.wdl" as ToCram
-import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
-import "../../../../../../pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl" as ToGvcf
+import "../../../../../../tasks/wdl/AggregatedBamQC.wdl" as AggregatedQC
+import "../../../../../../tasks/wdl/Qc.wdl" as QC
+import "../../../../../../tasks/wdl/BamToCram.wdl" as ToCram
+import "../../../../../../tasks/wdl/Utilities.wdl" as Utilities
+import "../../../../../../pipelines/wdl/dna_seq/germline/variant_calling/VariantCalling.wdl" as ToGvcf
 import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
 import "../../../../../../tasks/vumc_biostatistics/VUMCUnmappedCramToAlignedBam.wdl" as ToBam
 

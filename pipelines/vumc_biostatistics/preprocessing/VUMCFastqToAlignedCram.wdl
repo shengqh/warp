@@ -17,9 +17,9 @@ version 1.0
 ## licensing information pertaining to the included programs.
 
 import "../../../tasks/vumc_biostatistics/VUMCAlignment.wdl" as Alignment
-import "../../../tasks/broad/Qc.wdl" as QC
-import "../../../tasks/broad/BamProcessing.wdl" as Processing
-import "../../../tasks/broad/Utilities.wdl" as Utils
+import "../../../tasks/wdl/Qc.wdl" as QC
+import "../../../tasks/wdl/BamProcessing.wdl" as Processing
+import "../../../tasks/wdl/Utilities.wdl" as Utils
 import "../../../structs/dna_seq/DNASeqStructs.wdl" as Structs
 
 # WORKFLOW DEFINITION

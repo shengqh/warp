@@ -27,7 +27,7 @@ version 1.0
 ## authorized to run all programs before running this script. Please see the dockers
 ## for detailed licensing information pertaining to the included programs.
 
-import "../../../../broad/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl" as BroadReblock
+import "../../../../wdl/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl" as BroadReblock
 import "./VUMCHaplotypecallerReblockMoveResult.wdl" as Utils
 
 # WORKFLOW DEFINITION 

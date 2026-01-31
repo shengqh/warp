@@ -22,7 +22,7 @@ version 1.0
 ## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
 ## licensing information pertaining to the included programs.
 
-import "../../../../../../tasks/broad/BamProcessing.wdl" as Processing
+import "../../../../../../tasks/wdl/BamProcessing.wdl" as Processing
 import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
 
 # WORKFLOW DEFINITION

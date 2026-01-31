@@ -34,13 +34,13 @@ version 1.0
 ## licensing information pertaining to the included programs.
 
 import "../../../../../../tasks/vumc_biostatistics/VUMCUnmappedBamToAlignedBamLessQC.wdl" as ToBam
-import "../../../../../../tasks/broad/AggregatedBamQC.wdl" as AggregatedQC
-import "../../../../../../tasks/broad/Qc.wdl" as QC
-import "../../../../../../tasks/broad/BamProcessing.wdl" as Processing
-import "../../../../../../tasks/broad/BamToCram.wdl" as ToCram
-import "../../../../../../pipelines/broad/dna_seq/germline/variant_calling/VariantCalling.wdl" as ToGvcf
+import "../../../../../../tasks/wdl/AggregatedBamQC.wdl" as AggregatedQC
+import "../../../../../../tasks/wdl/Qc.wdl" as QC
+import "../../../../../../tasks/wdl/BamProcessing.wdl" as Processing
+import "../../../../../../tasks/wdl/BamToCram.wdl" as ToCram
+import "../../../../../../pipelines/wdl/dna_seq/germline/variant_calling/VariantCalling.wdl" as ToGvcf
 import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
-import "../../../../../../tasks/broad/Utilities.wdl" as utils
+import "../../../../../../tasks/wdl/Utilities.wdl" as utils
 
 # WORKFLOW DEFINITION
 # This workflow mirrors the GATK germline exome pipeline without QC

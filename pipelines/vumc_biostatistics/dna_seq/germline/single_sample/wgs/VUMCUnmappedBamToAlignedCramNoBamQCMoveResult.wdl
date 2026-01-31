@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../../../../tasks/broad/Utilities.wdl" as Utilities
+import "../../../../../../tasks/wdl/Utilities.wdl" as Utilities
 
 workflow VUMCUnmappedBamToAlignedCramNoBamQCMoveResult {
   input {

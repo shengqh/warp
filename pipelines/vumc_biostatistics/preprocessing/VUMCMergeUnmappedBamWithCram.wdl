@@ -15,7 +15,7 @@ version 1.0
 ## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
 ## licensing information pertaining to the included programs.
 
-import "../../../tasks/broad/Utilities.wdl" as Utilities
+import "../../../tasks/wdl/Utilities.wdl" as Utilities
 
 workflow VUMCMergeUnmappedBamWithCram {
   input {

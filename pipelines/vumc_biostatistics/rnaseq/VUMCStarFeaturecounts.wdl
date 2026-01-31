@@ -40,7 +40,7 @@ version 1.0
 ## - GCP file transfer occurs only when target_gcp_folder is specified
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
-import "../../../tasks/broad/BamProcessing.wdl" as Processing
+import "../../../tasks/wdl/BamProcessing.wdl" as Processing
 import "./RNAseqUtils.wdl" as RNAseqUtils
 
 workflow VUMCStarFeaturecounts {

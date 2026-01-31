@@ -16,10 +16,10 @@ version 1.0
 ## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
 ## licensing information pertaining to the included programs.
 
-import "../../tasks/broad/DragmapAlignment.wdl" as DragmapAlignment
-import "../../tasks/broad/Qc.wdl" as QC
-import "../../tasks/broad/BamProcessing.wdl" as Processing
-import "../../tasks/broad/Utilities.wdl" as Utils
+import "../../tasks/wdl/DragmapAlignment.wdl" as DragmapAlignment
+import "../../tasks/wdl/Qc.wdl" as QC
+import "../../tasks/wdl/BamProcessing.wdl" as Processing
+import "../../tasks/wdl/Utilities.wdl" as Utils
 import "../../structs/dna_seq/DNASeqStructs.wdl" as Structs
 import "../../tasks/vumc_biostatistics/VUMCAlignment.wdl" as Alignment
 import "../../tasks/vumc_biostatistics/VUMCSplitLargeReadGroup.wdl" as SplitRG

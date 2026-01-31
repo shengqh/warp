@@ -22,7 +22,7 @@ version 1.0
 ## page at https://hub.docker.com/r/broadinstitute/genomes-in-the-cloud/ for detailed
 ## licensing information pertaining to the included programs.
 
-import "../../../../../../pipelines/broad/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl" as BroadPipeline
+import "../../../../../../pipelines/wdl/dna_seq/germline/single_sample/wgs/WholeGenomeGermlineSingleSample.wdl" as BroadPipeline
 import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
 
 # WORKFLOW DEFINITION

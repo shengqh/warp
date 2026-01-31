@@ -1,6 +1,6 @@
 version 1.0
 
-import "../../../../../../tasks/broad/Qc.wdl" as QC
+import "../../../../../../tasks/wdl/Qc.wdl" as QC
 import "../../../../../../structs/dna_seq/DNASeqStructs.wdl"
 import "./VUMCIlluminaCoverage.wdl" as VUMCIlluminaCoverage
 
