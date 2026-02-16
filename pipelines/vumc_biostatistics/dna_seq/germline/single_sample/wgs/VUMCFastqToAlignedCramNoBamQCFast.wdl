@@ -18,6 +18,7 @@ version 1.0
 
 import "../../../../../../tasks/vumc_biostatistics/PairedFastQsToUnmappedBAM.wdl" as ToUnmappedBam
 import "../../../../../../tasks/vumc_biostatistics/VUMCAlignment.wdl" as VUMCAlignment
+import "../../../../../../tasks/vumc_biostatistics/BamProcessing.wdl" as VUMCProcessing
 import "../../../../../../tasks/wdl/Alignment.wdl" as Alignment
 import "../../../../../../tasks/wdl/DragmapAlignment.wdl" as DragmapAlignment
 import "../../../../../../tasks/wdl/Qc.wdl" as QC
@@ -184,7 +185,7 @@ workflow VUMCFastqToAlignedCramNoBamQCFast {
   # Aggregate aligned+merged flowcell BAM files and mark duplicates
   # We take advantage of the tool's ability to take multiple BAM inputs and write out a single output
   # to avoid having to spend time just merging BAM files.
-  call Processing.MarkDuplicates as MarkDuplicates {
+  call VUMCProcessing.MarkDuplicates as MarkDuplicates {
     input:
       input_bams = output_aligned_bam,
       output_bam_basename = sample_name + ".aligned.unsorted.duplicates_marked",
