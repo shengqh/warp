@@ -10,6 +10,7 @@ version 1.0
 #
 # Inputs:
 # - keep_pvar: PVAR file containing variant IDs to extract
+# - keep_psam: Optional PSAM file containing sample GRIDs to extract
 # - output_prefix: Prefix for all output files
 # - chromosomes: List of chromosomes to process
 # - input_pgen_files: PGEN files (one per chromosome)
@@ -30,6 +31,7 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 workflow VUMCAgdPgenExtractAllSamplesByPvar {
   input {
     File keep_pvar
+    File? keep_psam
 
     String output_prefix
 
@@ -68,6 +70,7 @@ workflow VUMCAgdPgenExtractAllSamplesByPvar {
         input_pvar = pvar_file,
         input_psam = psam_file,
         keep_pvar = keep_pvar,
+        keep_psam = keep_psam,
         plink2_filter_option = "",
         output_prefix = output_prefix + "." + chromosome + ".snp"
     }
