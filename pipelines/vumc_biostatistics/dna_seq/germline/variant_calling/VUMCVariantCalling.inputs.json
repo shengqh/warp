@@ -32,8 +32,8 @@
     "haplotype_database_file": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.haplotype_database.txt"
   },
   "VUMCVariantCalling.scatter_settings": {
-    "haplotype_scatter_count": "Int",
-    "break_bands_at_multiples_of": "Int"
+    "haplotype_scatter_count": "50",
+    "break_bands_at_multiples_of": "100000"
   },
   "VUMCVariantCalling.papi_settings": {
     "preemptible_tries": 3,
