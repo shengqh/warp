@@ -70,12 +70,12 @@ task Vcf2SitesOnly {
     File input_vcf_index
     String output_prefix
     Int memory_gb = 20
-    Float disk_size_factor = 1.5
     Int? disk_size_override
     String docker = "us.gcr.io/broad-gatk/gatk:4.5.0.0"
   }
 
-  Int disk_size = ceil(select_first([disk_size_override, disk_size_factor * ceil(size(input_vcf, "GB")) + 10]))
+  # The maximum file size of chr1 sites file is only 1G for AGD250K, we don't need a lot of additional disk
+  Int disk_size = ceil(select_first([disk_size_override, ceil(size(input_vcf, "GB")) + 10]))
   Int command_mem_gb = memory_gb - 2
 
   command <<<
