@@ -389,6 +389,11 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCVcf2SitesOnly.wdl
 
+
+  - name: VUMCVcf2SitesOnlyBcftools
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCVcf2SitesOnlyBcftools.wdl
+
   - name: VUMCVcfExtractSampleAndFilterAF
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCVcfExtractSampleAndFilterAF.wdl
