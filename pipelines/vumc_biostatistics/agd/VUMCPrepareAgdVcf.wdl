@@ -24,17 +24,21 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 workflow VUMCPrepareAgdVcf {
   input {
     File input_vcf
+    File input_vcf_index
 
-    File id_map_file
+    File? id_map_file
 
     String output_prefix
 
     String? target_gcp_folder
   }
   
+  # Prepare VCF file is extremely time cost, although add index and get sample/variant info might be fast, 
+  # we still want to run them in serial to avoid any potential issue of running them in parallel. 
   call PrepareAgdVcf {
     input: 
       input_vcf = input_vcf,
+      input_vcf_index = input_vcf_index,
       id_map_file = id_map_file,
       output_prefix = output_prefix + ".primary_pass"
   }
@@ -68,15 +72,14 @@ workflow VUMCPrepareAgdVcf {
 task PrepareAgdVcf {
   input{
     File input_vcf
+    File input_vcf_index
 
-    File id_map_file
+    File? id_map_file
 
     String output_prefix
 
-    String bcftools_docker = "shengqh/samtools_bcftools_tabix:v1.21"
-
     Int cpu = 3
-    Int machine_mem_gb = 4
+    Int machine_mem_gb = 10
     Int addtional_disk_space_gb = 10
     Int preemptible = 0 # for shard vcf, we can use preemptible node, but for whole chromosome vcf, we should not use preemptible node
   }
@@ -93,7 +96,7 @@ total_variants=$(bcftools index -n ~{input_vcf})
 echo total_variants=$total_variants
 
 echo `date`: agd_vcf ...
-zcat ~{input_vcf} | agd_vcf --id_map_file=~{id_map_file} --total_variants=$total_variants | bgzip ~{bgzip_thread_str} -c > ~{target_vcf}
+zcat ~{input_vcf} | agd_vcf ~{"--id_map_file=" + id_map_file} --total_variants=$total_variants | bgzip ~{bgzip_thread_str} -c > ~{target_vcf}
 
 echo `date`: done.
 
@@ -101,7 +104,7 @@ echo `date`: done.
 
   runtime{
     cpu: cpu
-    docker: bcftools_docker
+    docker: "shengqh/samtools_bcftools_tabix:v1.23"
     preemptible: preemptible
     memory: machine_mem_gb + " GB"
     disks: "local-disk " + disk_size + " HDD"
