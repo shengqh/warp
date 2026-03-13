@@ -32,6 +32,8 @@ workflow VUMCPrepareAgdVcf {
 
     String? target_gcp_folder
   }
+
+  String output_suffix = if defined(id_map_file) then ".primary_pass" else ".pass"
   
   # Prepare VCF file is extremely time cost, although add index and get sample/variant info might be fast, 
   # we still want to run them in serial to avoid any potential issue of running them in parallel. 
@@ -40,7 +42,7 @@ workflow VUMCPrepareAgdVcf {
       input_vcf = input_vcf,
       input_vcf_index = input_vcf_index,
       id_map_file = id_map_file,
-      output_prefix = output_prefix + ".primary_pass"
+      output_prefix = output_prefix + output_suffix
   }
 
   call BioUtils.VcfIndexAndInfo {
