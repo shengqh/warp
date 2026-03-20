@@ -1,0 +1,10 @@
+{
+  "VUMCPheTK.sex_at_birth_col": "sex",
+  "VUMCPheTK.independent_variable_of_interest": "independent_variable_of_interest",
+  "VUMCPheTK.covariate_cols": "age sex pc1 pc2 pc3",
+  "VUMCPheTK.phecode_version": "X",
+  "VUMCPheTK.cohort_file_path": "/nobackup/h_cqs/shengq2/phewas/example_cohort.tsv",
+  "VUMCPheTK.output_file_prefix": "example",
+  "VUMCPheTK.phecode_count_file_path": "/nobackup/h_cqs/shengq2/phewas/example_phecode_counts.tsv"
+}
+
