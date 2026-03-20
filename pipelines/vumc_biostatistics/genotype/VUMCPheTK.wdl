@@ -32,7 +32,7 @@ workflow VUMCPheTK {
   }
 
   if(defined(target_gcp_folder)){
-    call GcpUtils.MoveOrCopyOneFile as CopyIndex {
+    call GcpUtils.MoveOrCopyOneFile as CopyFile {
       input:
         source_file = PheTK.output_phewas_file,
         is_move_file = false,
@@ -41,7 +41,7 @@ workflow VUMCPheTK {
   }
 
   output {
-    File output_phewas_file = select_first([CopyIndex.output_file, PheTK.output_phewas_file])
+    File output_phewas_file = select_first([CopyFile.output_file, PheTK.output_phewas_file])
   }
 }
 
