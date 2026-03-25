@@ -550,5 +550,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCUntarPairFASTQ.wdl
 
-    
-  
+  - name: VUMCPheTK
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCPheTK.wdl
