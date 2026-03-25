@@ -250,11 +250,10 @@ task EffectToPvar {
   }
 
   Int disk_size = ceil(size([input_effect_file], "GB") * 2) + addtional_disk_space_gb
-  String suffix = ".pvar"
-
+  
   command <<<
 
-  awk 'NR==1 {print "#CHROM\tPOS\tID\tREF\tALT"}; NR>1 {print $1"\t"$3"\t"$2"\t"$5"\t"$4}' ~{input_effect_file} > ~{output_prefix}.pvar
+  awk 'NR==1 {print "#CHROM\tPOS\tID\tREF\tALT"}; {print $1"\t"$3"\t"$2"\t"$5"\t"$4}' ~{input_effect_file} > ~{output_prefix}.pvar
 
   >>>
 
