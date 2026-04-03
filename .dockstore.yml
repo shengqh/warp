@@ -353,10 +353,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCCombineIlluminaQC.wdl
 
-  # - name: VUMCGetFilesizeOfListSmall
-  #   subclass: WDL
-  #   primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCGetFilesizeOfListSmall.wdl
-
   - name: VUMCGetFilesizeOfListLarge
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/tools/VUMCGetFilesizeOfListLarge.wdl
@@ -553,3 +549,7 @@ workflows:
   - name: VUMCPheTK
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCPheTK.wdl
+
+  - name: VUMCVcfCleanMNP
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/VUMCVcfCleanMNP.wdl
