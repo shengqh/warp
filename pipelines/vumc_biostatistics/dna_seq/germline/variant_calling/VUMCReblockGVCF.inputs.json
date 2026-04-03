@@ -1,0 +1,10 @@
+{
+  "VUMCReblockGVCF.input_gvcf": "/nobackup/h_vangard_1/shengq2/20260402_pingjie_wgs/25254XD-01Q3-10.hard-filtered.gvcf.gz",
+  "VUMCReblockGVCF.input_gvcf_index": "/nobackup/h_vangard_1/shengq2/20260402_pingjie_wgs/25254XD-01Q3-10.hard-filtered.gvcf.gz.tbi",
+  "VUMCReblockGVCF.ref_fasta": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.fasta",
+  "VUMCReblockGVCF.ref_fasta_index": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
+  "VUMCReblockGVCF.ref_dict": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.dict",
+  "VUMCReblockGVCF.scattered_calling_intervals_list": "/data/cqs/references/broad/hg38/v0/wgs_calling_regions.hg38.interval_list",
+  "VUMCReblockGVCF.Reblock.cloud_provider": "gcp"
+}
+

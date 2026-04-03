@@ -553,3 +553,7 @@ workflows:
   - name: VUMCVcfCleanMNP
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/VUMCVcfCleanMNP.wdl
+
+  - name: VUMCJointGenotyping
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/joint_genotyping/VUMCJointGenotyping.wdl
