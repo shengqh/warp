@@ -89,7 +89,6 @@ task VcfCleanMNP {
         }
 
         if (is_mnp == 0 && $2 != last_pos) {
-            sub(";MQ", ";RAW_MQ", $8)
             print $0;
             last_pos = $2;
         }
