@@ -40,10 +40,10 @@ workflow VUMCReblockGVCF {
     File ref_fasta_index
     File scattered_calling_intervals_list
 
+    String cloud_provider = "gcp"
+
     String? target_gcp_folder  
   }  
-
-  Array[File] scattered_calling_intervals = read_lines(scattered_calling_intervals_list)
 
   call BroadReblock.ReblockGVCF as Reblock {
     input:
@@ -52,7 +52,8 @@ workflow VUMCReblockGVCF {
       ref_fasta = ref_fasta,
       ref_fasta_index = ref_fasta_index,
       ref_dict = ref_dict,
-      calling_interval_list = scattered_calling_intervals_list
+      calling_interval_list = scattered_calling_intervals_list,
+      cloud_provider = cloud_provider
   }
 
   if(defined(target_gcp_folder)){
