@@ -93,14 +93,6 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/joint_genotyping/CombineGvsChromosome.wdl
 
-  - name: VUMCHaplotypecallerReblock
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/VUMCHaplotypecallerReblock.wdl
-
-  - name: VUMCHaplotypecallerReblockMoveResult
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/VUMCHaplotypecallerReblockMoveResult.wdl
-
   - name: VUMCMappedCramQC
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/single_sample/wgs/VUMCMappedCramQC.wdl
@@ -550,10 +542,16 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/genotype/VUMCPheTK.wdl
 
-  - name: VUMCVcfCleanMNP
-    subclass: WDL
-    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/VUMCVcfCleanMNP.wdl
-
   - name: VUMCJointGenotyping
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/joint_genotyping/VUMCJointGenotyping.wdl
+
+  - name: VUMCReblockGVCF
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/VUMCReblockGVCF.wdl
+
+  - name: VUMCCleanMNPAndReblockGVCF
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/VUMCCleanMNPAndReblockGVCF.wdl
+
+
