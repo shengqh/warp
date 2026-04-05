@@ -34,6 +34,8 @@ workflow VUMCReblockGVCF {
   input {
     File input_gvcf
     File input_gvcf_index
+
+    String gvcf_file_extension = ".g.vcf.gz"
     
     File ref_dict
     File ref_fasta
@@ -49,6 +51,7 @@ workflow VUMCReblockGVCF {
     input:
       gvcf = input_gvcf,
       gvcf_index = input_gvcf_index,
+      gvcf_file_extension = gvcf_file_extension,
       ref_fasta = ref_fasta,
       ref_fasta_index = ref_fasta_index,
       ref_dict = ref_dict,
