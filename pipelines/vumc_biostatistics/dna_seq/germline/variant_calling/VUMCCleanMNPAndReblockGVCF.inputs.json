@@ -1,0 +1,9 @@
+{
+  "VUMCCleanMNPAndReblockGVCF.sample_name": "25254XD-01-01",
+  "VUMCCleanMNPAndReblockGVCF.input_gvcf": "/nobackup/h_vangard_1/shengq2/20260402_pingjie_wgs/25254XD-01-01.hard-filtered.gvcf.gz",
+  "VUMCCleanMNPAndReblockGVCF.input_gvcf_index": "/nobackup/h_vangard_1/shengq2/20260402_pingjie_wgs/25254XD-01-01.hard-filtered.gvcf.gz.tbi",
+  "VUMCCleanMNPAndReblockGVCF.ref_fasta": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.fasta",
+  "VUMCCleanMNPAndReblockGVCF.ref_fasta_index": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.fasta.fai",
+  "VUMCCleanMNPAndReblockGVCF.ref_dict": "/data/cqs/references/broad/hg38/v0/Homo_sapiens_assembly38.dict"
+}
+
