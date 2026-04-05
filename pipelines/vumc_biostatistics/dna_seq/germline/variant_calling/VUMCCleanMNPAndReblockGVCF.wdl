@@ -24,8 +24,8 @@ version 1.0
 # - target_gcp_folder: Optional GCP destination for result files
 #
 # Outputs:
-# - output_gvcf: Cleaned and reblocked GVCF file (bgzip compressed)
-# - output_gvcf_index: Index file for cleaned GVCF (tabix format)
+# - reblocked_gvcf: Cleaned and reblocked GVCF file (bgzip compressed)
+# - reblocked_gvcf_index: Index file for cleaned GVCF (tabix format)
 
 
 import "../../../../wdl/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl" as BroadReblock
