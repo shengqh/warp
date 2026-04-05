@@ -78,8 +78,8 @@ workflow VUMCCleanMNPAndReblockGVCF {
   }
 
   output {
-    File output_gvcf = select_first([CopyFile.output_file1, Reblock.output_vcf])
-    File output_gvcf_index = select_first([CopyFile.output_file2, Reblock.output_vcf_index])
+    File reblocked_gvcf = select_first([CopyFile.output_file1, Reblock.output_vcf])
+    File reblocked_gvcf_index = select_first([CopyFile.output_file2, Reblock.output_vcf_index])
   }
 }
 
