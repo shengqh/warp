@@ -82,15 +82,19 @@ task VcfCleanMNP {
     /^#/ {print; next}
     {
         split($5, alt_arr, ",");
+        n_alt = length(alt_arr);
+        if (alt_arr[n_alt] == "<NON_REF>") {
+            is_mnp = 0;
+            if (length($4) > 1) {
+                if (length($4) == length(alt_arr[1])) {
+                    is_mnp = 1;
+                }
+            }
 
-        is_mnp = 0;
-        if (length($4) > 1 && length($4) == length(alt_arr[1])) {
-            is_mnp = 1;
-        }
-
-        if (is_mnp == 0 && $2 != last_pos) {
-            print $0;
-            last_pos = $2;
+            if (is_mnp == 0 && $2 != last_pos) {
+                print $0;
+                last_pos = $2;
+            }
         }
     }' | bgzip -c > ~{sample_name}.clean.vcf.gz
 
