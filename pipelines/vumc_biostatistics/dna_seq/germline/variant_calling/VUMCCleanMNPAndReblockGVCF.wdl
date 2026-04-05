@@ -6,12 +6,11 @@ version 1.0
 #
 # Workflow steps:
 # 1. Filters GVCF to remove variants without <NON_REF> in info field (otherwise cause Reblock failure )
-# 2. Removes MNP variants (such like AC => TT)
-# 3. Removes duplicate variants at the same position
-# 4. Compresses cleaned GVCF with bgzip
-# 5. Indexes cleaned GVCF with tabix
-# 6. Reblocks GVCF for joint genotyping
-# 7. Optionally copies results to a GCP storage location
+# 2. Removes chrM variants (missing GQ which can cause Reblock failure)
+# 3. Removes MNP variants (such like AC => TT)
+# 4. Removes duplicate variants at the same position
+# 5. Reblocks GVCF for joint genotyping
+# 6. Optionally copies results to a GCP storage location
 #
 # Inputs:
 # - sample_name: Name of the sample for output file naming
@@ -28,7 +27,6 @@ version 1.0
 # - reblocked_gvcf_index: Index file for cleaned GVCF (tabix format)
 
 
-import "../../../../wdl/dna_seq/germline/joint_genotyping/reblocking/ReblockGVCF.wdl" as BroadReblock
 import "../../../../../tasks/wdl/GermlineVariantDiscovery.wdl" as Calling
 import "../../../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
@@ -90,6 +88,8 @@ task CleanMNP {
     File input_gvcf
     File input_gvcf_index
 
+    Boolean remove_chrM = true
+
     # Runtime parameters
     String docker = "shengqh/samtools_bcftools_tabix:v1.23"
     Int mem_gb = 10
@@ -105,6 +105,10 @@ task CleanMNP {
     bcftools view "~{input_gvcf}" | awk -F"\t" 'BEGIN{OFS="\t"}
     /^#/ {print; next}
     {
+        if ("~{remove_chrM}" == "true" && $1 == "chrM") {
+          next;
+        }
+
         split($5, alt_arr, ",");
         n_alt = length(alt_arr);
         if (alt_arr[n_alt] == "<NON_REF>") {
