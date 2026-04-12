@@ -1,5 +1,39 @@
 version 1.0
 
+## Copyright Vanderbilt Health, 2026
+##
+## VUMC AGD Phecode Workflow
+##
+## This workflow queries BigQuery to extract phecode data for AGD cohort samples
+## and produces demographics and phecode matrices in long and wide formats.
+## Developed by VUMC Biostatistics for AGD phenotype analysis.
+## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
+##
+## ### Workflow Purpose:
+## Given a BigQuery project and dataset containing AGD EHR data, this workflow
+## maps sample IDs to GRIDs and generates phecode-based phenotype tables suitable
+## for downstream genome-wide association studies.
+##
+## ### Workflow Steps:
+## 1. **query_phecode**: Queries BigQuery to build a demographics CSV and phecode
+##    matrices (long, wide, and binarized wide) for all samples.
+## 2. **CopyFile (Optional)**: If `target_gcp_folder` is provided, copies all
+##    four output files to the specified GCP folder.
+##
+## ### Inputs:
+## - bigquery_project_id: GCP project ID that hosts the BigQuery dataset.
+## - bigquery_dataset_id: BigQuery dataset ID containing the AGD EHR tables.
+## - id_map_file: GCS path to a CSV file mapping sample IDs to GRIDs.
+## - phemap_file: Local file containing the phecode-to-ICD mapping table.
+## - output_prefix: Prefix for all output file names.
+## - target_gcp_folder: Optional GCP folder path for copying output files.
+##
+## ### Outputs:
+## - demographics_csv: CSV file with sample demographics information.
+## - phecode12_long_csv: Phecode matrix in long format.
+## - phecode12_wide_csv: Phecode matrix in wide format.
+## - phecode12_wide_binarized_csv: Binarized phecode matrix in wide format.
+
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCAGDPhecode {
@@ -11,6 +45,19 @@ workflow VUMCAGDPhecode {
     String output_prefix
 
     String? target_gcp_folder    
+  }
+
+  meta {
+    allowNestedInputs: true
+  }
+
+  parameter_meta {
+    bigquery_project_id: "GCP project ID that hosts the BigQuery dataset"
+    bigquery_dataset_id: "BigQuery dataset ID containing the AGD EHR tables"
+    id_map_file: "GCS path to a CSV file mapping sample IDs to GRIDs"
+    phemap_file: "Local file containing the phecode-to-ICD mapping table"
+    output_prefix: "Prefix for all output file names"
+    target_gcp_folder: "Optional GCP folder path to copy output files to after completion"
   }
 
   call query_phecode {

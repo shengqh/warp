@@ -1,5 +1,43 @@
 version 1.0
 
+## Copyright Vanderbilt Health, 2026
+##
+## VUMC PheTK PheWAS Workflow
+##
+## This workflow performs a Phenome-Wide Association Study (PheWAS) using the PheTK tool
+## and generates Manhattan and forest plot visualizations of the results.
+## Developed by VUMC Biostatistics for genotype-phenotype association analysis.
+## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
+##
+## ### Workflow Purpose:
+## Given a cohort file and a phecode count matrix, this workflow runs a PheWAS analysis
+## to identify phenotypes significantly associated with an independent variable of interest,
+## then produces Manhattan and forest plots for visualization.
+##
+## ### Workflow Steps:
+## 1. **PheTK**: Runs the PheWAS analysis using the PheTK tool, producing a TSV of association results.
+## 2. **PheTKVis**: Generates Manhattan (with and without labels) and forest plot visualizations.
+## 3. **CopyFile (Optional)**: If `target_gcp_folder` is provided, copies all four output files
+##    to the specified GCP folder.
+##
+## ### Inputs:
+## - cohort_file_path: Input cohort file containing sample metadata and covariates.
+## - phecode_count_file_path: File containing phecode counts per sample.
+## - phecode_version: Version of the phecode mapping to use (e.g., "1.2").
+## - sex_at_birth_col: Column name for sex at birth in the cohort file.
+## - covariate_cols: Comma-separated column names to use as covariates in the regression model.
+## - independent_variable_of_interest: Column name for the independent variable to test.
+## - output_file_prefix: Prefix for all output file names.
+## - min_cases: Minimum number of cases required to include a phecode in the analysis. Default is 50.
+## - min_phecode_count: Minimum phecode count per sample to be considered a case. Default is 1.
+## - target_gcp_folder: Optional GCP folder path for copying output files.
+##
+## ### Outputs:
+## - output_phewas_file: TSV file with PheWAS association results for all tested phecodes.
+## - output_phewas_manhattan_file: Manhattan plot of PheWAS results with labels.
+## - output_phewas_manhattan_no_labels_file: Manhattan plot of PheWAS results without labels.
+## - output_phewas_forest_file: Forest plot of PheWAS results.
+
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCPheTK {
@@ -16,6 +54,23 @@ workflow VUMCPheTK {
     Int min_phecode_count=1
 
     String? target_gcp_folder
+  }
+
+  meta {
+    allowNestedInputs: true
+  }
+
+  parameter_meta {
+    cohort_file_path: "Input cohort file containing sample metadata and covariates"
+    phecode_count_file_path: "File containing phecode counts per sample"
+    phecode_version: "Version of the phecode mapping to use (e.g., '1.2')"
+    sex_at_birth_col: "Column name for sex at birth in the cohort file"
+    covariate_cols: "Comma-separated column names to use as covariates in the regression model"
+    independent_variable_of_interest: "Column name for the independent variable to test for phenotype associations"
+    output_file_prefix: "Prefix for all output file names"
+    min_cases: "Minimum number of cases required to include a phecode in the PheWAS analysis. Default is 50."
+    min_phecode_count: "Minimum phecode count per sample to be considered a case. Default is 1."
+    target_gcp_folder: "Optional GCP folder path to copy output files to after completion"
   }
 
   call PheTK {
