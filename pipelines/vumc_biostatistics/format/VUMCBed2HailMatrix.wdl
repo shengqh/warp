@@ -1,5 +1,33 @@
 version 1.0
 
+## Copyright Vanderbilt Health, 2026
+##
+## VUMC PLINK1 BED to Hail MatrixTable Conversion Workflow
+##
+## This workflow converts PLINK1 BED format genetic data to a Hail MatrixTable stored in GCS.
+## Developed by VUMC Biostatistics for population genetics analysis.
+## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
+##
+## ### Workflow Purpose:
+## PLINK1 BED format files require conversion to Hail MatrixTable format for downstream
+## Hail-based analyses. This workflow performs the conversion and stores the result in GCS.
+##
+## ### Workflow Steps:
+## 1. **Bed2HailMatrix**: Converts the input BED/BIM/FAM files to a Hail MatrixTable
+##    and writes it to the specified GCS output path.
+##
+## ### Inputs:
+## - input_bed: PLINK1 BED file containing genotype data.
+## - input_bim: PLINK1 BIM file containing variant information.
+## - input_fam: PLINK1 FAM file containing sample information.
+## - reference_genome: Reference genome version for Hail. Default is "GRCh38".
+## - output_prefix: Prefix for the output Hail MatrixTable path.
+## - target_gcp_folder: Optional GCP folder path to copy output files to after completion.
+##
+## ### Outputs:
+## - hail_gcs_path: GCS path to the output Hail MatrixTable.
+## - hail_local_path: Local path to the Hail MatrixTable metadata file.
+
 workflow VUMCBed2HailMatrix {
   input {
     File input_bed
@@ -11,6 +39,19 @@ workflow VUMCBed2HailMatrix {
     String output_prefix
 
     String? target_gcp_folder
+  }
+
+  meta {
+    allowNestedInputs: true
+  }
+
+  parameter_meta {
+    input_bed: "PLINK1 BED file containing genotype data"
+    input_bim: "PLINK1 BIM file containing variant information"
+    input_fam: "PLINK1 FAM file containing sample information"
+    reference_genome: "Reference genome version for Hail. Default is 'GRCh38'."
+    output_prefix: "Prefix for the output Hail MatrixTable path"
+    target_gcp_folder: "Optional GCP folder path to copy output files to after completion"
   }
 
   call Bed2HailMatrix {

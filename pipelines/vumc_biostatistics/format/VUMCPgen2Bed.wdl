@@ -1,8 +1,37 @@
 version 1.0
 
-import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
+## Copyright Vanderbilt Health, 2026
+##
+## VUMC PGEN to PLINK1 BED Conversion Workflow
+##
+## This workflow converts PLINK2 PGEN format genetic data files to PLINK1 BED format.
+## Developed by VUMC Biostatistics for population genetics format conversion.
+## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
+##
+## ### Workflow Purpose:
+## Some downstream tools require PLINK1 BED format. This workflow converts PGEN files
+## to BED/BIM/FAM format and optionally copies the results to GCS.
+##
+## ### Workflow Steps:
+## 1. **Pgen2Bed**: Uses plink2 to convert the PGEN file to PLINK1 BED format.
+## 2. **CopyFile (Optional)**: If `target_bucket` is provided, copies the BED/BIM/FAM
+##    files to the specified GCS bucket.
+##
+## ### Inputs:
+## - input_pgen: PLINK2 PGEN file containing genotype data.
+## - input_pvar: PLINK2 PVAR file containing variant information.
+## - input_psam: PLINK2 PSAM file containing sample information.
+## - output_prefix: Prefix for output filenames.
+## - plink2_option: Optional additional plink2 command-line parameters.
+## - docker: Docker image for plink2. Default is 'shengqh/plink_1.9_2.0:20250304'.
+## - target_bucket: Optional GCS bucket path to copy output files to after completion.
+##
+## ### Outputs:
+## - output_plink_bed: Generated PLINK1 BED file.
+## - output_plink_bim: Generated PLINK1 BIM file.
+## - output_plink_fam: Generated PLINK1 FAM file.
 
-workflow VUMCPgen2Bed {
+import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
   input {
     File input_pgen
     File input_pvar
@@ -14,6 +43,20 @@ workflow VUMCPgen2Bed {
     String docker = "shengqh/plink_1.9_2.0:20250304"
 
     String? target_bucket
+  }
+
+  meta {
+    allowNestedInputs: true
+  }
+
+  parameter_meta {
+    input_pgen: "PLINK2 PGEN file containing genotype data"
+    input_pvar: "PLINK2 PVAR file containing variant information"
+    input_psam: "PLINK2 PSAM file containing sample information"
+    output_prefix: "Prefix for output filenames"
+    plink2_option: "Optional additional plink2 command-line parameters"
+    docker: "Docker image for plink2. Default is 'shengqh/plink_1.9_2.0:20250304'."
+    target_bucket: "Optional GCS bucket path to copy output files to after completion"
   }
 
   call Pgen2Bed {

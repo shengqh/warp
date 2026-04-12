@@ -1,5 +1,7 @@
 version 1.0
 
+## Copyright Vanderbilt Health, 2026
+##
 ## VUMC VCF Sample Extraction and Allele Frequency Filtering Workflow
 ##
 ## This workflow extracts specific samples from a VCF file and filters variants based on allele frequency.
@@ -57,6 +59,21 @@ workflow VUMCVcfExtractSampleAndFilterAF {
     String target_suffix = ".vcf.gz"
 
     String? target_gcp_folder
+  }
+
+  meta {
+    allowNestedInputs: true
+  }
+
+  parameter_meta {
+    input_vcf: "Input VCF file to be processed"
+    input_vcf_index: "Index file for the input VCF"
+    ref_fasta: "Reference genome FASTA file for variant normalization"
+    include_samples: "File containing sample IDs to extract from the VCF"
+    bcftools_view_option: "Optional additional parameters passed to bcftools view. Default is empty."
+    target_prefix: "Prefix for output filenames"
+    target_suffix: "Suffix for output filenames. Default is '.vcf.gz'."
+    target_gcp_folder: "Optional GCP folder path to copy output files to after completion"
   }
 
   call BcftoolsExtractSamplesAndGTOnly {

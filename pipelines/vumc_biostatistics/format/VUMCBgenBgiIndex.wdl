@@ -1,5 +1,7 @@
 version 1.0
 
+## Copyright Vanderbilt Health, 2026
+##
 ## VUMC BGEN Indexing Workflow
 ##
 ## This workflow creates an index file for a BGEN format genetic data file.
@@ -36,6 +38,16 @@ workflow VUMCBgenBgiIndex {
     String reference_genome = "GRCh38"
 
     String? target_gcp_folder
+  }
+
+  meta {
+    allowNestedInputs: true
+  }
+
+  parameter_meta {
+    input_bgen: "Input BGEN file to be indexed"
+    reference_genome: "Reference genome version. Default is 'GRCh38'."
+    target_gcp_folder: "Optional GCP folder path to copy output files to after completion"
   }
 
   call BgenBgiIndex {

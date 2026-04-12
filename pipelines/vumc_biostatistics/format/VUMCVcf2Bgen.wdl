@@ -1,5 +1,7 @@
 version 1.0
 
+## Copyright Vanderbilt Health, 2026
+##
 ## VUMC VCF to BGEN Conversion Workflow
 ##
 ## This workflow converts VCF format genetic data files to BGEN format.
@@ -50,6 +52,20 @@ workflow VUMCVcf2Bgen {
     String output_prefix
 
     String? target_gcp_folder
+  }
+
+  meta {
+    allowNestedInputs: true
+  }
+
+  parameter_meta {
+    input_vcf: "Input VCF file to be converted to BGEN format"
+    input_vcf_index: "Index file for the input VCF"
+    chromosome: "Chromosome identifier for the input VCF (e.g., 'chr1', 'chrX')"
+    input_psam: "Optional PSAM file with sample sex information. Required for chrX conversion."
+    split_par: "Optional plink2 --split-par build code for splitting PAR regions (e.g., 'b38'). Required for chrX conversion."
+    output_prefix: "Prefix for output filenames"
+    target_gcp_folder: "Optional GCP folder path to copy output files to after completion"
   }
 
   if (chromosome=="chrX") {

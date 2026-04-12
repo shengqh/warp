@@ -1,8 +1,36 @@
 version 1.0
 
-import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
+## Copyright Vanderbilt Health, 2026
+##
+## VUMC PGEN to BigQuery Matrix Conversion Workflow
+##
+## This workflow converts PLINK2 PGEN format genetic data files to BigQuery-compatible flat text matrices.
+## Developed by VUMC Biostatistics for population genetics data ingestion into BigQuery.
+## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
+##
+## ### Workflow Purpose:
+## BigQuery requires genetic data in flat text format. This workflow converts PGEN files to
+## tab-separated text matrices for genotypes, variants, and samples for BigQuery import.
+##
+## ### Workflow Steps:
+## 1. **Pgen2BigQueryMatrix**: Converts the PGEN files to three text files — genotype matrix,
+##    variant list, and sample list — suitable for BigQuery import.
+## 2. **CopyFile (Optional)**: If `target_bucket` is provided, copies all three output files
+##    to the specified GCS bucket.
+##
+## ### Inputs:
+## - input_pgen: PLINK2 PGEN file containing genotype data.
+## - input_pvar: PLINK2 PVAR file containing variant information.
+## - input_psam: PLINK2 PSAM file containing sample information.
+## - output_prefix: Prefix for output filenames.
+## - target_bucket: Optional GCS bucket path to copy output files to after completion.
+##
+## ### Outputs:
+## - output_pgen_txt: Genotype matrix in tab-separated text format.
+## - output_pvar_txt: Variant list in tab-separated text format.
+## - output_psam_txt: Sample list in tab-separated text format.
 
-workflow VUMCPgen2BigQueryMatrix {
+import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
   input {
     File input_pgen
     File input_pvar
@@ -11,6 +39,18 @@ workflow VUMCPgen2BigQueryMatrix {
     String output_prefix
 
     String? target_bucket
+  }
+
+  meta {
+    allowNestedInputs: true
+  }
+
+  parameter_meta {
+    input_pgen: "PLINK2 PGEN file containing genotype data"
+    input_pvar: "PLINK2 PVAR file containing variant information"
+    input_psam: "PLINK2 PSAM file containing sample information"
+    output_prefix: "Prefix for output filenames"
+    target_bucket: "Optional GCS bucket path to copy output files to after completion"
   }
 
   call Pgen2BigQueryMatrix {

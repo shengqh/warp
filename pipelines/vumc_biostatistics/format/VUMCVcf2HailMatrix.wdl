@@ -1,5 +1,40 @@
 version 1.0
 
+## Copyright Vanderbilt Health, 2026
+##
+## VUMC VCF to Hail MatrixTable Conversion Workflow
+##
+## This workflow converts a VCF file to a Hail MatrixTable stored in GCS.
+## Developed by VUMC Biostatistics for population genetics analysis.
+## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
+##
+## ### Workflow Purpose:
+## VCF files require conversion to Hail MatrixTable format for downstream Hail-based analyses.
+## This workflow handles optional sample ID remapping, PASS-only filtering, and stores
+## the resulting MatrixTable directly in Google Cloud Storage.
+##
+## ### Workflow Steps:
+## 1. **Vcf2HailMatrix**: Converts the VCF to a Hail MatrixTable with optional ID remapping
+##    and PASS-only filtering, then writes the result to GCS.
+##
+## ### Inputs:
+## - input_vcf: Input VCF file to be converted.
+## - input_vcf_index: Index file for the input VCF.
+## - id_map_file: Optional file mapping VCF sample IDs to new IDs.
+## - pass_only: If true, only PASS variants are retained. Default is true.
+## - reference_genome: Reference genome version for Hail. Default is "GRCh38".
+## - output_prefix: Prefix for the output Hail MatrixTable path.
+## - target_gcp_folder: Optional GCP folder path to copy output files to after completion.
+##
+## ### Outputs:
+## - hail_gcs_path: GCS path to the output Hail MatrixTable.
+## - num_samples: Number of samples in the MatrixTable.
+## - num_variants: Number of variants in the MatrixTable.
+## - num_invalid_samples: Number of samples with IDs not found in the ID map file.
+##
+## ### Notes:
+## - Modified from Broad Institute's long-read-pipelines Hail utilities.
+
 workflow VUMCVcf2HailMatrix {
   #modified based on 
   #https://github.com/broadinstitute/long-read-pipelines/blob/7d36a93964998f513a132b86ca9ace6c663d3327/wdl/tasks/Utility/Hail.wdl
@@ -16,6 +51,20 @@ workflow VUMCVcf2HailMatrix {
     String output_prefix
 
     String? target_gcp_folder
+  }
+
+  meta {
+    allowNestedInputs: true
+  }
+
+  parameter_meta {
+    input_vcf: "Input VCF file to be converted to a Hail MatrixTable"
+    input_vcf_index: "Index file for the input VCF"
+    id_map_file: "Optional file mapping VCF sample IDs to new IDs. If not provided, original IDs are used."
+    pass_only: "If true, only variants with PASS filter are retained. Default is true."
+    reference_genome: "Reference genome version for Hail. Default is 'GRCh38'."
+    output_prefix: "Prefix for the output Hail MatrixTable path"
+    target_gcp_folder: "Optional GCP folder path to copy output files to after completion"
   }
 
   call Vcf2HailMatrix {

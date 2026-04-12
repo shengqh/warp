@@ -1,5 +1,36 @@
 version 1.0
 
+## Copyright Vanderbilt Health, 2026
+##
+## VUMC BGEN to Hail MatrixTable Conversion Workflow
+##
+## This workflow converts BGEN format genetic data to a Hail MatrixTable stored in GCS.
+## Developed by VUMC Biostatistics for population genetics analysis.
+## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
+##
+## ### Workflow Purpose:
+## BGEN files require conversion to Hail MatrixTable format for downstream Hail-based analyses.
+## This workflow performs the conversion and stores the result directly in Google Cloud Storage.
+##
+## ### Workflow Steps:
+## 1. **Bgen2HailMatrix**: Converts the input BGEN and sample files to a Hail MatrixTable
+##    and writes it to the specified GCS output path.
+##
+## ### Inputs:
+## - input_bgen: BGEN file containing genotype data.
+## - input_bgen_sample: Sample file corresponding to the input BGEN file.
+## - reference_genome: Reference genome version for Hail. Default is "GRCh38".
+## - output_prefix: Prefix for the output Hail MatrixTable path.
+## - target_gcp_folder: Optional GCP folder path to copy output files to after completion.
+##
+## ### Outputs:
+## - hail_gcs_path: GCS path to the output Hail MatrixTable.
+## - num_samples: Number of samples in the MatrixTable.
+## - num_variants: Number of variants in the MatrixTable.
+##
+## ### Notes:
+## - Modified from Broad Institute's long-read-pipelines Hail utilities.
+
 workflow VUMCBgen2HailMatrix {
   #modified based on 
   #https://github.com/broadinstitute/long-read-pipelines/blob/7d36a93964998f513a132b86ca9ace6c663d3327/wdl/tasks/Utility/Hail.wdl
@@ -13,6 +44,18 @@ workflow VUMCBgen2HailMatrix {
     String output_prefix
 
     String? target_gcp_folder
+  }
+
+  meta {
+    allowNestedInputs: true
+  }
+
+  parameter_meta {
+    input_bgen: "BGEN file containing genotype data"
+    input_bgen_sample: "Sample file corresponding to the input BGEN file"
+    reference_genome: "Reference genome version for Hail. Default is 'GRCh38'."
+    output_prefix: "Prefix for the output Hail MatrixTable path"
+    target_gcp_folder: "Optional GCP folder path to copy output files to after completion"
   }
 
   call Bgen2HailMatrix {

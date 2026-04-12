@@ -1,5 +1,7 @@
 version 1.0
 
+## Copyright Vanderbilt Health, 2026
+##
 ## VUMC BGEN Hail Indexing Workflow
 ##
 ## This workflow creates Hail index files for a BGEN format genetic data file.
@@ -35,6 +37,16 @@ workflow VUMCBgenUrlHailIndex {
     String reference_genome = "GRCh38"
 
     String project_id
+  }
+
+  meta {
+    allowNestedInputs: true
+  }
+
+  parameter_meta {
+    input_bgen: "GCS URL of the input BGEN file to be indexed"
+    reference_genome: "Reference genome version for Hail. Default is 'GRCh38'."
+    project_id: "GCP project ID for billing and GCS access"
   }
 
   call BgenHailIndex {

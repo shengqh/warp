@@ -1,8 +1,37 @@
 version 1.0
 
-import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
+## Copyright Vanderbilt Health, 2026
+##
+## VUMC PGEN to Partitioned BigQuery Matrix Conversion Workflow
+##
+## This workflow converts PLINK2 PGEN format genetic data files to partitioned BigQuery-compatible text matrices.
+## Developed by VUMC Biostatistics for large-scale population genetics data ingestion into BigQuery.
+## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
+##
+## ### Workflow Purpose:
+## For very large datasets, the genotype matrix must be split into partitioned files to stay
+## within BigQuery's single-file size limits. This workflow produces a partitioned genotype
+## matrix alongside single variant and sample list files.
+##
+## ### Workflow Steps:
+## 1. **Pgen2BigQueryMatrixPartition**: Converts the PGEN files to a partitioned genotype
+##    matrix and single variant/sample list files.
+## 2. **CopyFile (Optional)**: If `target_bucket` is provided, copies all output files
+##    to the specified GCS bucket.
+##
+## ### Inputs:
+## - input_pgen: PLINK2 PGEN file containing genotype data.
+## - input_pvar: PLINK2 PVAR file containing variant information.
+## - input_psam: PLINK2 PSAM file containing sample information.
+## - output_prefix: Prefix for output filenames.
+## - target_bucket: Optional GCS bucket path to copy output files to after completion.
+##
+## ### Outputs:
+## - output_pvar_txt: Variant list in tab-separated text format.
+## - output_psam_txt: Sample list in tab-separated text format.
+## - output_pgen_txt_files: Array of partitioned genotype matrix text files.
 
-workflow VUMCPgen2BigQueryMatrixPartition {
+import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
   input {
     File input_pgen
     File input_pvar
@@ -11,6 +40,18 @@ workflow VUMCPgen2BigQueryMatrixPartition {
     String output_prefix
 
     String? target_bucket
+  }
+
+  meta {
+    allowNestedInputs: true
+  }
+
+  parameter_meta {
+    input_pgen: "PLINK2 PGEN file containing genotype data"
+    input_pvar: "PLINK2 PVAR file containing variant information"
+    input_psam: "PLINK2 PSAM file containing sample information"
+    output_prefix: "Prefix for output filenames"
+    target_bucket: "Optional GCS bucket path to copy output files to after completion"
   }
 
   call Pgen2BigQueryMatrixPartition as Pgen2BigQueryMatrix {

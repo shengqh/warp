@@ -1,5 +1,7 @@
 version 1.0
 
+## Copyright Vanderbilt Health, 2026
+##
 ## VUMC Untar Workflow
 ##
 ## This workflow extracts files from tar.gz archives and optionally copies them to GCP storage.
@@ -37,6 +39,16 @@ workflow VUMCUntar {
     String output_extension = ".fastq.gz"
 
     String? target_gcp_folder
+  }
+
+  meta {
+    allowNestedInputs: true
+  }
+
+  parameter_meta {
+    input_tar_gz: "Input tar.gz archive file to be extracted"
+    output_extension: "File extension to filter extracted files. Default is '.fastq.gz'."
+    target_gcp_folder: "Optional GCP folder path to copy output files to after completion"
   }
 
   call Untar {
