@@ -75,6 +75,7 @@ workflow VUMCAutoGVP {
     # Annovar database (tar.gz archive)
     String? annovar_db_folder
     File? annovar_db_tar_gz
+    String? annovar_db_tar_folder_name = "humandb"
     Float? annovar_db_uncompressed_gb
 
     # AutoPVS1 data
@@ -164,6 +165,7 @@ workflow VUMCAutoGVP {
       annovar_db_folder = annovar_db_folder,
       annovar_db_tar_gz = annovar_db_tar_gz,
       annovar_db_uncompressed_gb = annovar_db_uncompressed_gb,
+      annovar_db_tar_folder_name = annovar_db_tar_folder_name,
       target_prefix = target_prefix
   }
 
@@ -174,6 +176,7 @@ workflow VUMCAutoGVP {
       annovar_db_folder = annovar_db_folder,
       annovar_db_tar_gz = annovar_db_tar_gz,
       annovar_db_uncompressed_gb = annovar_db_uncompressed_gb,
+      annovar_db_tar_folder_name = annovar_db_tar_folder_name,
       target_prefix = target_prefix
   }
 
@@ -483,6 +486,7 @@ task RunInterVar {
     File input_vcf
     String? annovar_db_folder
     File? annovar_db_tar_gz
+    String? annovar_db_tar_folder_name
     Float? annovar_db_uncompressed_gb
 
     String target_prefix
@@ -512,7 +516,11 @@ if [[ "~{use_local_db}" == "true" ]]; then
 elif [[ -n "~{annovar_db_tar_gz}" ]]; then
   echo "Extracting annovar database..."
   tar -xzf ~{annovar_db_tar_gz}
-  ANNOVAR_DB_DIR=$(basename "~{annovar_db_tar_gz}" .tar.gz)
+  if [[ -n "~{annovar_db_tar_folder_name}" ]]; then
+    ANNOVAR_DB_DIR="~{annovar_db_tar_folder_name}"
+  else
+    ANNOVAR_DB_DIR=$(basename "~{annovar_db_tar_gz}" .tar.gz)
+  fi
   echo "Annovar database extracted."
 else
   echo "ERROR: Either annovar_db_folder or annovar_db_tar_gz must be provided." >&2
@@ -564,6 +572,7 @@ task RunAnnovarGnomad {
 
     String? annovar_db_folder
     File? annovar_db_tar_gz
+    String? annovar_db_tar_folder_name
     Float? annovar_db_uncompressed_gb
 
     String target_prefix
@@ -590,7 +599,11 @@ if [[ "~{use_local_db}" == "true" ]]; then
 elif [[ -n "~{annovar_db_tar_gz}" ]]; then
   echo "Extracting annovar database..."
   tar -xzf ~{annovar_db_tar_gz}
-  ANNOVAR_DB_DIR=$(basename "~{annovar_db_tar_gz}" .tar.gz)
+  if [[ -n "~{annovar_db_tar_folder_name}" ]]; then
+    ANNOVAR_DB_DIR="~{annovar_db_tar_folder_name}"
+  else
+    ANNOVAR_DB_DIR=$(basename "~{annovar_db_tar_gz}" .tar.gz)
+  fi
   echo "Annovar database extracted."
 else
   echo "ERROR: Either annovar_db_folder or annovar_db_tar_gz must be provided." >&2

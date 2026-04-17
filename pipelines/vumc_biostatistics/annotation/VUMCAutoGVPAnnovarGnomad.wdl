@@ -39,6 +39,7 @@ workflow VUMCAutoGVPAnnovarGnomad {
 
     String? annovar_db_folder
     File? annovar_db_tar_gz
+    String? annovar_db_tar_folder_name = "humandb"
     Float? annovar_db_uncompressed_gb
 
     String target_prefix
@@ -59,6 +60,7 @@ workflow VUMCAutoGVPAnnovarGnomad {
       input_vcf = input_vcf,
       annovar_db_folder = annovar_db_folder,
       annovar_db_tar_gz = annovar_db_tar_gz,
+      annovar_db_tar_folder_name = annovar_db_tar_folder_name,
       annovar_db_uncompressed_gb = annovar_db_uncompressed_gb,
       target_prefix = target_prefix
   }
