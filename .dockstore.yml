@@ -233,6 +233,42 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/annotation/VUMCGetGeneLocus.wdl
 
+  - name: VUMCAutoGVP
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/annotation/VUMCAutoGVP.wdl
+
+  - name: VUMCAutoGVPGetGeneLocus
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/annotation/VUMCAutoGVPGetGeneLocus.wdl
+
+  - name: VUMCAutoGVPExtractVcf
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/annotation/VUMCAutoGVPExtractVcf.wdl
+
+  - name: VUMCAutoGVPMergeVcfs
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/annotation/VUMCAutoGVPMergeVcfs.wdl
+
+  - name: VUMCAutoGVPVEP
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/annotation/VUMCAutoGVPVEP.wdl
+
+  - name: VUMCAutoGVPInterVar
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/annotation/VUMCAutoGVPInterVar.wdl
+
+  - name: VUMCAutoGVPAnnovarGnomad
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/annotation/VUMCAutoGVPAnnovarGnomad.wdl
+
+  - name: VUMCAutoGVPAutoPVS1
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/annotation/VUMCAutoGVPAutoPVS1.wdl
+
+  - name: VUMCAutoGVPRunAutoGVP
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/annotation/VUMCAutoGVPRunAutoGVP.wdl
+
   - name: VUMCPrepareGeneGenotype
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCPrepareGeneGenotype.wdl

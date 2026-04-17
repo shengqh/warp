@@ -1,0 +1,7 @@
+{
+  "VUMCAutoGVPVEP.input_vcf": "/nobackup/h_cqs/cindy_chen_projects/20260401_AutoGVP/T03_merge_vcf/result/AutoGVP.vcf.gz",
+  "VUMCAutoGVPVEP.genome_fasta": "/nobackup/h_cqs/references/vep_ref/homo_sapiens/GRCh38.p13.genome.fa",
+  "VUMCAutoGVPVEP.genome_fasta_fai": "/nobackup/h_cqs/references/vep_ref/homo_sapiens/GRCh38.p13.genome.fa.fai",
+  "VUMCAutoGVPVEP.vep_cache_folder": "/nobackup/h_cqs/references/vep_ref",
+  "VUMCAutoGVPVEP.target_prefix": "AutoGVP"
+}

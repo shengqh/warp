@@ -1,0 +1,7 @@
+{
+  "VUMCAutoGVPMergeVcfs.input_vcfs": [
+    "/nobackup/h_cqs/cindy_chen_projects/20260401_AutoGVP/T02_extract_vcf/result/chr13.filtered.vcf.gz",
+    "/nobackup/h_cqs/cindy_chen_projects/20260401_AutoGVP/T02_extract_vcf/result/chr17.filtered.vcf.gz"
+  ],
+  "VUMCAutoGVPMergeVcfs.target_prefix": "AutoGVP"
+}

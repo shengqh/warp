@@ -1,0 +1,24 @@
+{
+  "VUMCAutoGVP.input_vcfs": [
+    "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf_sites/agd35k_chr13.sites.vcf.gz",
+    "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf_sites/agd35k_chr17.sites.vcf.gz"
+  ],
+  "VUMCAutoGVP.input_vcf_indices": [
+    "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf_sites/agd35k_chr13.sites.vcf.gz.tbi",
+    "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf_sites/agd35k_chr17.sites.vcf.gz.tbi"
+  ],
+  "VUMCAutoGVP.gene_symbols": "BRCA1,BRCA2",
+  "VUMCAutoGVP.genome_fasta": "/nobackup/h_cqs/references/vep_ref/homo_sapiens/GRCh38.p13.genome.fa",
+  "VUMCAutoGVP.genome_fasta_fai": "/nobackup/h_cqs/references/vep_ref/homo_sapiens/GRCh38.p13.genome.fa.fai",
+  "VUMCAutoGVP.vep_cache_tar_gz": "/nobackup/h_cqs/references/vep_ref/homo_sapiens_vep_104_GRCh38.tar.gz",
+  "VUMCAutoGVP.vep_cache_uncompressed_gb": 20,
+  "VUMCAutoGVP.annovar_db_tar_gz": "/data/cqs/references/annovar/humandb.20251111.tar.gz",
+  "VUMCAutoGVP.annovar_db_uncompressed_gb": 330,
+  "VUMCAutoGVP.autopvs_data_tar_gz": "/data/cqs/references/autogvp/autoPVS1_data.tar.gz",
+  "VUMCAutoGVP.autopvs_data_uncompressed_gb": 5,
+  "VUMCAutoGVP.clinvar_vcf": "/data/cqs/references/autogvp/clinvar_20260104.vcf.gz",
+  "VUMCAutoGVP.selected_clinvar_submissions": "/data/cqs/references/autogvp/ClinVar-selected-submissions_20260104.tsv",
+  "VUMCAutoGVP.variant_summary": "/data/cqs/references/autogvp/variant_summary_20260104.txt.gz",
+  "VUMCAutoGVP.submission_summary": "/data/cqs/references/autogvp/submission_summary_20260104.txt.gz",
+  "VUMCAutoGVP.target_prefix": "AutoGVP"
+}

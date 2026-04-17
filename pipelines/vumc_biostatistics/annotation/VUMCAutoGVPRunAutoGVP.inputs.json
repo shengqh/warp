@@ -1,0 +1,11 @@
+{
+  "VUMCAutoGVPRunAutoGVP.vep_vcf": "/nobackup/h_cqs/cindy_chen_projects/20260401_AutoGVP/T04_vep/result/AutoGVP.VEP.vcf",
+  "VUMCAutoGVPRunAutoGVP.intervar_file": "/nobackup/h_cqs/cindy_chen_projects/20260401_AutoGVP/T05_intervar/result/AutoGVP.hg38_multianno.txt.intervar",
+  "VUMCAutoGVPRunAutoGVP.annovar_file": "/nobackup/h_cqs/cindy_chen_projects/20260401_AutoGVP/T06_annovar/result/AutoGVP.hg38_multianno.txt",
+  "VUMCAutoGVPRunAutoGVP.autopvs1_file": "/nobackup/h_cqs/cindy_chen_projects/20260401_AutoGVP/T07_autopvs1/result/AutoGVP.autopvs1.txt",
+  "VUMCAutoGVPRunAutoGVP.clinvar_vcf": "/data/cqs/references/autogvp/clinvar_20260104.vcf.gz",
+  "VUMCAutoGVPRunAutoGVP.selected_clinvar_submissions": "/data/cqs/references/autogvp/ClinVar-selected-submissions_20260104.tsv",
+  "VUMCAutoGVPRunAutoGVP.variant_summary": "/data/cqs/references/autogvp/variant_summary_20260104.txt.gz",
+  "VUMCAutoGVPRunAutoGVP.submission_summary": "/data/cqs/references/autogvp/submission_summary_20260104.txt.gz",
+  "VUMCAutoGVPRunAutoGVP.target_prefix": "AutoGVP"
+}

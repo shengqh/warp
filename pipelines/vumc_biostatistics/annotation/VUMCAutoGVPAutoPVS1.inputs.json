@@ -1,0 +1,5 @@
+{
+  "VUMCAutoGVPAutoPVS1.input_vcf": "/nobackup/h_cqs/cindy_chen_projects/20260401_AutoGVP/T04_vep/result/AutoGVP.VEP.vcf",
+  "VUMCAutoGVPAutoPVS1.autopvs_data_folder": "/data/cqs/references/autogvp/autoPVS1_data",
+  "VUMCAutoGVPAutoPVS1.target_prefix": "AutoGVP"
+}

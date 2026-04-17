@@ -1,0 +1,6 @@
+{
+  "VUMCAutoGVPExtractVcf.input_vcf": "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf_sites/agd35k_chr17.sites.vcf.gz",
+  "VUMCAutoGVPExtractVcf.input_vcf_index": "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf_sites/agd35k_chr17.sites.vcf.gz.tbi",
+  "VUMCAutoGVPExtractVcf.region_bed": "/nobackup/h_cqs/cindy_chen_projects/20260401_AutoGVP/T01_genes_locus/result/AutoGVP.bed",
+  "VUMCAutoGVPExtractVcf.output_prefix": "agd35k_chr17"
+}
