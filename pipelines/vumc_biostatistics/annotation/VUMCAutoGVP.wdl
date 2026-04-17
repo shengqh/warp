@@ -45,7 +45,6 @@ version 1.0
 ##
 ## ### Outputs:
 ## - gene_bed: BED file with gene locus coordinates.
-## - filtered_vcfs: Array of VCF files filtered by gene region.
 ## - merged_vcf: Merged VCF file from all filtered VCFs.
 ## - vep_vcf: VEP-annotated VCF file.
 ## - intervar_file: InterVar interpretation results.
@@ -203,23 +202,28 @@ workflow VUMCAutoGVP {
   }
 
   if(defined(target_gcp_folder)){
-    call GcpUtils.MoveOrCopyOneFile as CopyFile {
+    call GcpUtils.MoveOrCopyFiles as CopyFile {
       input:
-        source_file = RunAutoGVP.autogvp_abridged_file,
+        source_file1 = GetGeneLocus.gene_bed,
+        source_file2 = MergeVcfs.merged_vcf,
+        source_file3 = RunVEP.vep_vcf,
+        source_file4 = RunInterVar.intervar_file,
+        source_file5 = RunAnnovarGnomad.annovar_file,
+        source_file6 = RunAutoPVS1.autopvs1_file,
+        source_file7 = RunAutoGVP.autogvp_abridged_file,
         is_move_file = false,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }
 
   output {
-    File gene_bed = GetGeneLocus.gene_bed
-    Array[File] filtered_vcfs = ExtractVcfByRegion.filtered_vcf
-    File merged_vcf = MergeVcfs.merged_vcf
-    File vep_vcf = RunVEP.vep_vcf
-    File intervar_file = RunInterVar.intervar_file
-    File annovar_file = RunAnnovarGnomad.annovar_file
-    File autopvs1_file = RunAutoPVS1.autopvs1_file
-    File autogvp_abridged_file = select_first([CopyFile.output_file, RunAutoGVP.autogvp_abridged_file])
+    File gene_bed = select_first([CopyFile.output_file1, GetGeneLocus.gene_bed])
+    File merged_vcf = select_first([CopyFile.output_file2, MergeVcfs.merged_vcf])
+    File vep_vcf = select_first([CopyFile.output_file3, RunVEP.vep_vcf])
+    File intervar_file = select_first([CopyFile.output_file4, RunInterVar.intervar_file])
+    File annovar_file = select_first([CopyFile.output_file5, RunAnnovarGnomad.annovar_file])
+    File autopvs1_file = select_first([CopyFile.output_file6, RunAutoPVS1.autopvs1_file])
+    File autogvp_abridged_file = select_first([CopyFile.output_file7, RunAutoGVP.autogvp_abridged_file])
   }
 }
 
