@@ -216,3 +216,25 @@ task concat_files {
     File concat_file = "~{output_file}"
   }
 }
+
+# A utility task that always fails with a given error message.
+# Use inside `if(condition)` blocks to validate workflow inputs.
+task FailWithMessage {
+  input {
+    String message
+  }
+  command <<<
+    echo "ERROR: ~{message}" >&2
+    exit 1
+  >>>
+  runtime {
+    cpu: 1
+    docker: "ubuntu:20.04"
+    preemptible: 0
+    disks: "local-disk 5 HDD"
+    memory: "1 GiB"
+  }
+  output {
+    String out = read_string(stdout())
+  }
+}
