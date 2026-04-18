@@ -54,10 +54,12 @@ version 1.0
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils
+import "../../../tasks/vumc_biostatistics/BioUtils.wdl" as BioUtils
 
 workflow VUMCAutoGVP {
   input {
     # Input VCFs (one per chromosome or region) with their indices
+    Array[String] input_chromosomes
     Array[File] input_vcfs
     Array[File] input_vcf_indices
 
@@ -127,7 +129,15 @@ workflow VUMCAutoGVP {
   }
 
   # Step 2: Extract VCFs by gene region (scatter over input VCFs)
-  scatter (idx in range(length(input_vcfs))) {
+
+  # In case there are input VCFs without any variants in the gene regions, we need to handle empty VCFs gracefully.
+  call BioUtils.GetChromosomeIndecies as CheckOverlapVariants {
+    input:
+      input_chromosomes = input_chromosomes,
+      input_bed_file = GetGeneLocus.gene_bed
+  }
+
+  scatter(idx in CheckOverlapVariants.chromosome_indecies){
     call ExtractVcfByRegion {
       input:
         input_vcf = input_vcfs[idx],
