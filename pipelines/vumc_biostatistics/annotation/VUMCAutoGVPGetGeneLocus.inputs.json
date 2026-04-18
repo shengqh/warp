@@ -1,3 +1,4 @@
 {
-  "VUMCAutoGVPGetGeneLocus.gene_symbols": "BRCA1,BRCA2"
+  "VUMCAutoGVPGetGeneLocus.gene_symbols": "BRCA1,BRCA2",
+  "VUMCAutoGVPGetGeneLocus.gene_gtf": "/data/cqs/references/gencode/GRCh38.p14/gencode.v49.annotation.gtf"
 }

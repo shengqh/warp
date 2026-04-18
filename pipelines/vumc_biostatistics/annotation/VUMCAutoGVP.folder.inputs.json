@@ -15,6 +15,7 @@
     "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf_sites/agd35k_chr17.sites.vcf.gz.tbi"
   ],
   "VUMCAutoGVP.gene_symbols": "BRCA1,BRCA2",
+  "VUMCAutoGVP.gene_gtf": "/data/cqs/references/gencode/GRCh38.p14/gencode.v49.annotation.gtf",
   "VUMCAutoGVP.genome_fasta": "/nobackup/h_cqs/references/vep_ref/homo_sapiens/GRCh38.p13.genome.fa",
   "VUMCAutoGVP.genome_fasta_fai": "/nobackup/h_cqs/references/vep_ref/homo_sapiens/GRCh38.p13.genome.fa.fai",
   "VUMCAutoGVP.vep_cache_folder": "/nobackup/h_cqs/references/vep_ref",

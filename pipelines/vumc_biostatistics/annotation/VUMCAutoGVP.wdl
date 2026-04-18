@@ -15,7 +15,9 @@ version 1.0
 ## Supports both local folder and cloud tar.gz inputs for VEP cache, ANNOVAR DB, and AutoPVS1 data.
 ##
 ## ### Workflow Steps:
-## 1. **GetGeneLocus**: Get gene locus coordinates using biomaRt (supports comma-separated gene symbols).
+## 1. **GetGeneLocusGTF** or **GetGeneLocusBiomart**: Get gene locus coordinates.
+##    - If gene_gtf is provided, parses local GTF file (stable, offline, recommended).
+##    - Otherwise, queries Ensembl biomaRt (network-dependent, can be unstable).
 ## 2. **ExtractVcfByRegion**: Extract variants within gene regions from input VCFs (scatter).
 ## 3. **MergeVcfs**: Merge extracted VCFs into a single file.
 ## 4. **RunVEP**: Annotate with VEP (Variant Effect Predictor).
@@ -28,6 +30,7 @@ version 1.0
 ## - input_vcfs: Array of input VCF files (one per chromosome or region).
 ## - input_vcf_indices: Array of VCF index files corresponding to input_vcfs.
 ## - gene_symbols: Comma-separated gene symbols (e.g., "BRCA1,BRCA2").
+## - gene_gtf: Optional GENCODE/Ensembl GTF file for local gene lookup (recommended).
 ## - genome_fasta: Reference genome FASTA file for VEP.
 ## - genome_fasta_fai: Reference genome FASTA index file.
 ## - vep_cache_folder: Optional local VEP cache directory.
@@ -65,6 +68,10 @@ workflow VUMCAutoGVP {
 
     # Gene symbols (comma-separated, e.g., "BRCA1,BRCA2")
     String gene_symbols
+
+    # Gene annotation GTF file (e.g., GENCODE v38). If provided, uses local GTF parsing
+    # instead of biomaRt (which can be unstable due to Ensembl server load).
+    File? gene_gtf
 
     # VEP references
     File genome_fasta
@@ -122,11 +129,23 @@ workflow VUMCAutoGVP {
     }
   }
 
-  # Step 1: Get gene locus BED file
-  call GetGeneLocus {
-    input:
-      gene_symbols = gene_symbols
+  # Step 1: Get gene locus BED file (prefer GTF if provided, fallback to biomaRt)
+  if (defined(gene_gtf)) {
+    call GetGeneLocusGTF {
+      input:
+        gene_symbols = gene_symbols,
+        gene_gtf = select_first([gene_gtf])
+    }
   }
+
+  if (!defined(gene_gtf)) {
+    call GetGeneLocusBiomart {
+      input:
+        gene_symbols = gene_symbols
+    }
+  }
+
+  File gene_bed_result = select_first([GetGeneLocusGTF.gene_bed, GetGeneLocusBiomart.gene_bed])
 
   # Step 2: Extract VCFs by gene region (scatter over input VCFs)
 
@@ -134,7 +153,7 @@ workflow VUMCAutoGVP {
   call BioUtils.GetChromosomeIndecies as CheckOverlapVariants {
     input:
       input_chromosomes = input_chromosomes,
-      input_bed_file = GetGeneLocus.gene_bed
+      input_bed_file = gene_bed_result
   }
 
   scatter(idx in CheckOverlapVariants.chromosome_indecies){
@@ -142,7 +161,7 @@ workflow VUMCAutoGVP {
       input:
         input_vcf = input_vcfs[idx],
         input_vcf_index = input_vcf_indices[idx],
-        region_bed = GetGeneLocus.gene_bed,
+        region_bed = gene_bed_result,
         output_prefix = basename(input_vcfs[idx], ".vcf.gz")
     }
   }
@@ -217,7 +236,7 @@ workflow VUMCAutoGVP {
   if(defined(target_gcp_folder)){
     call GcpUtils.MoveOrCopyFiles as CopyFile {
       input:
-        source_file1 = GetGeneLocus.gene_bed,
+        source_file1 = gene_bed_result,
         source_file2 = MergeVcfs.merged_vcf,
         source_file3 = RunVEP.vep_vcf,
         source_file4 = RunInterVar.intervar_file,
@@ -230,7 +249,7 @@ workflow VUMCAutoGVP {
   }
 
   output {
-    File gene_bed = select_first([CopyFile.output_file1, GetGeneLocus.gene_bed])
+    File gene_bed = select_first([CopyFile.output_file1, gene_bed_result])
     File merged_vcf = select_first([CopyFile.output_file2, MergeVcfs.merged_vcf])
     File vep_vcf = select_first([CopyFile.output_file3, RunVEP.vep_vcf])
     File intervar_file = select_first([CopyFile.output_file4, RunInterVar.intervar_file])
@@ -241,12 +260,107 @@ workflow VUMCAutoGVP {
 }
 
 
-# Get gene locus coordinates from Ensembl using biomaRt.
+# Get gene locus coordinates by parsing a local GENCODE/Ensembl GTF file.
+# This is a stable offline alternative to biomaRt (no network dependency).
 # Supports comma-separated gene symbols (e.g., "BRCA1,BRCA2").
-task GetGeneLocus {
+task GetGeneLocusGTF {
   input {
     String gene_symbols
-    Int shift_bases = 2000
+    File gene_gtf
+    Int shift_bases = 0
+
+    String docker = "python:3.9-slim"
+    Int memory_gb = 4
+    Int cpu = 1
+  }
+
+  String target_file = sub(gene_symbols, ",", "_") + ".bed"
+  Int disk_size = ceil(size(gene_gtf, "GB") * 2) + 5
+
+  command <<<
+set -e
+
+python3 <<'PYEOF'
+import sys
+import re
+
+gene_str = "~{gene_symbols}"
+gtf_file = "~{gene_gtf}"
+shift_bases = ~{shift_bases}
+output_file = "~{target_file}"
+
+genes = set(g.strip() for g in gene_str.split(","))
+found_genes = set()
+results = []
+
+with open(gtf_file) as f:
+    for line in f:
+        if line.startswith("#"):
+            continue
+        fields = line.rstrip("\n").split("\t")
+        if len(fields) < 9 or fields[2] != "gene":
+            continue
+
+        attrs = fields[8]
+        m_name = re.search(r'gene_name "([^"]+)"', attrs)
+        if not m_name or m_name.group(1) not in genes:
+            continue
+
+        gene_name = m_name.group(1)
+        found_genes.add(gene_name)
+
+        chrom = fields[0]
+        start = max(0, int(fields[3]) - shift_bases - 1)  # GTF is 1-based inclusive, BED is 0-based half-open
+        end = int(fields[4]) + shift_bases
+        strand = fields[6]
+
+        m_id = re.search(r'gene_id "([^"]+)"', attrs)
+        gene_id = m_id.group(1).split(".")[0] if m_id else ""
+
+        # Add chr prefix if missing
+        if not chrom.startswith("chr"):
+            chrom = "chr" + chrom
+        chrom = chrom.replace("chrMT", "chrM")
+
+        results.append((chrom, start, end, 1000, gene_name, strand, gene_id))
+
+results.sort(key=lambda x: (x[0], x[1]))
+
+with open(output_file, "w") as f:
+    for r in results:
+        f.write("\t".join(str(x) for x in r) + "\n")
+
+missing = genes - found_genes
+if missing:
+    print(f"WARNING: Gene(s) not found in GTF: {', '.join(sorted(missing))}", file=sys.stderr)
+
+if not results:
+    print(f"ERROR: No gene entries found for: {gene_str}", file=sys.stderr)
+    sys.exit(1)
+
+print(f"Found {len(results)} gene entries for {len(found_genes)}/{len(genes)} genes")
+PYEOF
+  >>>
+
+  runtime {
+    docker: docker
+    preemptible: 1
+    cpu: cpu
+    disks: "local-disk " + disk_size + " HDD"
+    memory: memory_gb + " GiB"
+  }
+  output {
+    File gene_bed = "~{target_file}"
+  }
+}
+
+
+# Get gene locus coordinates from Ensembl using biomaRt.
+# Supports comma-separated gene symbols (e.g., "BRCA1,BRCA2").
+task GetGeneLocusBiomart {
+  input {
+    String gene_symbols
+    Int shift_bases = 0
 
     String host = "https://www.ensembl.org"
     String dataset = "hsapiens_gene_ensembl"

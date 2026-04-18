@@ -1,13 +1,21 @@
 {
+  "VUMCAutoGVP.input_chromosomes": [
+    "chr12",
+    "chr13",
+    "chr17"
+  ],
   "VUMCAutoGVP.input_vcfs": [
+    "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf_sites/agd35k_chr12.sites.vcf.gz",
     "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf_sites/agd35k_chr13.sites.vcf.gz",
     "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf_sites/agd35k_chr17.sites.vcf.gz"
   ],
   "VUMCAutoGVP.input_vcf_indices": [
+    "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf_sites/agd35k_chr12.sites.vcf.gz.tbi",
     "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf_sites/agd35k_chr13.sites.vcf.gz.tbi",
     "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf_sites/agd35k_chr17.sites.vcf.gz.tbi"
   ],
   "VUMCAutoGVP.gene_symbols": "BRCA1,BRCA2",
+  "VUMCAutoGVP.gene_gtf": "/data/cqs/references/gencode/GRCh38.p14/gencode.v49.annotation.gtf",
   "VUMCAutoGVP.genome_fasta": "/nobackup/h_cqs/references/vep_ref/homo_sapiens/GRCh38.p13.genome.fa",
   "VUMCAutoGVP.genome_fasta_fai": "/nobackup/h_cqs/references/vep_ref/homo_sapiens/GRCh38.p13.genome.fa.fai",
   "VUMCAutoGVP.vep_cache_tar_gz": "/nobackup/h_cqs/references/vep_ref/homo_sapiens_vep_104_GRCh38.tar.gz",
