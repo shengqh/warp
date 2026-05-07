@@ -65,9 +65,10 @@ task FormatResult {
     String docker = "shengqh/report:20241120"
 
     Int memory_gb = 20
+    Int additional_disk_gb = 20
   }
 
-  Int disk_size = ceil(size([input_bed_file, input_vcf_file, input_annovar_file], "GB")) + 10
+  Int disk_size = ceil(size([input_bed_file, input_vcf_file, input_annovar_file], "GB")) + additional_disk_gb
 
   command <<<
 
