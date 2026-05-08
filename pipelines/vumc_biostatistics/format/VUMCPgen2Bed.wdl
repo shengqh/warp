@@ -32,6 +32,8 @@ version 1.0
 ## - output_plink_fam: Generated PLINK1 FAM file.
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
+
+workflow VUMCPgen2Bed {
   input {
     File input_pgen
     File input_pvar
