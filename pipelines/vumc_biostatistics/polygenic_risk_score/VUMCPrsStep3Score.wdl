@@ -14,7 +14,11 @@ version 1.0
 # Inputs:
 # - input_pvar/pgen/psam_files: PLINK2 format genotype files for each chromosome
 # - input_effort_file: File containing variant IDs, allele codes, and effect sizes for PRS calculation
+#   Sometimes, the variant coordinates in the effect file may be from hg19 while the VARIANT_ID is from hg38 (AGD data). 
+#   Since we only use the variant ID to match the variants between effect file and input genotypes, it is not necessary to lift over the variant coordinates in the effect file.
 # - input_effort_pvar_file: File containing variant IDs to be filtered from input genotypes
+#   This file is used to filter the input genotypes to keep only the variants that are present in the effect file.
+#   It should contain the same variant IDs as in the effect file.
 # - input_effort_file_columns: Column specification for the effort file (e.g., "2 4 6" for variant ID, allele, coefficient)
 # - output_prefix: Prefix for output files
 # - target_gcp_folder: Optional GCP destination for result files

@@ -16,8 +16,13 @@ version 1.0
 # - chromosomes: List of chromosomes to analyze (default: 1-22)
 # - n_gwas: Sample size of GWAS study
 # - input_sst: Summary statistics file in PRScs-SST format
-#              In order to convert rsID to variantID, the SST file must contain both SNP (rsID) and VARIANT_ID columns.
-# - convert_rsID_to_variantID: Whether to convert rsID to variantID (default: true)
+#              In order to convert rsID to VARIANT_ID, the SST file must contain both SNP (rsID) and VARIANT_ID columns 
+#              in the following format (order matters):
+#              SNP             A1      A2      BETA    P       VARIANT_ID
+#              rs4040617       G       A       0.006   0.53    chr1:843942:A:G
+# - convert_rsID_to_variantID: Whether to convert rsID to VARIANT_ID in the final effect file (default: true)
+#              In order to apply the effect file to AGD data, the effect file must use VARIANT_ID instead of rsID. 
+#              If the input SST file contains both SNP and VARIANT_ID columns, the workflow will convert the SNP column from rsID to VARIANT_ID. 
 # - ld_files: Reference LD files (1000 Genomes or UK Biobank)
 # - ld_folder_name: Name of the LD reference panel folder (must contain "1kg" or "ukbb")
 # - output_prefix: Prefix for output files
