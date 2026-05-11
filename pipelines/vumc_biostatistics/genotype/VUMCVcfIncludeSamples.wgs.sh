@@ -8,7 +8,7 @@ fi
 
 # run workflow with correct header
 java -Dconfig.file=/data/cqs/softwares/cqsperl/config/wdl/cromwell.local.conf \
-  -jar /data/cqs/softwares/wdl/cromwell-84.jar \
+  -jar /data/cqs/softwares/cromwell/cromwell-90.jar \
   run /home/shengq2/program/warp/pipelines/vumc_biostatistics/genotype/VUMCVcfIncludeSamples.wdl \
   -i /home/shengq2/program/warp/pipelines/vumc_biostatistics/genotype/VUMCVcfIncludeSamples.wgs.inputs.json \
   --options /data/cqs/softwares/cqsperl/config/wdl/cromwell.options.json
