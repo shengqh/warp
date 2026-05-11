@@ -68,13 +68,13 @@ workflow VUMCAutoGVPRunAutoGVP {
   if(defined(target_gcp_folder)){
     call GcpUtils.MoveOrCopyOneFile as CopyFile {
       input:
-        source_file = RunAutoGVP.autogvp_file,
+        source_file = RunAutoGVP.autogvp_abridged_file,
         is_move_file = false,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }
 
   output {
-    File autogvp_file = select_first([CopyFile.output_file, RunAutoGVP.autogvp_file])
+    File autogvp_abridged_file = select_first([CopyFile.output_file, RunAutoGVP.autogvp_abridged_file])
   }
 }
