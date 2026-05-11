@@ -31,6 +31,8 @@ version 1.0
 
 import "../../../tasks/vumc_biostatistics/Plink2Utils.wdl" as Plink2Utils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
+
+workflow VUMCPgen2Vcf {
   input {
     File input_pgen
     File input_pvar

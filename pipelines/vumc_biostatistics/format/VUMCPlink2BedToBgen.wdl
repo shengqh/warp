@@ -31,6 +31,8 @@ version 1.0
 ## - output_bgen_sample: Generated BGEN sample file.
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
+
+workflow VUMCPlink2BedToBgen {
   input {
     File input_bed
     File input_bim

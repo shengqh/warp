@@ -31,6 +31,8 @@ version 1.0
 ## - output_psam_txt: Sample list in tab-separated text format.
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
+
+workflow VUMCPgen2BigQueryMatrix {
   input {
     File input_pgen
     File input_pvar

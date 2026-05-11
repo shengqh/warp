@@ -31,6 +31,8 @@ version 1.0
 ## - output_bgen_sample: Generated BGEN sample file.
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
+
+workflow VUMCPgen2Bgen {
   input {
     File input_pgen
     File input_pvar
