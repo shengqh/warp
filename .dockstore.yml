@@ -590,4 +590,11 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/dna_seq/germline/variant_calling/VUMCCleanMNPAndReblockGVCF.wdl
 
+  - name: VUMCPvar2SitesOnlyVcf
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCPvar2SitesOnlyVcf.wdl
+
+  - name: VUMCVariantID2SitesOnlyVcf
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCVariantID2SitesOnlyVcf.wdl
 
