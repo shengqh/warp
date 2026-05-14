@@ -13,13 +13,13 @@ version 1.0
 #
 # Inputs:
 # - input_pvar/pgen/psam_files: PLINK2 format genotype files for each chromosome
-# - input_effort_file: File containing variant IDs, allele codes, and effect sizes for PRS calculation
+# - input_effect_file: File containing variant IDs, allele codes, and effect sizes for PRS calculation
 #   Sometimes, the variant coordinates in the effect file may be from hg19 while the VARIANT_ID is from hg38 (AGD data). 
 #   Since we only use the variant ID to match the variants between effect file and input genotypes, it is not necessary to lift over the variant coordinates in the effect file.
-# - input_effort_pvar_file: File containing variant IDs to be filtered from input genotypes
+# - input_effect_pvar_file: File containing variant IDs to be filtered from input genotypes
 #   This file is used to filter the input genotypes to keep only the variants that are present in the effect file.
 #   It should contain the same variant IDs as in the effect file.
-# - input_effort_file_columns: Column specification for the effort file (e.g., "2 4 6" for variant ID, allele, coefficient)
+# - input_effect_file_columns: Column specification for the effort file (e.g., "2 4 6" for variant ID, allele, coefficient)
 # - output_prefix: Prefix for output files
 # - target_gcp_folder: Optional GCP destination for result files
 #
@@ -37,12 +37,12 @@ workflow VUMCPrsStep3Score {
     Array[File] input_pgen_files
     Array[File] input_psam_files
 
-    File input_effort_file
-    File input_effort_pvar_file
+    File input_effect_file
+    File input_effect_pvar_file
 
     # for example, "2 4 6", 2:Variant IDs, 4:allele codes, 6:coefficients
     # for AGD dataset, the variant id should be: chr:pos:ref:alt
-    String input_effort_file_columns = "2 4 6"
+    String input_effect_file_columns = "2 4 6"
 
     String output_prefix
 
@@ -55,7 +55,7 @@ workflow VUMCPrsStep3Score {
     call BioUtils.CheckOverlapVariantsByID as CheckOverlapVariants {
       input:
         input_pgen_pvar = input_pvar_files[all_chrom_ind],
-        input_id_file = input_effort_pvar_file,
+        input_id_file = input_effect_pvar_file,
         input_id_col = 2
     }
   }
@@ -78,7 +78,7 @@ workflow VUMCPrsStep3Score {
         input_pgen = pgen_file,
         input_pvar = pvar_file,
         input_psam = psam_file,
-        keep_pvar = input_effort_pvar_file,
+        keep_pvar = input_effect_pvar_file,
         plink2_filter_option = "",
         output_prefix = output_prefix + "." + chrom_ind + ".snp"
     }
@@ -103,8 +103,8 @@ workflow VUMCPrsStep3Score {
       input_pgen = all_chroms_pgen,
       input_pvar = all_chroms_pvar,
       input_psam = all_chroms_psam,
-      input_effort_file = input_effort_file,
-      input_effort_file_columns = input_effort_file_columns,
+      input_effect_file = input_effect_file,
+      input_effect_file_columns = input_effect_file_columns,
       output_prefix = output_prefix
   }
 
@@ -128,8 +128,8 @@ task Plink2PolygenicRiskScore {
     File input_pvar
     File input_psam
 
-    File input_effort_file
-    String input_effort_file_columns
+    File input_effect_file
+    String input_effect_file_columns
 
     String output_prefix
 
@@ -148,7 +148,7 @@ plink2 \
   --pgen ~{input_pgen} \
   --pvar ~{input_pvar} \
   --psam ~{input_psam} \
-  --score ~{input_effort_file} ~{input_effort_file_columns} \
+  --score ~{input_effect_file} ~{input_effect_file_columns} \
   --out ~{output_prefix}
 
 mv ~{output_prefix}.sscore ~{output_prefix}.sscore.txt
