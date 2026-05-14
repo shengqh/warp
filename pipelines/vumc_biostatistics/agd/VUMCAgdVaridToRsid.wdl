@@ -30,7 +30,8 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCAgdVaridToRsid {
   input {
-    String annovar_url='working-set-385118.agd250k.cb_avsnp_variant'
+    String annovar_url='working-set-385118.agd250k.annovar_pvar_dnsnp157_clinvar20251109'
+    String dbsnp_column='dbsnp157'
 
     String input_varid_url
     String output_prefix
@@ -41,6 +42,7 @@ workflow VUMCAgdVaridToRsid {
   call AgdVaridToRsid {
     input:
       annovar_url = annovar_url,
+      dbsnp_column = dbsnp_column,
       input_varid_url = input_varid_url,
       output_prefix = output_prefix
   }
@@ -62,7 +64,7 @@ workflow VUMCAgdVaridToRsid {
 task AgdVaridToRsid {
   input {
     String annovar_url
-
+    String dbsnp_column
     String input_varid_url
     String output_prefix
 
@@ -105,7 +107,7 @@ print(res.shape)
 res.head()
 
 query = f"""SELECT
-  DISTINCT anno.ID, anno.avsnp151
+  DISTINCT anno.ID, anno.~{dbsnp_column} as rsid
 FROM
   \`~{annovar_url}\` as anno,
   {table_id} as g
