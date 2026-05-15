@@ -14,8 +14,9 @@ version 1.0
 ## 2. Optionally copy the output PVAR file to a specified GCP folder.
 ##
 ## ### Inputs:
-## - annovar_url: BigQuery table URL for Annovar data (default: working-set-385118.agd250k.cb_avsnp_variant)
-## - input_rsid_url: GCS path to file containing RSIDs to query, with column name "RSID" or without column name
+## - annovar_url: BigQuery table URL for Annovar data (default: working-set-385118.agd250k.annovar_pvar_dnsnp157_clinvar20251109)
+## - dbsnp_column: Column name for the dbSNP identifier (default: dbsnp157)
+## - input_rsid_url: GCS path to file containing RSIDs to query, with/without column name "RSID" or without column name
 ## - output_prefix: Prefix for output files
 ## - target_gcp_folder: Optional target GCP folder for the output file
 ##
