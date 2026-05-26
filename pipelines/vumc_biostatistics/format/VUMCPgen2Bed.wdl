@@ -23,7 +23,7 @@ version 1.0
 ## - input_psam: PLINK2 PSAM file containing sample information.
 ## - output_prefix: Prefix for output filenames.
 ## - plink2_option: Optional additional plink2 command-line parameters.
-## - docker: Docker image for plink2. Default is 'shengqh/plink_1.9_2.0:20250304'.
+## - docker: Docker image for plink2. Default is 'shengqh/plink_1.9_2.0:20260526'.
 ## - target_bucket: Optional GCS bucket path to copy output files to after completion.
 ##
 ## ### Outputs:
@@ -42,7 +42,7 @@ workflow VUMCPgen2Bed {
     String output_prefix
     String? plink2_option
 
-    String docker = "shengqh/plink_1.9_2.0:20250304"
+    String docker = "shengqh/plink_1.9_2.0:20260526"
 
     String? target_bucket
   }
@@ -57,7 +57,7 @@ workflow VUMCPgen2Bed {
     input_psam: "PLINK2 PSAM file containing sample information"
     output_prefix: "Prefix for output filenames"
     plink2_option: "Optional additional plink2 command-line parameters"
-    docker: "Docker image for plink2. Default is 'shengqh/plink_1.9_2.0:20250304'."
+    docker: "Docker image for plink2. Default is 'shengqh/plink_1.9_2.0:20260526'."
     target_bucket: "Optional GCS bucket path to copy output files to after completion"
   }
 
@@ -99,7 +99,7 @@ task Pgen2Bed {
 
     String output_prefix
     
-    String docker = "shengqh/plink_1.9_2.0:20250304"
+    String docker = "shengqh/plink_1.9_2.0:20260526"
     Int memory_gb = 20
   }
 

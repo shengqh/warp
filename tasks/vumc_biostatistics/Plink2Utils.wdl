@@ -8,7 +8,7 @@ task FilterPassVariantsInPgen {
 
     String output_prefix
 
-    String docker = "shengqh/plink_1.9_2.0:20250304"
+    String docker = "shengqh/plink_1.9_2.0:20260526"
 
     Int preemptible=1
     Int memory_gb = 15
@@ -64,7 +64,7 @@ task SamplingVariantsInPgen {
     Int max_num_variants
     Int seed=20241227
 
-    String docker = "shengqh/plink_1.9_2.0:20250304"
+    String docker = "shengqh/plink_1.9_2.0:20260526"
 
     Int preemptible=1
     Int memory_gb = 40
@@ -127,7 +127,7 @@ task MergePgenFiles {
     Int memory_gb = 20
     Int cpu = 8
 
-    String docker = "shengqh/plink_1.9_2.0:20250304"
+    String docker = "shengqh/plink_1.9_2.0:20260526"
   }
 
   Int disk_size = ceil((size(input_pgen_files, "GB") + size(input_pvar_files, "GB") + size(input_psam_files, "GB"))  * 3) + 20
@@ -198,7 +198,7 @@ task PgenFilter {
     Float disk_size_factor = 2.0
     Int additional_disk_gb = 5
 
-    String docker = "shengqh/plink_1.9_2.0:20250304"
+    String docker = "shengqh/plink_1.9_2.0:20260526"
   }
 
   Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * disk_size_factor) + additional_disk_gb
@@ -289,7 +289,7 @@ task PgenFilterAndPrune {
     Float disk_size_factor = 2.0
     Int additional_disk_gb = 5
 
-    String docker = "shengqh/plink_1.9_2.0:20250304"
+    String docker = "shengqh/plink_1.9_2.0:20260526"
   }
 
   Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * disk_size_factor) + additional_disk_gb
@@ -386,7 +386,7 @@ task Pgen2Vcf {
 
     String output_prefix
     
-    String docker = "shengqh/plink_1.9_2.0:20250304"
+    String docker = "shengqh/plink_1.9_2.0:20260526"
     Int? memory_gb_override
     Int? disk_size_override
   }
@@ -428,7 +428,7 @@ task KeepSampleWithVariant {
     String output_prefix
 
     Int memory_gb = 13
-    String docker = "shengqh/plink_1.9_2.0:20250304"
+    String docker = "shengqh/plink_1.9_2.0:20260526"
   }
 
   Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 2

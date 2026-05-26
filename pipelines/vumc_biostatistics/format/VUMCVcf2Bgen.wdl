@@ -117,7 +117,7 @@ task Vcf2Bgen {
     Int cpu = 2
     Int disk_size_factor = 3
     Int? disk_size_override
-    String docker = "shengqh/plink_1.9_2.0:20250304"
+    String docker = "shengqh/plink_1.9_2.0:20260526"
   }
 
   Int disk_size = select_first([disk_size_override, disk_size_factor * ceil(size(input_vcf, "GB")) + 10])

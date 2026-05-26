@@ -12,7 +12,7 @@ workflow VUMCPlink2FilterRegion {
     String target_prefix
     String? target_suffix
 
-    String docker = "shengqh/plink_1.9_2.0:20250304"
+    String docker = "shengqh/plink_1.9_2.0:20260526"
 
     String? target_bucket
   }
@@ -68,7 +68,7 @@ task Plink2FilterRegion {
     
     String target_prefix
     
-    String docker = "shengqh/plink_1.9_2.0:20250304"
+    String docker = "shengqh/plink_1.9_2.0:20260526"
     Int memory_gb = 20
   }
 

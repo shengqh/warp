@@ -55,7 +55,7 @@ workflow VUMCPvar2SitesOnlyVcf {
   parameter_meta {
     input_pvar: "PLINK2 PVAR file containing variant information"
     output_prefix: "Prefix for output filenames"
-    docker: "Docker image containing the tools required to generate and index the sites-only VCF. Default is 'shengqh/plink_1.9_2.0:20250304'."
+    docker: "Docker image containing the tools required to generate and index the sites-only VCF. Default is 'shengqh/plink_1.9_2.0:20260526'."
     target_bucket: "Optional GCS bucket path to copy output files to after completion"
   }
 
@@ -88,7 +88,7 @@ task Pvar2SitesOnlyVcf {
 
     String output_prefix
     
-    String docker = "shengqh/plink_1.9_2.0:20250304"
+    String docker = "shengqh/plink_1.9_2.0:20260526"
     Int memory_gb = 20
   }
 

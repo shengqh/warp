@@ -99,7 +99,7 @@ task Pgen2BigQueryMatrixPartition {
     
     Float size_multiplier = 5.5    
 
-    String docker = "shengqh/plink_1.9_2.0:20250620"
+    String docker = "shengqh/plink_1.9_2.0:20260526"
     Int? memory_gb_override
     Int? disk_size_override
   }

@@ -95,7 +95,7 @@ task PgenQCFilterList {
     Int memory_gb = 20
     Int cpu = 8
 
-    String docker = "shengqh/plink_1.9_2.0:20250304"
+    String docker = "shengqh/plink_1.9_2.0:20260526"
   }
 
   Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")) + 5
@@ -808,7 +808,7 @@ task FilterVariantsForModelling {
 
     String output_prefix
 
-    String docker = "shengqh/plink_1.9_2.0:20250304"
+    String docker = "shengqh/plink_1.9_2.0:20260526"
   }
   
   Int disk_size = ceil(size([model_pgen_file, model_psam_file, model_pvar_file, phenoFile, covarFile], "GB")) + 5

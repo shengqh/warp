@@ -56,7 +56,7 @@ workflow VUMCPlink2 {
     Array[String] suffix_list
     String target_prefix
 
-    String docker = "shengqh/plink_1.9_2.0:20250304"
+    String docker = "shengqh/plink_1.9_2.0:20260526"
 
     Int? memory_size=10
   }
@@ -74,7 +74,7 @@ workflow VUMCPlink2 {
     parameter_file3: "Optional. Third parameter file to pass to PLINK2."
     suffix_list: "List of expected output file suffixes appended to target_prefix"
     target_prefix: "Output file prefix passed to PLINK2 --out"
-    docker: "Optional. Docker image containing PLINK2. Defaults to shengqh/plink_1.9_2.0:20250304."
+    docker: "Optional. Docker image containing PLINK2. Defaults to shengqh/plink_1.9_2.0:20260526."
     memory_size: "Optional. Memory allocation in GiB. Defaults to 10."
   }
 
@@ -137,7 +137,7 @@ task Plink2 {
 
     Array[String] expected_files
 
-    String docker = "shengqh/plink_1.9_2.0:20250304"
+    String docker = "shengqh/plink_1.9_2.0:20260526"
 
     Int? memory_size=10
   }
@@ -176,7 +176,7 @@ task Plink2 {
     }
     target_prefix: "Output file prefix passed to PLINK2 --out"
     expected_files: "Array of expected output file paths"
-    docker: "Optional. Docker image containing PLINK2. Defaults to shengqh/plink_1.9_2.0:20250304."
+    docker: "Optional. Docker image containing PLINK2. Defaults to shengqh/plink_1.9_2.0:20260526."
     memory_size: "Optional. Memory allocation in GiB. Defaults to 10."
   }
 

@@ -64,7 +64,7 @@ task Plink2PolygenicRiskScore {
 
     String output_prefix
 
-    String docker = "shengqh/plink_1.9_2.0:20250304"
+    String docker = "shengqh/plink_1.9_2.0:20260526"
 
     Int preemptible=3
     Int memory_gb = 10

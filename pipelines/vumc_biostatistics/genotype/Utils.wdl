@@ -101,7 +101,7 @@ task MergePgenFiles {
     Int memory_gb = 20
     Int cpu = 8
 
-    String docker = "shengqh/plink_1.9_2.0:20250304"
+    String docker = "shengqh/plink_1.9_2.0:20260526"
   }
 
   Int disk_size = ceil((size(pgen_files, "GB") + size(pvar_files, "GB") + size(psam_files, "GB"))  * 3) + 20
