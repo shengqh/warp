@@ -585,7 +585,7 @@ python3 get_chrom_indices.py
   }
 
   output {
-    Int? chrom_index = if read_boolean("has_match.txt") then chrom_index else chrom_index_none
+    Int? res_chrom_index = if read_boolean("has_match.txt") then chrom_index else chrom_index_none
   }
 }
 
@@ -656,7 +656,7 @@ python3 get_chrom_indices.py
   }
 
   output {
-    Int? chrom_index = if read_boolean("has_match.txt") then chrom_index else chrom_index_none
+    Int? res_chrom_index = if read_boolean("has_match.txt") then chrom_index else chrom_index_none
   }
 }
 

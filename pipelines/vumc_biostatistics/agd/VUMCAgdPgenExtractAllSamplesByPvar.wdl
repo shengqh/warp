@@ -55,7 +55,7 @@ workflow VUMCAgdPgenExtractAllSamplesByPvar {
     }
   }
 
-  Array[Int] valid_indices = select_all(CheckOverlapVariants.chrom_index)
+  Array[Int] valid_indices = select_all(CheckOverlapVariants.res_chrom_index)
   Int num_valid_chromsome = length(valid_indices)
 
   scatter(old_ind in valid_indices){
