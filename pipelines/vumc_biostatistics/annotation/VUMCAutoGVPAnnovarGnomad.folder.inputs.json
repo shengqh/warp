@@ -1,0 +1,5 @@
+{
+  "VUMCAutoGVPAnnovarGnomad.input_vcf": "/nobackup/h_cqs/cindy_chen_projects/20260401_AutoGVP/T04_vep/result/AutoGVP.VEP.vcf",
+  "VUMCAutoGVPAnnovarGnomad.annovar_gnomAD_folder": "/data/cqs/references/autogvp/humandb_gnomad41",
+  "VUMCAutoGVPAnnovarGnomad.target_prefix": "AutoGVP"
+}

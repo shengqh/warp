@@ -1,0 +1,7 @@
+{
+  "VUMCAutoGVPAnnovarGnomad.input_vcf": "/nobackup/h_cqs/cindy_chen_projects/20260401_AutoGVP/T04_vep/result/AutoGVP.VEP.vcf",
+  "VUMCAutoGVPAnnovarGnomad.annovar_gnomAD_tar_gz": "/data/cqs/references/autogvp/humandb_gnomad41.tar.gz",
+  "VUMCAutoGVPAnnovarGnomad.annovar_gnomAD_tar_folder_name": "humandb_gnomad41",
+  "VUMCAutoGVPAnnovarGnomad.annovar_gnomAD_uncompressed_gb": 120,
+  "VUMCAutoGVPAnnovarGnomad.target_prefix": "AutoGVP"
+}

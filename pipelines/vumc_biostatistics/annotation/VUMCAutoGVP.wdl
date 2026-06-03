@@ -35,12 +35,18 @@ version 1.0
 ## - genome_fasta_fai: Reference genome FASTA index file.
 ## - vep_cache_folder: Optional local VEP cache directory.
 ## - vep_cache_tar_gz: Optional VEP cache tar.gz archive (cloud).
+## - vep_cache_uncompressed_gb: Estimated uncompressed size of the VEP cache in GB (required if using tar.gz).
 ## - annovar_db_folder: Optional local ANNOVAR database directory.
 ## - annovar_db_tar_gz: Optional ANNOVAR database tar.gz archive (cloud).
+## - annovar_db_tar_folder_name: Optional folder name inside the ANNOVAR tar.gz archive (default "humandb").
+## - annovar_db_uncompressed_gb: Estimated uncompressed size of the ANNOVAR database in GB (required if using tar.gz).
+## - annovar_gnomAD_folder: Optional local gnomAD ANNOVAR database directory.
+## - annovar_gnomAD_tar_gz: Optional gnomAD ANNOVAR database tar.gz archive (cloud).
+## - annovar_gnomAD_tar_folder_name: Optional folder name inside the gnomAD ANNOVAR tar.gz archive (default "humandb_gnomad41").
+## - annovar_gnomAD_uncompressed_gb: Estimated uncompressed size of the gnomAD ANNOVAR database in GB (required if using tar.gz).
 ## - autopvs_data_folder: Optional local AutoPVS1 data directory.
 ## - autopvs_data_tar_gz: Optional AutoPVS1 data tar.gz archive (cloud).
-## - annovar_gnomAD_file: gnomAD ANNOVAR database file.
-## - annovar_gnomAD_file_index: Index file for the gnomAD ANNOVAR database.
+## - autopvs_data_uncompressed_gb: Estimated uncompressed size of the AutoPVS1 data in GB (required if using tar.gz).
 ## - clinvar_vcf: ClinVar VCF file for AutoGVP.
 ## - selected_clinvar_submissions: Selected ClinVar submissions file.
 ## - variant_summary: ClinVar variant summary file.
@@ -83,14 +89,17 @@ workflow VUMCAutoGVP {
     File? vep_cache_tar_gz
     Float? vep_cache_uncompressed_gb
 
-    # Annovar database (tar.gz archive)
+    # Annovar database (tar.gz archive) for InterVar
     String? annovar_db_folder
     File? annovar_db_tar_gz
     String? annovar_db_tar_folder_name = "humandb"
     Float? annovar_db_uncompressed_gb
 
-    File annovar_gnomAD_file
-    File annovar_gnomAD_file_index
+    # Annovar database (tar.gz archive) for gnomAD annotation
+    String? annovar_gnomAD_folder
+    File? annovar_gnomAD_tar_gz
+    String? annovar_gnomAD_tar_folder_name = "humandb_gnomad41"
+    Float? annovar_gnomAD_uncompressed_gb
 
     # AutoPVS1 data
     String? autopvs_data_folder
@@ -118,6 +127,13 @@ workflow VUMCAutoGVP {
     }
   }
 
+  if (defined(vep_cache_tar_gz) && !defined(vep_cache_uncompressed_gb)) {
+    call WDLUtils.FailWithMessage as ValidateVepCacheSize {
+      input:
+        message = "vep_cache_uncompressed_gb must be provided when using vep_cache_tar_gz."
+    }
+  }
+
   # Validate: at least one of annovar_db_folder or annovar_db_tar_gz must be provided
   if (!defined(annovar_db_folder) && !defined(annovar_db_tar_gz)) {
     call WDLUtils.FailWithMessage as ValidateAnnovarDb {
@@ -126,11 +142,40 @@ workflow VUMCAutoGVP {
     }
   }
 
+  if(defined(annovar_db_tar_gz) && !defined(annovar_db_uncompressed_gb)) {
+    call WDLUtils.FailWithMessage as ValidateAnnovarDbSize {
+      input:
+        message = "annovar_db_uncompressed_gb must be provided when using annovar_db_tar_gz."
+    }
+  }
+
+  # Validate: at least one of annovar_gnomAD_folder or annovar_gnomAD_tar_gz must be provided
+  if (!defined(annovar_gnomAD_folder) && !defined(annovar_gnomAD_tar_gz)) {
+    call WDLUtils.FailWithMessage as ValidateAnnovarGnomAD {
+      input:
+        message = "Either annovar_gnomAD_folder or annovar_gnomAD_tar_gz must be provided."
+    }
+  }
+
+  if(defined(annovar_gnomAD_tar_gz) && !defined(annovar_gnomAD_uncompressed_gb)) {
+    call WDLUtils.FailWithMessage as ValidateAnnovarGnomADSize {
+      input:
+        message = "annovar_gnomAD_uncompressed_gb must be provided when using annovar_gnomAD_tar_gz."
+    }
+  }
+
   # Validate: at least one of autopvs_data_folder or autopvs_data_tar_gz must be provided
   if (!defined(autopvs_data_folder) && !defined(autopvs_data_tar_gz)) {
     call WDLUtils.FailWithMessage as ValidateAutoPVS1Data {
       input:
         message = "Either autopvs_data_folder or autopvs_data_tar_gz must be provided."
+    }
+  }
+
+  if(defined(autopvs_data_tar_gz) && !defined(autopvs_data_uncompressed_gb)) {
+    call WDLUtils.FailWithMessage as ValidateAutoPVS1DataSize {
+      input:
+        message = "autopvs_data_uncompressed_gb must be provided when using autopvs_data_tar_gz."
     }
   }
 
@@ -207,8 +252,10 @@ workflow VUMCAutoGVP {
   call RunAnnovarGnomad {
     input:
       input_vcf = RunVEP.vep_vcf,
-      annovar_gnomAD_file = annovar_gnomAD_file,
-      annovar_gnomAD_file_index = annovar_gnomAD_file_index,
+      annovar_gnomAD_folder = annovar_gnomAD_folder,
+      annovar_gnomAD_tar_gz = annovar_gnomAD_tar_gz,
+      annovar_gnomAD_tar_folder_name = annovar_gnomAD_tar_folder_name,
+      annovar_gnomAD_uncompressed_gb = annovar_gnomAD_uncompressed_gb,
       target_prefix = target_prefix
   }
 
@@ -696,8 +743,10 @@ task RunAnnovarGnomad {
   input {
     File input_vcf
 
-    File annovar_gnomAD_file
-    File annovar_gnomAD_file_index
+    String? annovar_gnomAD_folder
+    File? annovar_gnomAD_tar_gz
+    String? annovar_gnomAD_tar_folder_name
+    Float? annovar_gnomAD_uncompressed_gb
 
     String target_prefix
 
@@ -710,12 +759,29 @@ task RunAnnovarGnomad {
     String docker = "shengqh/intervar:20260331"
   }
 
-  Int disk_size = ceil(size(input_vcf, "GB") * 5 + size([annovar_gnomAD_file, annovar_gnomAD_file_index], "GB")) + 20
+  Boolean use_local_db = defined(annovar_gnomAD_folder)
+  Float tar_gz_gb = if defined(annovar_gnomAD_tar_gz) then size(select_first([annovar_gnomAD_tar_gz]), "GB") else 0
+  Float true_db_gb = if defined(annovar_gnomAD_uncompressed_gb) then select_first([annovar_gnomAD_uncompressed_gb]) else tar_gz_gb * 10
+  Int disk_size = ceil(size(input_vcf, "GB") * 5 + tar_gz_gb + true_db_gb) + 20
 
   command <<<
 set -e
 
-ANNOVAR_DB_DIR=$(dirname "~{annovar_gnomAD_file}")
+if [[ "~{use_local_db}" == "true" ]]; then
+  ANNOVAR_DB_DIR="~{annovar_gnomAD_folder}"
+elif [[ -n "~{annovar_gnomAD_tar_gz}" ]]; then
+  echo "Extracting annovar database..."
+  tar -xzf ~{annovar_gnomAD_tar_gz}
+  if [[ -n "~{annovar_gnomAD_tar_folder_name}" ]]; then
+    ANNOVAR_DB_DIR="~{annovar_gnomAD_tar_folder_name}"
+  else
+    ANNOVAR_DB_DIR=$(basename "~{annovar_gnomAD_tar_gz}" .tar.gz)
+  fi
+  echo "Annovar database extracted."
+else
+  echo "ERROR: Either annovar_gnomAD_folder or annovar_gnomAD_tar_gz must be provided." >&2
+  exit 1
+fi
 
 echo "ANNOVAR_DB_DIR=$ANNOVAR_DB_DIR"
 echo "annovar_start=$(date)"
@@ -730,6 +796,10 @@ table_annovar.pl \
   --vcfinput
 
 rm -f ~{target_prefix}.~{buildver}_multianno.vcf ~{target_prefix}.avinput
+
+if [[ "~{use_local_db}" != "true" ]]; then
+  rm -rf $ANNOVAR_DB_DIR
+fi
 
 echo "annovar_end=$(date)"
 >>>

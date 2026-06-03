@@ -20,8 +20,10 @@ version 1.0
 ##
 ## ### Inputs:
 ## - input_vcf: VEP-annotated VCF file.
-## - annovar_gnomAD_file: gnomAD ANNOVAR database file.
-## - annovar_gnomAD_file_index: Index file for the gnomAD ANNOVAR database.
+## - annovar_gnomAD_folder: gnomAD ANNOVAR database folder.
+## - annovar_gnomAD_tar_gz: gnomAD ANNOVAR database tar.gz archive.
+## - annovar_gnomAD_tar_folder_name: Optional folder name inside the gnomAD ANNOVAR tar.gz archive (default "humandb_gnomad41").
+## - annovar_gnomAD_uncompressed_gb: Estimated uncompressed size of the gnomAD ANNOVAR database in GB (required if using tar.gz).
 ## - target_prefix: Prefix for the output ANNOVAR results.
 ## - target_gcp_folder: Optional GCP folder path for copying output files.
 ##
@@ -36,8 +38,11 @@ workflow VUMCAutoGVPAnnovarGnomad {
   input {
     File input_vcf
 
-    File annovar_gnomAD_file
-    File annovar_gnomAD_file_index
+    # Annovar database (tar.gz archive) for gnomAD annotation
+    String? annovar_gnomAD_folder
+    File? annovar_gnomAD_tar_gz
+    String? annovar_gnomAD_tar_folder_name = "humandb_gnomad41"
+    Float? annovar_gnomAD_uncompressed_gb
 
     String target_prefix
 
@@ -47,8 +52,10 @@ workflow VUMCAutoGVPAnnovarGnomad {
   call AutoGVP.RunAnnovarGnomad {
     input:
       input_vcf = input_vcf,
-      annovar_gnomAD_file = annovar_gnomAD_file,
-      annovar_gnomAD_file_index = annovar_gnomAD_file_index,
+      annovar_gnomAD_folder = annovar_gnomAD_folder,
+      annovar_gnomAD_tar_gz = annovar_gnomAD_tar_gz,
+      annovar_gnomAD_tar_folder_name = annovar_gnomAD_tar_folder_name,
+      annovar_gnomAD_uncompressed_gb = annovar_gnomAD_uncompressed_gb,
       target_prefix = target_prefix
   }
 
