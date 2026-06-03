@@ -1,8 +1,8 @@
-if [ ! -d "/nobackup/h_cqs/shengq2/biovu/cromwell" ]; then
-  mkdir -p /nobackup/h_cqs/shengq2/biovu/cromwell
+if [ ! -d "/data/cqs/shengq2/temp" ]; then
+  mkdir -p /data/cqs/shengq2/temp
 fi
 
-cd /nobackup/h_cqs/shengq2/biovu/cromwell
+cd /data/cqs/shengq2/temp
 
 java -Dconfig.file=/data/cqs/softwares/cqsperl/config/wdl/cromwell.local.conf \
   -jar /data/cqs/softwares/cromwell/cromwell-90.jar \

@@ -1,4 +1,4 @@
-cd /nobackup/h_cqs/shengq2/biovu/cromwell
+cd /data/cqs/shengq2/temp
 
 # run workflow with correct header
 java -Dconfig.file=/data/cqs/softwares/cqsperl/config/wdl/cromwell.local.conf \

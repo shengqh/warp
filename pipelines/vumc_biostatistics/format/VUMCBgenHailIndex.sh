@@ -1,5 +1,5 @@
-mkdir -p /nobackup/h_cqs/shengq2/biovu/demo
-cd /nobackup/h_cqs/shengq2/biovu/demo
+mkdir -p /data/cqs/shengq2/temp
+cd /data/cqs/shengq2/temp
 
 if [[ "1" == "1" ]]; then
   echo "Preparing agd163k_chr22.primary_pass.bgen.mt"

@@ -1,0 +1,6 @@
+{
+  "VUMCAutoGVPInterVar.input_vcf": "/nobackup/h_cqs/cindy_chen_projects/20260401_AutoGVP/T04_vep/result/AutoGVP.VEP.vcf",
+  "VUMCAutoGVPInterVar.target_prefix": "AutoGVP",
+  "VUMCAutoGVPInterVar.annovar_db_tar_gz": "/data/cqs/references/annovar/humandb.20251111.tar.gz",
+  "VUMCAutoGVPInterVar.annovar_db_uncompressed_gb": 330
+}

@@ -1,5 +1,6 @@
 {
   "VUMCAutoGVPAnnovarGnomad.input_vcf": "/nobackup/h_cqs/cindy_chen_projects/20260401_AutoGVP/T04_vep/result/AutoGVP.VEP.vcf",
-  "VUMCAutoGVPAnnovarGnomad.annovar_db_folder": "/data/cqs/references/annovar/humandb",
+  "VUMCAutoGVPAnnovarGnomad.annovar_gnomAD_file": "/data/cqs/references/autogvp/gnomad_humandb/hg38_gnomad41_genome.txt",
+  "VUMCAutoGVPAnnovarGnomad.annovar_gnomAD_file_index": "/data/cqs/references/autogvp/gnomad_humandb/hg38_gnomad41_genome.txt.idx",
   "VUMCAutoGVPAnnovarGnomad.target_prefix": "AutoGVP"
 }

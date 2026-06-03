@@ -1,5 +1,5 @@
 {
   "VUMCAutoGVPInterVar.input_vcf": "/nobackup/h_cqs/cindy_chen_projects/20260401_AutoGVP/T04_vep/result/AutoGVP.VEP.vcf",
-  "VUMCAutoGVPInterVar.annovar_db_folder": "/data/cqs/references/annovar/humandb",
+  "VUMCAutoGVPInterVar.annovar_db_folder": "/data/cqs/references/autogvp/humandb",
   "VUMCAutoGVPInterVar.target_prefix": "AutoGVP"
 }

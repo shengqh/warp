@@ -1,5 +1,5 @@
-mkdir -p /nobackup/h_cqs/shengq2/biovu/demo
-cd /nobackup/h_cqs/shengq2/biovu/demo
+mkdir -p /data/cqs/shengq2/temp
+cd /data/cqs/shengq2/temp
 
 #increased mac to 800 to speed up the process
 java -Dconfig.file=/data/cqs/softwares/cqsperl/config/wdl/cromwell.local.conf \

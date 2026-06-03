@@ -1,6 +1,0 @@
-{
-  "VUMCAutoGVPAnnovarGnomad.input_vcf": "/nobackup/h_cqs/cindy_chen_projects/20260401_AutoGVP/T04_vep/result/AutoGVP.VEP.vcf",
-  "VUMCAutoGVPAnnovarGnomad.annovar_db_tar_gz": "/data/cqs/references/annovar/humandb.20251111.tar.gz",
-  "VUMCAutoGVPAnnovarGnomad.annovar_db_uncompressed_gb": 330,
-  "VUMCAutoGVPAnnovarGnomad.target_prefix": "AutoGVP"
-}
