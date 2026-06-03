@@ -20,9 +20,8 @@ version 1.0
 ##
 ## ### Inputs:
 ## - input_vcf: VEP-annotated VCF file.
-## - annovar_db_folder: Optional local ANNOVAR database directory.
-## - annovar_db_tar_gz: Optional ANNOVAR database tar.gz archive (cloud).
-## - annovar_db_uncompressed_gb: Optional uncompressed ANNOVAR DB size in GB for disk estimation.
+## - annovar_gnomAD_file: gnomAD ANNOVAR database file.
+## - annovar_gnomAD_file_index: Index file for the gnomAD ANNOVAR database.
 ## - target_prefix: Prefix for the output ANNOVAR results.
 ## - target_gcp_folder: Optional GCP folder path for copying output files.
 ##
@@ -37,31 +36,19 @@ workflow VUMCAutoGVPAnnovarGnomad {
   input {
     File input_vcf
 
-    String? annovar_db_folder
-    File? annovar_db_tar_gz
-    String? annovar_db_tar_folder_name = "humandb"
-    Float? annovar_db_uncompressed_gb
+    File annovar_gnomAD_file
+    File annovar_gnomAD_file_index
 
     String target_prefix
 
     String? target_gcp_folder
   }
 
-  # Validate: at least one of annovar_db_folder or annovar_db_tar_gz must be provided
-  if (!defined(annovar_db_folder) && !defined(annovar_db_tar_gz)) {
-    call WDLUtils.FailWithMessage as ValidateAnnovarDb {
-      input:
-        message = "Either annovar_db_folder or annovar_db_tar_gz must be provided."
-    }
-  }
-
   call AutoGVP.RunAnnovarGnomad {
     input:
       input_vcf = input_vcf,
-      annovar_db_folder = annovar_db_folder,
-      annovar_db_tar_gz = annovar_db_tar_gz,
-      annovar_db_tar_folder_name = annovar_db_tar_folder_name,
-      annovar_db_uncompressed_gb = annovar_db_uncompressed_gb,
+      annovar_gnomAD_file = annovar_gnomAD_file,
+      annovar_gnomAD_file_index = annovar_gnomAD_file_index,
       target_prefix = target_prefix
   }
 

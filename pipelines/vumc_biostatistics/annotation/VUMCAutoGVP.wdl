@@ -39,6 +39,8 @@ version 1.0
 ## - annovar_db_tar_gz: Optional ANNOVAR database tar.gz archive (cloud).
 ## - autopvs_data_folder: Optional local AutoPVS1 data directory.
 ## - autopvs_data_tar_gz: Optional AutoPVS1 data tar.gz archive (cloud).
+## - annovar_gnomAD_file: gnomAD ANNOVAR database file.
+## - annovar_gnomAD_file_index: Index file for the gnomAD ANNOVAR database.
 ## - clinvar_vcf: ClinVar VCF file for AutoGVP.
 ## - selected_clinvar_submissions: Selected ClinVar submissions file.
 ## - variant_summary: ClinVar variant summary file.
@@ -86,6 +88,9 @@ workflow VUMCAutoGVP {
     File? annovar_db_tar_gz
     String? annovar_db_tar_folder_name = "humandb"
     Float? annovar_db_uncompressed_gb
+
+    File annovar_gnomAD_file
+    File annovar_gnomAD_file_index
 
     # AutoPVS1 data
     String? autopvs_data_folder
@@ -202,10 +207,8 @@ workflow VUMCAutoGVP {
   call RunAnnovarGnomad {
     input:
       input_vcf = RunVEP.vep_vcf,
-      annovar_db_folder = annovar_db_folder,
-      annovar_db_tar_gz = annovar_db_tar_gz,
-      annovar_db_uncompressed_gb = annovar_db_uncompressed_gb,
-      annovar_db_tar_folder_name = annovar_db_tar_folder_name,
+      annovar_gnomAD_file = annovar_gnomAD_file,
+      annovar_gnomAD_file_index = annovar_gnomAD_file_index,
       target_prefix = target_prefix
   }
 
@@ -665,8 +668,7 @@ python ~{intervar_path} \
   -d $ANNOVAR_DB_DIR
 
 # Clean up intermediate files
-rm -f ~{target_prefix}.~{buildver}_multianno.txt \
-      ~{target_prefix}.~{buildver}_multianno.txt.grl_p
+rm -f ~{target_prefix}.~{buildver}_multianno.txt.grl_p
 
 if [[ "~{use_local_db}" != "true" ]]; then
   rm -rf $ANNOVAR_DB_DIR
@@ -694,10 +696,8 @@ task RunAnnovarGnomad {
   input {
     File input_vcf
 
-    String? annovar_db_folder
-    File? annovar_db_tar_gz
-    String? annovar_db_tar_folder_name
-    Float? annovar_db_uncompressed_gb
+    File annovar_gnomAD_file
+    File annovar_gnomAD_file_index
 
     String target_prefix
 
@@ -710,32 +710,15 @@ task RunAnnovarGnomad {
     String docker = "shengqh/intervar:20260331"
   }
 
-  Boolean use_local_db = defined(annovar_db_folder)
-  Float tar_gz_gb = if defined(annovar_db_tar_gz) then size(select_first([annovar_db_tar_gz]), "GB") else 0
-  Float true_db_gb = if defined(annovar_db_uncompressed_gb) then select_first([annovar_db_uncompressed_gb]) else tar_gz_gb * 10
-  Int disk_size = ceil(size(input_vcf, "GB") * 5 + tar_gz_gb + true_db_gb) + 20
+  Int disk_size = ceil(size(input_vcf, "GB") * 5 + size([annovar_gnomAD_file, annovar_gnomAD_file_index], "GB")) + 20
 
   command <<<
 set -e
 
-if [[ "~{use_local_db}" == "true" ]]; then
-  ANNOVAR_DB_DIR="~{annovar_db_folder}"
-elif [[ -n "~{annovar_db_tar_gz}" ]]; then
-  echo "Extracting annovar database..."
-  tar -xzf ~{annovar_db_tar_gz}
-  if [[ -n "~{annovar_db_tar_folder_name}" ]]; then
-    ANNOVAR_DB_DIR="~{annovar_db_tar_folder_name}"
-  else
-    ANNOVAR_DB_DIR=$(basename "~{annovar_db_tar_gz}" .tar.gz)
-  fi
-  echo "Annovar database extracted."
-else
-  echo "ERROR: Either annovar_db_folder or annovar_db_tar_gz must be provided." >&2
-  exit 1
-fi
+ANNOVAR_DB_DIR=$(dirname "~{annovar_gnomAD_file}")
 
+echo "ANNOVAR_DB_DIR=$ANNOVAR_DB_DIR"
 echo "annovar_start=$(date)"
-
 table_annovar.pl \
   ~{input_vcf} \
   $ANNOVAR_DB_DIR \
@@ -747,10 +730,6 @@ table_annovar.pl \
   --vcfinput
 
 rm -f ~{target_prefix}.~{buildver}_multianno.vcf ~{target_prefix}.avinput
-
-if [[ "~{use_local_db}" != "true" ]]; then
-  rm -rf $ANNOVAR_DB_DIR
-fi
 
 echo "annovar_end=$(date)"
 >>>
