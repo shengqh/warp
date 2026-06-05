@@ -925,7 +925,7 @@ task RunAutoGVP {
 
     Int memory_gb = 20
     Int cpu = 1
-    String docker = "pgc-images.sbgenomics.com/diskin-lab/autogvp:v1.0.5"
+    String docker = "shengqh/autogvp:v1.0.5"
   }
 
   Int disk_size = ceil(size([vep_vcf, intervar_file, annovar_file, autopvs1_file, clinvar_vcf, selected_clinvar_submissions, variant_summary, submission_summary], "GB") * 3) + 20
