@@ -20,6 +20,7 @@ version 1.0
 # - output_sst_file: Path to the formatted PRScs-SST summary statistics file
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
+import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils
 import "./VUMCPrsStep1Regenie2PRScsSST.wdl" as Regenie2PRScsSST
 
 workflow VUMCPrsStep1BoltLMM2PRScsSST {
