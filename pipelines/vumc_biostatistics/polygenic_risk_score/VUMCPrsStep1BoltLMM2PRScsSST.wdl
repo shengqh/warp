@@ -36,7 +36,7 @@ workflow VUMCPrsStep1BoltLMM2PRScsSST {
 
   # Validate: at least one of vep_cache_folder or vep_cache_tar_gz must be provided
   if (perform_rsid_to_variantid && !defined(rsid_variantid_map_file)) {
-    call WDLUtils.FailWithMessage as ValidateVepCache {
+    call WDLUtils.FailWithMessage as Validate_rsid_variantid_map_file {
       input:
         message = "rsid_variantid_map_file must be provided when perform_rsid_to_variantid=true."
     }
