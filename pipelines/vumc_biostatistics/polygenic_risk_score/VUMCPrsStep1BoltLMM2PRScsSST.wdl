@@ -25,11 +25,20 @@ import "./VUMCPrsStep1Regenie2PRScsSST.wdl" as Regenie2PRScsSST
 workflow VUMCPrsStep1BoltLMM2PRScsSST {
   input {
     File input_boltLMM
+    Boolean perform_rsid_to_variantid = true
     File? rsid_variantid_map_file # ID,RSID map file
 
     String output_prefix
 
     String? target_gcp_folder
+  }
+
+  # Validate: at least one of vep_cache_folder or vep_cache_tar_gz must be provided
+  if (perform_rsid_to_variantid && !defined(rsid_variantid_map_file)) {
+    call WDLUtils.FailWithMessage as ValidateVepCache {
+      input:
+        message = "rsid_variantid_map_file must be provided when perform_rsid_to_variantid=true."
+    }
   }
 
   call BoltLMM2PRScsSST {
@@ -38,7 +47,7 @@ workflow VUMCPrsStep1BoltLMM2PRScsSST {
       output_prefix = output_prefix
   }
 
-  if(defined(rsid_variantid_map_file)){
+  if (perform_rsid_to_variantid) {
     call Regenie2PRScsSST.rsID2variantID {
       input:
         input_sst = BoltLMM2PRScsSST.output_sst_file,
