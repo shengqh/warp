@@ -155,3 +155,66 @@ R --vanilla -f rsid_variantid_map.R
     File output_sst_file = "~{output_prefix}.rsid.sst"
   }
 }
+
+task rsID2variantID {
+  input {
+    File input_sst
+    File rsid_variantid_map_file
+
+    String output_prefix
+
+    Int preemptible=3
+    Int memory_gb=200
+    Int additional_disk_size_gb = 2
+  }
+
+  Int disk_size = ceil(size(rsid_variantid_map_file, "GB")) + ceil(size([input_sst], "GB") * 3) + additional_disk_size_gb
+
+  command <<<
+
+cat <<CODE> rsid_variantid_map.R
+
+library(data.table)
+
+cat("Reading VariantID to rsID map file: ~{rsid_variantid_map_file} ...\n")
+rsmap=fread("~{rsid_variantid_map_file}",header=T,sep=",",colClasses=c("character","character")) |>
+  dplyr::rename(ID=1,RSID=2)
+
+cat("Reading sst file: ~{input_sst} ...\n")
+old_sst=fread("~{input_sst}",header=T,sep="\t",colClasses=c("character","character","character","numeric","numeric"))
+
+cat("Merge sst and map file ...\n")
+new_sst=merge(old_sst,rsmap,by.x="SNP",by.y="RSID",all.x=TRUE)
+
+new_sst=new_sst |>
+  dplyr::rename(VARIANT_ID=ID)
+
+new_sst=new_sst |>
+  dplyr::filter(!is.na(VARIANT_ID)) |>
+  dplyr::select(SNP,A1,A2,BETA,P,VARIANT_ID)
+
+cat("Save sst file ...\n")
+fwrite(new_sst,
+       file="~{output_prefix}.rsid.sst",
+       sep="\t",
+       col.names=TRUE,
+       quote=FALSE)
+
+cat("Done ...\n")
+
+CODE
+
+R --vanilla -f rsid_variantid_map.R
+  >>>
+
+  runtime {
+    docker: "shengqh/report:20250415"
+    preemptible: preemptible
+    disks: "local-disk " + disk_size + " HDD"
+    memory: memory_gb + " GiB"
+  }
+
+  output {
+    File output_sst_file = "~{output_prefix}.rsid.sst"
+  }
+}
