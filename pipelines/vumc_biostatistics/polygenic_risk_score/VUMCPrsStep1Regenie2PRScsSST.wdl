@@ -130,8 +130,21 @@ new_sst=new_sst |>
   dplyr::filter(!is.na(SNP)) |>
   dplyr::select(SNP,A1,A2,BETA,P,VARIANT_ID)
 
+cat("Make sure the A1 and A2 match the variant ID, otherwise remove the variant ...\n")
+tmp <- stringr::str_split_fixed(new_sst$VARIANT_ID, ":", 4)
+
+new_sst <- new_sst |>
+  dplyr::mutate(
+    VARIANT_REF = tmp[, 3],
+    VARIANT_ALT = tmp[, 4]
+  )
+
+final_sst=new_sst |>
+  dplyr::filter((VARIANT_REF==A2 & VARIANT_ALT==A1) | (VARIANT_REF==A1 & VARIANT_ALT==A2)) |>
+  dplyr::select(SNP,A1,A2,BETA,P,VARIANT_ID)
+
 cat("Save sst file ...\n")
-fwrite(new_sst,
+fwrite(final_sst,
        file="~{output_prefix}.rsid.sst",
        sep="\t",
        col.names=TRUE,
@@ -193,8 +206,21 @@ new_sst=new_sst |>
   dplyr::filter(!is.na(VARIANT_ID)) |>
   dplyr::select(SNP,A1,A2,BETA,P,VARIANT_ID)
 
+cat("Make sure the A1 and A2 match the variant ID, otherwise remove the variant ...\n")
+tmp <- stringr::str_split_fixed(new_sst$VARIANT_ID, ":", 4)
+
+new_sst <- new_sst |>
+  dplyr::mutate(
+    VARIANT_REF = tmp[, 3],
+    VARIANT_ALT = tmp[, 4]
+  )
+
+final_sst=new_sst |>
+  dplyr::filter((VARIANT_REF==A2 & VARIANT_ALT==A1) | (VARIANT_REF==A1 & VARIANT_ALT==A2)) |>
+  dplyr::select(SNP,A1,A2,BETA,P,VARIANT_ID)
+
 cat("Save sst file ...\n")
-fwrite(new_sst,
+fwrite(final_sst,
        file="~{output_prefix}.rsid.sst",
        sep="\t",
        col.names=TRUE,
