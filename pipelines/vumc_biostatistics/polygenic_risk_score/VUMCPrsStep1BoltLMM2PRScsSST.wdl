@@ -86,7 +86,9 @@ task BoltLMM2PRScsSST {
 
   command <<<
 
-  awk 'BEGIN {OFS="\t"}; NR==1 {print "SNP", "A1", "A2", "BETA", "P"; next}; {print $2, $7, $5, log($13), $22}' ~{input_boltLMM} > ~{output_prefix}.sst
+  # 2:SNP:rsid, 8:A1, 9:AX, 17:OR, 22:P
+
+  awk 'BEGIN {OFS="\t"}; NR==1 {print "SNP", "A1", "A2", "BETA", "P"; next}; {print $2, $8, $9, log($17), $22}' ~{input_boltLMM} > ~{output_prefix}.sst
 
   >>>
 
