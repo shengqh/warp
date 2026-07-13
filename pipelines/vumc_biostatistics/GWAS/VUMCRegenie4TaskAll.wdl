@@ -79,7 +79,7 @@ workflow VUMCRegenie4TaskAll {
   if (filter_sample) {
     call Task1.VUMCRegenie4Task1CreateCohortPsam as CreateCohortPsam {
       input:
-        input_psam = input_psam_files[1],
+        input_psam = input_psam_files[0],
         input_grid = input_grid,
         input_grid_column = input_grid_column,
         input_ancestry = input_ancestry,
