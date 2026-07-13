@@ -70,6 +70,9 @@ workflow VUMCRegenie4Task4Regenie {
     String covarColList
     String? catCovarColList 
 
+    Boolean is_time_to_event=false
+    String? eventColList
+
     String output_prefix
 
     #option of regenie for model fitting
@@ -82,6 +85,13 @@ workflow VUMCRegenie4Task4Regenie {
     String step2_regenie_option="--firth --approx --pThresh 0.01 --bsize 400"
 
     String? target_gcp_folder
+  }
+
+  if(is_time_to_event && !defined(eventColList)){
+    call WDLUtils.FailWithMessage {
+      input:
+        message = "eventColList is required when is_time_to_event is true"
+    }
   }
 
   Int num_chromosomes = length(chromosomes)
@@ -159,6 +169,8 @@ workflow VUMCRegenie4Task4Regenie {
       covarFile = covarFile,
       covarColList = covarColList,
       catCovarColList = catCovarColList,
+      is_time_to_event = is_time_to_event,
+      eventColList = eventColList,
       output_prefix = output_prefix,
       step1_option = step1_regenie_option,
       memory_gb = ceil(step1_memory_gb * step1_memory_factor) #Level 1 ridge and making predictions need much more memory than Level 0 ridge.
@@ -183,6 +195,8 @@ workflow VUMCRegenie4Task4Regenie {
         covarFile = covarFile,
         covarColList = covarColList,
         catCovarColList = catCovarColList,
+        is_time_to_event = is_time_to_event,
+        eventColList = eventColList,
         output_prefix = "~{output_prefix}.~{step2_chromosome}",
         step2_option = step2_regenie_option,
         memory_gb = step1_memory_gb #chromosome level memory cost would be less than step1, use step1 memory here.

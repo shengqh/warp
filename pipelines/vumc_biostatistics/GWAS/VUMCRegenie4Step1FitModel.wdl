@@ -1,5 +1,6 @@
 version 1.0
 
+import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "./GWASUtils.wdl" as GWASUtils
 
@@ -16,11 +17,21 @@ workflow VUMCRegenie4Step1FitModel {
     File covarFile
     String covarColList
 
+    Boolean is_time_to_event=false
+    String? eventColList
+
     String output_prefix
 
     String step1_option = "--loocv --bsize 1000 --lowmem"
 
     String? target_gcp_folder
+  }
+
+  if(is_time_to_event && !defined(eventColList)){
+    call WDLUtils.FailWithMessage {
+      input:
+        message = "eventColList is required when is_time_to_event is true"
+    }
   }
 
   call GWASUtils.Regenie4Step1FitModel as RegenieStep1FitModel {
@@ -33,6 +44,8 @@ workflow VUMCRegenie4Step1FitModel {
       is_binary_traits = is_binary_traits,
       covarFile = covarFile,
       covarColList = covarColList,
+      is_time_to_event = is_time_to_event,
+      eventColList = eventColList,
       output_prefix = output_prefix,
       step1_option = step1_option
   }

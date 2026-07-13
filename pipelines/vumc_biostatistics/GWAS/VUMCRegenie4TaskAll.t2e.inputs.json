@@ -1,0 +1,21 @@
+{
+  "VUMCRegenie4TaskAll.chromosomes": ["chr22"],
+  "VUMCRegenie4TaskAll.input_pgen_files": ["/nobackup/h_cqs/shengq2/biovu/data/fang/CAS.step1.sampled.pgen"],
+  "VUMCRegenie4TaskAll.input_pvar_files": ["/nobackup/h_cqs/shengq2/biovu/data/fang/CAS.step1.sampled.pvar"],
+  "VUMCRegenie4TaskAll.input_psam_files": ["/nobackup/h_cqs/shengq2/biovu/data/fang/CAS.step1.sampled.psam"],
+  "VUMCRegenie4TaskAll.step1_max_variants": 100000,
+  "VUMCRegenie4TaskAll.is_binary_traits": "false",
+  "VUMCRegenie4TaskAll.step1_plink2_option": "--maf 0.01 --not-chr 23-27 --snps-only just-acgt --max-alleles 2",
+  "VUMCRegenie4TaskAll.step1_prune": false,
+  "VUMCRegenie4TaskAll.step1_prune_option": "--indep-pairwise 500 50 0.2",
+  "VUMCRegenie4TaskAll.step2_plink2_option": "--maf 0.01 --not-chr 23-27 --snps-only just-acgt --max-alleles 2",
+  "VUMCRegenie4TaskAll.phenoFile": "/nobackup/h_cqs/shengq2/biovu/data/fang/phenotype_CAS.txt",
+  "VUMCRegenie4TaskAll.phenoColList": "ehr_length_in_years",
+  "VUMCRegenie4TaskAll.covarColList": "Sex,age,PC1,PC2,PC3,PC4,PC5,PC6,PC7,PC8,PC9,PC10",
+  "VUMCRegenie4TaskAll.covarFile": "/nobackup/h_cqs/shengq2/biovu/data/fang/phenotype_CAS.txt",
+  "VUMCRegenie4TaskAll.output_prefix": "phecode",
+  "VUMCRegenie4TaskAll.is_time_to_event": "true",
+  "VUMCRegenie4TaskAll.eventColList": "event",
+  "VUMCRegenie4TaskAll.step1_regenie_option": "--bsize 1000"
+}
+

@@ -1,5 +1,6 @@
 version 1.0
 
+import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils
 import "./VUMCRegenie4Task1CreateCohortPsam.wdl" as Task1
 import "./VUMCRegenie4Task2PrepareTestPgen.wdl" as Task2
 import "./VUMCRegenie4Task3PrepareModelPgen.wdl" as Task3
@@ -42,6 +43,9 @@ workflow VUMCRegenie4TaskAll {
     File covarFile
     String covarColList
 
+    Boolean is_time_to_event=false
+    String? eventColList
+
     String output_prefix
 
     #option of variants for model fitting
@@ -60,6 +64,13 @@ workflow VUMCRegenie4TaskAll {
     String step2_regenie_option="--firth --approx --pThresh 0.01 --bsize 400"
 
     String? target_gcp_folder
+  }
+
+  if(is_time_to_event && !defined(eventColList)){
+    call WDLUtils.FailWithMessage {
+      input:
+        message = "eventColList is required when is_time_to_event is true"
+    }
   }
 
   Boolean filter_sample = if (defined(input_grid)) then true else if (defined(input_ancestry)) then true else false
@@ -116,6 +127,8 @@ workflow VUMCRegenie4TaskAll {
       is_binary_traits = is_binary_traits,
       covarFile = covarFile,
       covarColList = covarColList,
+      is_time_to_event = is_time_to_event,
+      eventColList = eventColList,
       output_prefix = output_prefix,
       step1_regenie_option = step1_regenie_option,
       step1_block_size = step1_block_size,

@@ -1,5 +1,6 @@
 version 1.0
 
+import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "./GWASUtils.wdl" as GWASUtils
 
@@ -19,6 +20,9 @@ workflow VUMCRegenie4Step2AssociationTest {
     File covarFile
     String covarColList
 
+    Boolean is_time_to_event=false
+    String? eventColList
+
     String step2_option = "--firth --approx --pThresh 0.01 --bsize 400"
 
     String output_prefix
@@ -26,6 +30,13 @@ workflow VUMCRegenie4Step2AssociationTest {
     String? chromosome
 
     String? target_gcp_folder
+  }
+
+  if(is_time_to_event && !defined(eventColList)){
+    call WDLUtils.FailWithMessage {
+      input:
+        message = "eventColList is required when is_time_to_event is true"
+    }
   }
 
   call GWASUtils.Regenie4Step2AssociationTest as RegenieStep2AssociationTest {

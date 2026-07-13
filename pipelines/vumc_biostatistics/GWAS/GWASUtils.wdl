@@ -127,6 +127,9 @@ task Regenie4Step1FitModel {
     String covarColList
     String? catCovarColList
 
+    Boolean is_time_to_event
+    String? eventColList
+
     # Regenie options
     # option "--loocv" is not in the recommendation of Regenie (https://rgcgithub.github.io/regenie/recommendations/)
     # However, using --loocv would accelerate the process a lot. We still suggest to use it.
@@ -189,7 +192,7 @@ task Regenie4Step1FitModel {
 
   Int final_memory_gb = select_first([memory_gb_override, memory_gb])
 
-  String call_type = if(is_binary_traits) then "--bt" else "--qt"
+  String call_type = if(is_time_to_event) then "--t2e --eventColList ~{eventColList}" else if(is_binary_traits) then "--bt" else "--qt"
 
   command <<<
 
@@ -250,6 +253,9 @@ task Regenie4Step2AssociationTest {
     String covarColList
     String? catCovarColList
 
+    Boolean is_time_to_event
+    String? eventColList
+
     String step2_option = "--firth --approx --pThresh 0.01 --bsize 400"
 
     String? chromosome
@@ -266,7 +272,7 @@ task Regenie4Step2AssociationTest {
 
   Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")) + 20
 
-  String call_type = if(is_binary_traits) then "--bt" else "--qt"
+  String call_type = if(is_time_to_event) then "--t2e --eventColList ~{eventColList}" else if(is_binary_traits) then "--bt" else "--qt"
 
   command <<<
 

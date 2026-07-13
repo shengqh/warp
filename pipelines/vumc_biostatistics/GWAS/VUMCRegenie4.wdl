@@ -24,6 +24,9 @@ workflow VUMCRegenie4 {
     File covarFile
     String covarColList
 
+    Boolean is_time_to_event=false
+    String? eventColList
+
     String output_prefix
 
     #option of variants for model fitting
@@ -44,6 +47,13 @@ workflow VUMCRegenie4 {
     Array[String] chromosome_list = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","X"]
 
     String? target_gcp_folder
+  }
+
+  if(is_time_to_event && !defined(eventColList)){
+    call WDLUtils.FailWithMessage {
+      input:
+        message = "eventColList is required when is_time_to_event is true"
+    }
   }
 
   call WDLUtils.string_to_array as pheco_list {
@@ -174,6 +184,8 @@ workflow VUMCRegenie4 {
       is_binary_traits = is_binary_traits,
       covarFile = covarFile,
       covarColList = covarColList,
+      is_time_to_event = is_time_to_event,
+      eventColList = eventColList,
       output_prefix = output_prefix,
       step1_option = step1_regenie_option,
       memory_gb = step1_memory_gb * 2 #Level 1 ridge and making predictions need much more memory than Level 0 ridge.
@@ -192,6 +204,8 @@ workflow VUMCRegenie4 {
         is_binary_traits = is_binary_traits,
         covarFile = covarFile,
         covarColList = covarColList,
+        is_time_to_event = is_time_to_event,
+        eventColList = eventColList,
         output_prefix = "~{output_prefix}.~{chromosome}",
         step2_option = step2_regenie_option,
         chromosome = chromosome,
