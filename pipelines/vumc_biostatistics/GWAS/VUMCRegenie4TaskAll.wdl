@@ -49,7 +49,9 @@ workflow VUMCRegenie4TaskAll {
     String output_prefix
 
     #option of variants for model fitting
-    String step1_plink2_option="--maf 0.01 --mac 100 --geno 0.1 --hwe 1e-15 --snps-only --not-chr 23-27 --max-alleles 2"
+    #--maf 0.01 --max-maf 0.99 make sure modeling will not fail due to low variance: ERROR: !! Uh-oh, SNP chr22:33765420:A:G has low variance (=0.000000).
+    #--hwe 1e-15 is suitable for large scale biobank. Increase it based on your sample size.
+    String step1_plink2_option="--maf 0.01 --max-maf 0.99 --mac 100 --geno 0.1 --hwe 1e-15 --snps-only --not-chr 23-27 --max-alleles 2"
     String step1_regenie_option="--loocv --bsize 1000 --lowmem"
     Int step1_block_size=1000
     Int step1_max_variants=500000
@@ -60,7 +62,7 @@ workflow VUMCRegenie4TaskAll {
     String step1_prune_option="--indep-pairwise 1000 100 0.1"
     
     #option of variants for testing
-    String step2_plink2_option="--geno 0.05 --maf 0.01 --max-alleles 2"
+    String step2_plink2_option="--maf 0.01 --max-maf 0.99 --geno 0.05 --max-alleles 2"
     String step2_regenie_option="--firth --approx --pThresh 0.01 --bsize 400"
 
     String? target_gcp_folder

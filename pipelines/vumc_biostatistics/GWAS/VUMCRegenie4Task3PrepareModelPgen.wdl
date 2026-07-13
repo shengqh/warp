@@ -53,7 +53,9 @@ workflow VUMCRegenie4Task3PrepareModelPgen {
     #option of variants for model fitting
     #https://rgcgithub.github.io/regenie/recommendations/
     #Based on UKBiobank recommendation, we suggest the following parameters for filtering.
-    String step1_plink2_option="--maf 0.01 --mac 100 --geno 0.1 --hwe 1e-15 --mind 0.1 --snps-only --not-chr 23-27 --max-alleles 2"
+    #--maf 0.01 --max-maf 0.99 make sure modeling will not fail due to low variance: ERROR: !! Uh-oh, SNP chr22:33765420:A:G has low variance (=0.000000).
+    #--hwe 1e-15 is suitable for large scale biobank. Increase it based on your sample size.
+    String step1_plink2_option="--maf 0.01 --max-maf 0.99 --mac 100 --geno 0.1 --hwe 1e-15 --mind 0.1 --snps-only --not-chr 23-27 --max-alleles 2"
     Int step1_max_variants=1000000
 
     #https://www.nature.com/articles/s41588-021-00870-7
