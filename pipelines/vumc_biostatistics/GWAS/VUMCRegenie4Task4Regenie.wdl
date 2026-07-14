@@ -86,7 +86,7 @@ workflow VUMCRegenie4Task4Regenie {
 
     String? target_gcp_folder
 
-    Int min_test_memory_gb = 15
+    Int test_memory_gb = 20
   }
 
   if(is_time_to_event && !defined(eventColList)){
@@ -179,7 +179,7 @@ workflow VUMCRegenie4Task4Regenie {
   }
 
   #chromosome level memory cost would be less than step1, use step1 memory here.
-  Int test_memory_gb = if(min_test_memory_gb > step1_memory_gb) then min_test_memory_gb else step1_memory_gb
+  Int step2_memory_gb = if(test_memory_gb > step1_memory_gb) then test_memory_gb else step1_memory_gb
 
   scatter(chrom_ind in chrom_indecies){
     File step2_pgen = test_pgen_files[chrom_ind]
@@ -204,7 +204,7 @@ workflow VUMCRegenie4Task4Regenie {
         eventColList = eventColList,
         output_prefix = "~{output_prefix}.~{step2_chromosome}",
         step2_option = step2_regenie_option,
-        memory_gb = test_memory_gb
+        memory_gb = step2_memory_gb
     }
 
     scatter(cur_pheno in phenotype_names){
