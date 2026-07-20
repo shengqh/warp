@@ -20,6 +20,7 @@ version 1.0
 #              in the following format (order matters):
 #              SNP             A1      A2      BETA    P       VARIANT_ID
 #              rs4040617       G       A       0.006   0.53    chr1:843942:A:G
+# - input_bim: bim file either from target dataset or matching input_sst.
 # - convert_rsID_to_variantID: Whether to convert rsID to VARIANT_ID in the final effect file (default: true)
 #              In order to apply the effect file to AGD data, the effect file must use VARIANT_ID instead of rsID. 
 #              If the input SST file contains both SNP and VARIANT_ID columns, the workflow will convert the SNP column from rsID to VARIANT_ID. 
@@ -42,6 +43,8 @@ workflow VUMCPrsStep2PRScs {
 
     Int n_gwas
     File input_sst
+
+    File input_bim
 
     Boolean convert_rsID_to_variantID = true
 
@@ -71,6 +74,7 @@ workflow VUMCPrsStep2PRScs {
       input:
         n_gwas = n_gwas,
         input_sst = input_sst,
+        input_bim = input_bim,
         ld_files = ld_files,
         ld_folder_name = ld_folder_name,
         ld_snpname = ld_snpname,
@@ -124,13 +128,15 @@ task PRScs {
     Int seed = 20250610
     String chromosome
 
+    File input_bim
+
     Array[File] ld_files
     String ld_folder_name
     String ld_snpname
 
     String output_prefix
 
-    String docker = "shengqh/prs:20251106"
+    String docker = "shengqh/prs:20260720"
     String PRSsc_script = "/opt/PRScs/PRScs.py"
 
     Int preemptible=3
@@ -149,8 +155,12 @@ task PRScs {
     ln -s ${ld_cur_folder} ~{ld_folder_name}
     echo "ld_folder: ~{ld_folder_name} : $ld_cur_folder"
 
+    bim_file="~{input_bim}"
+    bim_prefix="${bim_file%.bim}"
+
     echo "Running PRScs ..."
     python3 ~{PRSsc_script} \
+      --bim_prefix=$bim_prefix \
       --ref_dir=~{ld_folder_name} \
       --ref_snpname=~{ld_snpname} \
       --sst_file=~{input_sst} \
