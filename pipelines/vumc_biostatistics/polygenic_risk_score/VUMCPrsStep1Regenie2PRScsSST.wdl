@@ -9,6 +9,11 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 # Workflow steps:
 # 1. Transform Regenie output file into PRScs-SST compatible summary statistics format
 # 2. Format columns to match required PRScs-SST input format (SNP, A1, A2, BETA, P)
+#    SNP: rsID
+#    A1: Effect allele
+#    A2: Non‑effect allele
+#    BETA: Effect size estimate (or log odds ratio for case/control traits)
+#    P: P‑value
 # 3. Optionally map variant IDs to rsIDs using provided mapping file (ID,RSID columns)
 # 4. Optionally copy results to a GCP storage location
 #
@@ -21,10 +26,13 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 # Outputs:
 # - output_sst_file: Path to the formatted PRScs-SST summary statistics file
 
+import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
+import "./PRSUtils.wdl" as PRSUtils
 
 workflow VUMCPrsStep1Regenie2PRScsSST {
   input {
     File input_regenie
+
     File? rsid_variantid_map_file # ID,RSID map file
 
     String output_prefix
@@ -39,25 +47,28 @@ workflow VUMCPrsStep1Regenie2PRScsSST {
   }
 
   if(defined(rsid_variantid_map_file)){
-    call variantID2rsID {
+    call PRSUtils.variantID2rsID {
       input:
         input_sst = Regenie2PRScsSST.output_sst_file,
+        input_bim = Regenie2PRScsSST.output_bim_file_for_PRScs,
         rsid_variantid_map_file = select_first([rsid_variantid_map_file]),
         output_prefix = output_prefix
     }
   }
 
   if(defined(target_gcp_folder)){
-    call GcpUtils.MoveOrCopyOneFile as CopyFile {
+    call GcpUtils.MoveOrCopyTwoFiles as CopyFile {
       input:
-        source_file = select_first([variantID2rsID.output_sst_file, Regenie2PRScsSST.output_sst_file]),
+        source_file1 = select_first([variantID2rsID.output_sst_file, Regenie2PRScsSST.output_sst_file]),
+        source_file2 = select_first([variantID2rsID.output_bim_file_for_PRScs, Regenie2PRScsSST.output_bim_file_for_PRScs]),
         is_move_file = false,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }
 
   output {
-    File output_sst_file = select_first([CopyFile.output_file, variantID2rsID.output_sst_file, Regenie2PRScsSST.output_sst_file])
+    File output_sst_file = select_first([CopyFile.output_file1, variantID2rsID.output_sst_file, Regenie2PRScsSST.output_sst_file])
+    File output_bim_file_for_PRScs = select_first([CopyFile.output_file2, variantID2rsID.output_bim_file_for_PRScs, Regenie2PRScsSST.output_bim_file_for_PRScs])
   }
 }
 
@@ -78,6 +89,8 @@ task Regenie2PRScsSST {
 
   zcat ~{input_regenie} | awk 'NR==1 {print "SNP\tA1\tA2\tBETA\tP"}; NR>1 {print $3"\t"$5"\t"$4"\t"$9"\t"10^-$12}' > ~{output_prefix}.sst
 
+  zcat ~{input_regenie} | awk 'BEGIN {OFS="\t"}; NR==1 {next}; {chr=$1; if (chr=="X") chr=23; else if (chr=="Y") chr=24; else if (chr=="MT" || chr=="M") chr=25; print chr, $3, 0, $2, $5, $4}' > ~{output_prefix}.bim
+
   >>>
 
   runtime {
@@ -89,158 +102,6 @@ task Regenie2PRScsSST {
 
   output {
     File output_sst_file = "~{output_prefix}.sst"
-  }
-}
-
-task variantID2rsID {
-  input {
-    File input_sst
-    File rsid_variantid_map_file
-
-    String output_prefix
-
-    Int preemptible=3
-    Int memory_gb=200
-    Int additional_disk_size_gb = 2
-  }
-
-  Int disk_size = ceil(size(rsid_variantid_map_file, "GB")) + ceil(size([input_sst], "GB") * 3) + additional_disk_size_gb
-
-  command <<<
-
-cat <<CODE> rsid_variantid_map.R
-
-library(data.table)
-
-cat("Reading VariantID to rsID map file: ~{rsid_variantid_map_file} ...\n")
-rsmap=fread("~{rsid_variantid_map_file}",header=T,sep=",",colClasses=c("character","character")) |>
-  dplyr::rename(ID=1,RSID=2)
-
-cat("Reading sst file: ~{input_sst} ...\n")
-old_sst=fread("~{input_sst}",header=T,sep="\t",colClasses=c("character","character","character","numeric","numeric"))
-
-cat("Merge sst and map file ...\n")
-new_sst=merge(old_sst,rsmap,by.x="SNP",by.y="ID",all.x=TRUE)
-
-new_sst=new_sst |>
-  dplyr::rename(VARIANT_ID=SNP,
-                SNP=RSID)
-
-new_sst=new_sst |>
-  dplyr::filter(!is.na(SNP)) |>
-  dplyr::select(SNP,A1,A2,BETA,P,VARIANT_ID)
-
-cat("Make sure the A1 and A2 match the variant ID, otherwise remove the variant ...\n")
-tmp <- stringr::str_split_fixed(new_sst$VARIANT_ID, ":", 4)
-
-new_sst <- new_sst |>
-  dplyr::mutate(
-    VARIANT_REF = tmp[, 3],
-    VARIANT_ALT = tmp[, 4]
-  )
-
-final_sst=new_sst |>
-  dplyr::filter((VARIANT_REF==A2 & VARIANT_ALT==A1) | (VARIANT_REF==A1 & VARIANT_ALT==A2)) |>
-  dplyr::select(SNP,A1,A2,BETA,P,VARIANT_ID)
-
-cat("Save sst file ...\n")
-fwrite(final_sst,
-       file="~{output_prefix}.rsid.sst",
-       sep="\t",
-       col.names=TRUE,
-       quote=FALSE)
-
-cat("Done ...\n")
-
-CODE
-
-R --vanilla -f rsid_variantid_map.R
-  >>>
-
-  runtime {
-    docker: "shengqh/report:20250415"
-    preemptible: preemptible
-    disks: "local-disk " + disk_size + " HDD"
-    memory: memory_gb + " GiB"
-  }
-
-  output {
-    File output_sst_file = "~{output_prefix}.rsid.sst"
-  }
-}
-
-task rsID2variantID {
-  input {
-    File input_sst
-    File rsid_variantid_map_file
-
-    String output_prefix
-
-    Int preemptible=3
-    Int memory_gb=200
-    Int additional_disk_size_gb = 2
-  }
-
-  Int disk_size = ceil(size(rsid_variantid_map_file, "GB")) + ceil(size([input_sst], "GB") * 3) + additional_disk_size_gb
-
-  command <<<
-
-cat <<CODE> rsid_variantid_map.R
-
-library(data.table)
-
-cat("Reading VariantID to rsID map file: ~{rsid_variantid_map_file} ...\n")
-rsmap=fread("~{rsid_variantid_map_file}",header=T,sep=",",colClasses=c("character","character")) |>
-  dplyr::rename(ID=1,RSID=2)
-
-cat("Reading sst file: ~{input_sst} ...\n")
-old_sst=fread("~{input_sst}",header=T,sep="\t",colClasses=c("character","character","character","numeric","numeric"))
-
-cat("Merge sst and map file ...\n")
-new_sst=merge(old_sst,rsmap,by.x="SNP",by.y="RSID",all.x=TRUE)
-
-new_sst=new_sst |>
-  dplyr::rename(VARIANT_ID=ID)
-
-new_sst=new_sst |>
-  dplyr::filter(!is.na(VARIANT_ID)) |>
-  dplyr::select(SNP,A1,A2,BETA,P,VARIANT_ID)
-
-cat("Make sure the A1 and A2 match the variant ID, otherwise remove the variant ...\n")
-tmp <- stringr::str_split_fixed(new_sst$VARIANT_ID, ":", 4)
-
-new_sst <- new_sst |>
-  dplyr::mutate(
-    VARIANT_REF = tmp[, 3],
-    VARIANT_ALT = tmp[, 4]
-  )
-
-final_sst=new_sst |>
-  dplyr::filter((VARIANT_REF==A2 & VARIANT_ALT==A1) | (VARIANT_REF==A1 & VARIANT_ALT==A2)) |>
-  dplyr::select(SNP,A1,A2,BETA,P,VARIANT_ID)
-
-cat("Save sst file ...\n")
-fwrite(final_sst,
-       file="~{output_prefix}.rsid.sst",
-       sep="\t",
-       col.names=TRUE,
-       quote=FALSE)
-
-cat("Done ...\n")
-
-CODE
-
-R --vanilla -f rsid_variantid_map.R
-  >>>
-
-  runtime {
-    docker: "shengqh/report:20250415"
-    preemptible: preemptible
-    disks: "local-disk " + disk_size + " HDD"
-    memory: memory_gb + " GiB"
-  }
-
-  output {
-    File output_sst_file = "~{output_prefix}.rsid.sst"
+    File output_bim_file_for_PRScs = "~{output_prefix}.bim"
   }
 }

@@ -1,14 +1,14 @@
 {
   "VUMCPrsStep2PRScs.n_gwas": "19268",
-  "VUMCPrsStep2PRScs.input_sst": "/nobackup/h_cqs/shengq2/biovu/prs/gwas_eur.499.rsid.sst",
+  "VUMCPrsStep2PRScs.input_sst": "/panfs/accrepfs.vampire/nobackup/h_cqs/shengq2/biovu/prs/data/vinci_eur_high_scon_allchr.rsid_variantid_flipped.sst",
+  "VUMCPrsStep2PRScs.input_bim": "/panfs/accrepfs.vampire/nobackup/h_cqs/shengq2/biovu/prs/data/vinci_eur_high_scon_allchr.rsid_variantid_flipped.bim",
   "VUMCPrsStep2PRScs.ld_files": [
     "/data/cqs/references/PRScs/ldblk_ukbb_eur/ldblk_ukbb_chr21.hdf5",
     "/data/cqs/references/PRScs/ldblk_ukbb_eur/ldblk_ukbb_chr22.hdf5",
     "/data/cqs/references/PRScs/ldblk_ukbb_eur/snpinfo_ukbb_hm3"],
   "VUMCPrsStep2PRScs.ld_folder_name": "ldblk_ukbb_eur",
   "VUMCPrsStep2PRScs.convert_rsID_to_variantID": true,
-  "VUMCPrsStep2PRScs.ld_snpname": "snplist",
   "VUMCPrsStep2PRScs.chromosomes": [21,22],
-  "VUMCPrsStep2PRScs.output_prefix": "gwas_eur.499"
+  "VUMCPrsStep2PRScs.output_prefix": "vinci_eur_high_scon_allchr"
 }
 

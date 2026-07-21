@@ -57,10 +57,6 @@ workflow VUMCPrsStep2PRScs {
     String output_prefix
 
     String? target_gcp_folder
-
-    # Since the lkg and ukbb all use hg18, using locus for agd data is not correct.
-    # We will use "snplist" for all data.
-    String ld_snpname = "snplist"
   }
 
   Int num_all_chromsome = length(chromosomes)
@@ -77,7 +73,6 @@ workflow VUMCPrsStep2PRScs {
         input_bim = input_bim,
         ld_files = ld_files,
         ld_folder_name = ld_folder_name,
-        ld_snpname = ld_snpname,
         chromosome = chromosome,
         output_prefix = output_prefix_chromosome
     }
@@ -132,7 +127,6 @@ task PRScs {
 
     Array[File] ld_files
     String ld_folder_name
-    String ld_snpname
 
     String output_prefix
 
@@ -160,14 +154,13 @@ task PRScs {
 
     echo "Running PRScs ..."
     python3 ~{PRSsc_script} \
-      --bim_prefix=$bim_prefix \
       --ref_dir=~{ld_folder_name} \
-      --ref_snpname=~{ld_snpname} \
       --sst_file=~{input_sst} \
+      --bim_prefix=${bim_prefix} \
       --chrom=~{chromosome} \
       --n_gwas=~{n_gwas} \
       --seed=~{seed} \
-      --out=~{output_prefix}
+      --out_dir=~{output_prefix}
 
     echo "Done ..."
     

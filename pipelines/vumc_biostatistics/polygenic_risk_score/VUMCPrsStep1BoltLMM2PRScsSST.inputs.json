@@ -1,7 +1,7 @@
 {
   "VUMCPrsStep1BoltLMM2PRScsSST.input_boltLMM": "/nobackup/h_cqs/shengq2/biovu/data/vinci_eur_high_scon_allchr.emik.maf01.ADD.resultsa.fuma",
   "VUMCPrsStep1BoltLMM2PRScsSST.perform_rsid_to_variantid": true,
-  "VUMCPrsStep1BoltLMM2PRScsSST.rsid_variantid_map_file": "/nobackup/h_cqs/shengq2/biovu/agd250k/rsid/rsid-variantid-map.csv.gz",
+  "VUMCPrsStep1BoltLMM2PRScsSST.rsid_variantid_map_file": "/nobackup/h_cqs/shengq2/biovu/agd250k/prs_dbsnp157_variantid_map/agd250k_prs_dbsnp157_variantid_map.csv.gz",
   "VUMCPrsStep1BoltLMM2PRScsSST.output_prefix": "vinci_eur_high_scon_allchr"
 }
 
