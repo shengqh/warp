@@ -1,0 +1,7 @@
+{
+  "VUMCPrsStep1MetaAnalysis2PRScsSST.input_meta_analysis_file": "/nobackup/h_cqs/shengq2/biovu/prs/jamee_data/METAANALYSIS_SING_SKILLS_All_GC_SE_20250730.txt.gz",
+  "VUMCPrsStep1MetaAnalysis2PRScsSST.perform_rsid_to_variantid": true,
+  "VUMCPrsStep1MetaAnalysis2PRScsSST.rsid_variantid_map_file": "/nobackup/h_cqs/shengq2/biovu/agd250k/prs_dbsnp157_variantid_map/agd250k_prs_dbsnp157_variantid_map.csv.gz",
+  "VUMCPrsStep1MetaAnalysis2PRScsSST.output_prefix": "SING_SKILLS"
+}
+

@@ -12,11 +12,11 @@ version 1.0
 #    A2: Non‑effect allele
 #    BETA: Effect size estimate (or log odds ratio for case/control traits)
 #    P: P‑value
-# 3. Optionally map rsIDs to variant IDs using provided mapping file (ID,RSID columns)
+# 3. Optionally map variant IDs to rsIDs using provided mapping file (ID,RSID columns)
 # 4. Optionally copy results to a GCP storage location
 #
 # Inputs:
-# - input_boltLMM: BoltLMM output file containing summary statistics
+# - input_meta_analysis_file: MetaAnalysis output file containing summary statistics
 # - rsid_variantid_map_file: Optional CSV file mapping variant IDs to rsIDs (ID,RSID columns)
 # - output_prefix: Prefix for the output SST file
 # - target_gcp_folder: Optional GCP destination for result files
@@ -28,12 +28,12 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils
 import "./PRSUtils.wdl" as PRSUtils
 
-workflow VUMCPrsStep1BoltLMM2PRScsSST {
+workflow VUMCPrsStep1MetaAnalysis2PRScsSST {
   input {
-    File input_boltLMM
+    File input_meta_analysis_file
 
     Boolean perform_rsid_to_variantid = true
-    
+
     File? rsid_variantid_map_file # ID,RSID map file
 
     String output_prefix
@@ -49,17 +49,17 @@ workflow VUMCPrsStep1BoltLMM2PRScsSST {
     }
   }
 
-  call BoltLMM2PRScsSST {
+  call MetaAnalysis2PRScsSST {
     input:
-      input_boltLMM = input_boltLMM,
+      input_meta_analysis_file = input_meta_analysis_file,
       output_prefix = output_prefix
   }
 
   if (perform_rsid_to_variantid) {
     call PRSUtils.rsID2variantID {
       input:
-        input_sst = BoltLMM2PRScsSST.output_sst_file,
-        input_bim = BoltLMM2PRScsSST.output_bim_file_for_PRScs,
+        input_sst = MetaAnalysis2PRScsSST.output_sst_file,
+        input_bim = MetaAnalysis2PRScsSST.output_bim_file_for_PRScs,
         rsid_variantid_map_file = select_first([rsid_variantid_map_file]),
         output_prefix = output_prefix
     }
@@ -68,22 +68,22 @@ workflow VUMCPrsStep1BoltLMM2PRScsSST {
   if(defined(target_gcp_folder)){
     call GcpUtils.MoveOrCopyTwoFiles as CopyFile {
       input:
-        source_file1 = select_first([rsID2variantID.output_sst_file, BoltLMM2PRScsSST.output_sst_file]),
-        source_file2 = select_first([rsID2variantID.output_bim_file_for_PRScs, BoltLMM2PRScsSST.output_bim_file_for_PRScs]),
+        source_file1 = select_first([rsID2variantID.output_sst_file, MetaAnalysis2PRScsSST.output_sst_file]),
+        source_file2 = select_first([rsID2variantID.output_bim_file_for_PRScs, MetaAnalysis2PRScsSST.output_bim_file_for_PRScs]),
         is_move_file = false,
         target_gcp_folder = select_first([target_gcp_folder])
     }
   }
 
   output {
-    File output_sst_file = select_first([CopyFile.output_file1, rsID2variantID.output_sst_file, BoltLMM2PRScsSST.output_sst_file])
-    File output_bim_file_for_PRScs = select_first([CopyFile.output_file2, rsID2variantID.output_bim_file_for_PRScs, BoltLMM2PRScsSST.output_bim_file_for_PRScs])
+    File output_sst_file = select_first([CopyFile.output_file1, rsID2variantID.output_sst_file, MetaAnalysis2PRScsSST.output_sst_file])
+    File output_bim_file_for_PRScs = select_first([CopyFile.output_file2, rsID2variantID.output_bim_file_for_PRScs, MetaAnalysis2PRScsSST.output_bim_file_for_PRScs])
   }
 }
 
-task BoltLMM2PRScsSST {
+task MetaAnalysis2PRScsSST {
   input {
-    File input_boltLMM
+    File input_meta_analysis_file
 
     String output_prefix
 
@@ -92,15 +92,13 @@ task BoltLMM2PRScsSST {
     Int additional_disk_size_gb = 2
   }
 
-  Int disk_size = ceil(size([input_boltLMM], "GB") * 3) + additional_disk_size_gb
+  Int disk_size = ceil(size([input_meta_analysis_file], "GB") * 3) + additional_disk_size_gb
 
   command <<<
 
-  # 2:SNP:rsid, 8:A1, 9:AX, 17:OR, 22:P
+  zcat ~{input_meta_analysis_file} | awk 'NR==1 {print "SNP\tA1\tA2\tBETA\tP"}; NR>1 {print $1"\t"$4"\t"$5"\t"$7"\t"$9}' > ~{output_prefix}.sst
 
-  awk 'BEGIN {OFS="\t"}; NR==1 {print "SNP", "A1", "A2", "BETA", "P"; next}; {print $2, $8, $9, log($17), $22}' ~{input_boltLMM} > ~{output_prefix}.sst
-
-  awk 'BEGIN {OFS="\t"}; NR==1 {next}; {chr=$3; if (chr=="X") chr=23; else if (chr=="Y") chr=24; else if (chr=="MT" || chr=="M") chr=25; print chr, $2, 0, $4, $8, $9}' ~{input_boltLMM} > ~{output_prefix}.bim
+  zcat ~{input_meta_analysis_file} | awk 'BEGIN {OFS="\t"}; NR==1 {next}; {chr=$2; if (chr=="X") chr=23; else if (chr=="Y") chr=24; else if (chr=="MT" || chr=="M") chr=25; print chr, $1, 0, $2, $4, $5}' > ~{output_prefix}.bim
 
   >>>
 
