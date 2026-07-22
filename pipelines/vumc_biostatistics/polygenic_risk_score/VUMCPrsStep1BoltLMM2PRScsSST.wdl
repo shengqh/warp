@@ -1,28 +1,31 @@
 version 1.0
 
-# This workflow converts Regenie output to PRScs-SST format for polygenic risk score calculation.
+# This workflow converts BoltLMM output to PRScs-SST format for polygenic risk score calculation.
 # Developed by VUMC Biostatistics for population-specific GWAS studies.
 # Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
 #
 # Workflow steps:
-# 1. Transform Regenie output file into PRScs-SST compatible summary statistics format
-# 2. Format columns to match required PRScs-SST input format (SNP, A1, A2, BETA, P)
-#    SNP: rsID
-#    A1: Effect allele
-#    A2: Non‑effect allele
-#    BETA: Effect size estimate (or log odds ratio for case/control traits)
-#    P: P‑value
-# 3. Optionally map rsIDs to variant IDs using provided mapping file (ID,RSID columns)
-# 4. Optionally copy results to a GCP storage location
+# 1. Convert BoltLMM summary statistics into PRScs-SST compatible output
+# 2. Write PRScs-SST columns (SNP, A1, A2, BETA, P)
+#    SNP: rsID from SNP column
+#    A1: Effect allele from A1 column
+#    A2: Non-effect allele from AX column
+#    BETA: Log(OR) computed from the OR column
+#    P: P-value from the P column
+# 3. Generate a matching BIM file for PRScs
+# 4. Optionally map rsIDs to variant IDs using a provided ID,RSID mapping file
+# 5. Optionally copy results to a GCP storage location
 #
 # Inputs:
 # - input_boltLMM: BoltLMM output file containing summary statistics
-# - rsid_variantid_map_file: Optional CSV file mapping variant IDs to rsIDs (ID,RSID columns)
-# - output_prefix: Prefix for the output SST file
+# - perform_rsid_to_variantid: Whether to map rsIDs to variant IDs
+# - rsid_variantid_map_file: Optional ID,RSID mapping file used when mapping is enabled
+# - output_prefix: Prefix for the output SST and BIM files
 # - target_gcp_folder: Optional GCP destination for result files
 #
 # Outputs:
 # - output_sst_file: Path to the formatted PRScs-SST summary statistics file
+# - output_bim_file_for_PRScs: Path to the matching BIM file for PRScs
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils
@@ -96,16 +99,56 @@ task BoltLMM2PRScsSST {
 
   command <<<
 
-  # 2:SNP:rsid, 8:A1, 9:AX, 17:OR, 22:P
+cat <<CODE> convert.py
 
-  awk 'BEGIN {OFS="\t"}; NR==1 {print "SNP", "A1", "A2", "BETA", "P"; next}; {print $2, $8, $9, log($17), $22}' ~{input_boltLMM} > ~{output_prefix}.sst
+import csv
+import gzip
+import math
 
-  awk 'BEGIN {OFS="\t"}; NR==1 {next}; {chr=$3; if (chr=="X") chr=23; else if (chr=="Y") chr=24; else if (chr=="MT" || chr=="M") chr=25; print chr, $2, 0, $4, $8, $9}' ~{input_boltLMM} > ~{output_prefix}.bim
+input_file = "~{input_boltLMM}"
+output_sst = "~{output_prefix}.sst"
+output_bim = "~{output_prefix}.bim"
+
+def open_maybe_gzip(path):
+    return gzip.open(path, "rt") if path.endswith(".gz") else open(path, "rt")
+
+chr_map = {"X": "23", "Y": "24", "MT": "25", "M": "25"}
+
+#ID SNP CHROM POS REF ALT1 ALT A1 AX A1_FREQ A1_CASE_FREQ A1_CTRL_FREQ MACH_R2 FIRTH? TEST OBS_CT OR LOG(OR)_SE L95 U95 Z_STAT P
+#SNP:rsid, 8:A1, 9:AX, 17:OR, 22:P
+
+with open_maybe_gzip(input_file) as fin, \
+     open(output_sst, "w") as sst_out, \
+     open(output_bim, "w") as bim_out:
+
+    reader = csv.DictReader(fin, delimiter=' ')
+    required = ["SNP", "A1", "AX", "OR", "P", "CHROM", "POS"]
+    missing = [c for c in required if c not in (reader.fieldnames or [])]
+    if missing:
+        raise ValueError("Missing required columns: " + ",".join(missing))
+
+    sst_out.write("SNP\tA1\tA2\tBETA\tP\n")
+
+    for row in reader:
+        snpid = row["SNP"]
+        a1 = row["A1"]
+        a2 = row["AX"]
+        beta = math.log(float(row["OR"]))
+        pval = row["P"]
+        chr_val = chr_map.get(row["CHROM"], row["CHROM"])
+        pos = row["POS"]
+
+        sst_out.write(f"{snpid}\t{a1}\t{a2}\t{beta}\t{pval}\n")
+        bim_out.write(f"{chr_val}\t{snpid}\t0\t{pos}\t{a1}\t{a2}\n")
+
+CODE
+
+python3 convert.py
 
   >>>
 
   runtime {
-    docker: "ubuntu:20.04"
+    docker: "python:3.9-slim"
     preemptible: preemptible
     disks: "local-disk " + disk_size + " HDD"
     memory: memory_gb + " GiB"

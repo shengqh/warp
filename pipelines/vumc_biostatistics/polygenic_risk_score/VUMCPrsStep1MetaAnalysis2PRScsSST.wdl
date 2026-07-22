@@ -1,28 +1,30 @@
 version 1.0
 
-# This workflow converts Regenie output to PRScs-SST format for polygenic risk score calculation.
+# This workflow converts MetaAnalysis output to PRScs-SST format for polygenic risk score calculation.
 # Developed by VUMC Biostatistics for population-specific GWAS studies.
 # Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
 #
 # Workflow steps:
-# 1. Transform Regenie output file into PRScs-SST compatible summary statistics format
+# 1. Transform MetaAnalysis output file into PRScs-SST compatible summary statistics format
 # 2. Format columns to match required PRScs-SST input format (SNP, A1, A2, BETA, P)
-#    SNP: rsID
-#    A1: Effect allele
-#    A2: Non‑effect allele
-#    BETA: Effect size estimate (or log odds ratio for case/control traits)
-#    P: P‑value
-# 3. Optionally map variant IDs to rsIDs using provided mapping file (ID,RSID columns)
+#    SNP: rsID from SNPID column
+#    A1: Effect allele from EFFECT_ALLELE column
+#    A2: Non-effect allele from NON_EFFECT_ALLELE column
+#    BETA: Effect size estimate from the BETA column
+#    P: P-value from the PVAL column
+# 3. Optionally convert rsIDs to variant IDs using provided mapping file (ID,RSID columns)
 # 4. Optionally copy results to a GCP storage location
 #
 # Inputs:
 # - input_meta_analysis_file: MetaAnalysis output file containing summary statistics
+# - perform_rsid_to_variantid: Whether to perform rsID-to-variantID conversion
 # - rsid_variantid_map_file: Optional CSV file mapping variant IDs to rsIDs (ID,RSID columns)
 # - output_prefix: Prefix for the output SST file
 # - target_gcp_folder: Optional GCP destination for result files
 #
 # Outputs:
 # - output_sst_file: Path to the formatted PRScs-SST summary statistics file
+# - output_bim_file_for_PRScs: Path to the generated BIM file for PRScs
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils
@@ -96,14 +98,50 @@ task MetaAnalysis2PRScsSST {
 
   command <<<
 
-  zcat ~{input_meta_analysis_file} | awk 'NR==1 {print "SNP\tA1\tA2\tBETA\tP"}; NR>1 {print $1"\t"$4"\t"$5"\t"$7"\t"$9}' > ~{output_prefix}.sst
+cat <<CODE> convert.py
+import csv
+import gzip
 
-  zcat ~{input_meta_analysis_file} | awk 'BEGIN {OFS="\t"}; NR==1 {next}; {chr=$2; if (chr=="X") chr=23; else if (chr=="Y") chr=24; else if (chr=="MT" || chr=="M") chr=25; print chr, $1, 0, $2, $4, $5}' > ~{output_prefix}.bim
+input_file = "~{input_meta_analysis_file}"
+output_sst = "~{output_prefix}.sst"
+output_bim = "~{output_prefix}.bim"
+
+def open_maybe_gzip(path):
+    return gzip.open(path, "rt") if path.endswith(".gz") else open(path, "rt")
+
+chr_map = {"X": "23", "Y": "24", "MT": "25", "M": "25"}
+
+with open_maybe_gzip(input_file) as fin, \
+     open(output_sst, "w") as sst_out, \
+     open(output_bim, "w") as bim_out:
+
+    reader = csv.DictReader(fin, delimiter='\t')
+    required = ["SNPID", "EFFECT_ALLELE", "NON_EFFECT_ALLELE", "BETA", "PVAL", "CHR", "POS"]
+    missing = [c for c in required if c not in (reader.fieldnames or [])]
+    if missing:
+        raise ValueError("Missing required columns: " + ",".join(missing))
+
+    sst_out.write("SNP\tA1\tA2\tBETA\tP\n")
+
+    for row in reader:
+        snpid = row["SNPID"]
+        a1 = row["EFFECT_ALLELE"]
+        a2 = row["NON_EFFECT_ALLELE"]
+        beta = row["BETA"]
+        pval = row["PVAL"]
+        chr_val = chr_map.get(row["CHR"], row["CHR"])
+        pos = row["POS"]
+
+        sst_out.write(f"{snpid}\t{a1}\t{a2}\t{beta}\t{pval}\n")
+        bim_out.write(f"{chr_val}\t{snpid}\t0\t{pos}\t{a1}\t{a2}\n")
+CODE
+
+python3 convert.py
 
   >>>
 
   runtime {
-    docker: "ubuntu:20.04"
+    docker: "python:3.9-slim"
     preemptible: preemptible
     disks: "local-disk " + disk_size + " HDD"
     memory: memory_gb + " GiB"
@@ -114,3 +152,4 @@ task MetaAnalysis2PRScsSST {
     File output_bim_file_for_PRScs = "~{output_prefix}.bim"
   }
 }
+

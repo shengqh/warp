@@ -9,11 +9,11 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 # Workflow steps:
 # 1. Transform Regenie output file into PRScs-SST compatible summary statistics format
 # 2. Format columns to match required PRScs-SST input format (SNP, A1, A2, BETA, P)
-#    SNP: rsID
-#    A1: Effect allele
-#    A2: Non‑effect allele
-#    BETA: Effect size estimate (or log odds ratio for case/control traits)
-#    P: P‑value
+#    SNP: rsID from ID column
+#    A1: Effect allele from ALLELE1 column
+#    A2: Non-effect allele from ALLELE0 column
+#    BETA: Effect size estimate from the BETA column
+#    P: P-value converted from the LOG10P column
 # 3. Optionally map variant IDs to rsIDs using provided mapping file (ID,RSID columns)
 # 4. Optionally copy results to a GCP storage location
 #
@@ -87,14 +87,51 @@ task Regenie2PRScsSST {
 
   command <<<
 
-  zcat ~{input_regenie} | awk 'NR==1 {print "SNP\tA1\tA2\tBETA\tP"}; NR>1 {print $3"\t"$5"\t"$4"\t"$9"\t"10^-$12}' > ~{output_prefix}.sst
+cat <<CODE> convert.py
+import csv
+import gzip
 
-  zcat ~{input_regenie} | awk 'BEGIN {OFS="\t"}; NR==1 {next}; {chr=$1; if (chr=="X") chr=23; else if (chr=="Y") chr=24; else if (chr=="MT" || chr=="M") chr=25; print chr, $3, 0, $2, $5, $4}' > ~{output_prefix}.bim
+input_file = "~{input_regenie}"
+output_sst = "~{output_prefix}.sst"
+output_bim = "~{output_prefix}.bim"
+
+def open_maybe_gzip(path):
+    return gzip.open(path, "rt") if path.endswith(".gz") else open(path, "rt")
+
+chr_map = {"X": "23", "Y": "24", "MT": "25", "M": "25"}
+
+with open_maybe_gzip(input_file) as fin, \
+     open(output_sst, "w") as sst_out, \
+     open(output_bim, "w") as bim_out:
+
+    reader = csv.DictReader(fin, delimiter=' ')
+    required = ["ID", "ALLELE1", "ALLELE0", "BETA", "LOG10P", "CHROM", "GENPOS"]
+    missing = [c for c in required if c not in (reader.fieldnames or [])]
+    if missing:
+        raise ValueError("Missing required columns: " + ",".join(missing))
+
+    sst_out.write("SNP\tA1\tA2\tBETA\tP\n")
+
+    for row in reader:
+        snpid = row["ID"]
+        a1 = row["ALLELE1"]
+        a2 = row["ALLELE0"]
+        beta = row["BETA"]
+        pval = 10**(-float(row["LOG10P"]))
+        chr_val = chr_map.get(row["CHROM"], row["CHROM"])
+        pos = row["GENPOS"]
+
+        sst_out.write(f"{snpid}\t{a1}\t{a2}\t{beta}\t{pval}\n")
+        bim_out.write(f"{chr_val}\t{snpid}\t0\t{pos}\t{a1}\t{a2}\n")
+
+CODE
+
+python3 convert.py
 
   >>>
 
   runtime {
-    docker: "ubuntu:20.04"
+    docker: "python:3.9-slim"
     preemptible: preemptible
     disks: "local-disk " + disk_size + " HDD"
     memory: memory_gb + " GiB"
