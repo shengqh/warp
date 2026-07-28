@@ -26,6 +26,8 @@ version 1.0
 # Outputs:
 # - output_sst_file: Path to the formatted PRScs-SST summary statistics file
 # - output_bim_file_for_PRScs: Path to the matching BIM file for PRScs
+# 
+# Both output files are in GWAS A1,A2 order, not flipped by rsid_variantid map file.
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils

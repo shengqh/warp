@@ -36,21 +36,12 @@ new_sst=merge(old_sst,rsmap,by.x="SNP",by.y="RSID",all=FALSE)
 cat("Make sure the A1/A2 match the variant REF/ALT (oder doesn't matter), otherwise remove the variant ...\n")
 new_sst=new_sst |>
   dplyr::filter((REF==A2 & ALT==A1) | (REF==A1 & ALT==A2)) |>
-  dplyr::rename(VARIANT_ID=ID) 
-  
-cat("Flip alleles to A1=ALT and A2=REF ...\n")
-new_sst <- new_sst |>
-  dplyr::mutate(
-    is_flipped = A1 == REF,
-    A1 = ALT,
-    A2 = REF,
-    BETA = if_else(is_flipped, -BETA, BETA)
-  ) |>
-  dplyr::select(SNP,A1,A2,BETA,P,VARIANT_ID,is_flipped)
+  dplyr::rename(VARIANT_ID=ID) |>
+  dplyr::select(SNP,A1,A2,BETA,P,VARIANT_ID)
 
 cat("Save sst file ...\n")
 fwrite(new_sst,
-       file="~{output_prefix}.rsid_variantid_flipped.sst",
+       file="~{output_prefix}.rsid_variantid.sst",
        sep="\t",
        col.names=TRUE,
        quote=FALSE)
@@ -65,11 +56,11 @@ new_bim=merge(old_bim,rsmap,by.x="SNP",by.y="RSID",all=FALSE)
 cat("Make sure the A1/A2 match the variant REF/ALT (oder doesn't matter), otherwise remove the variant ...\n")
 new_bim=new_bim |>
   dplyr::filter((REF==A2 & ALT==A1) | (REF==A1 & ALT==A2)) |>
-  dplyr::select(BIM_CHROM,SNP,CM_POS,POS,ALT,REF) # replace the BIM_POS, A1 and A2 by POS, ALT and REF from map file
+  dplyr::select(BIM_CHROM,SNP,CM_POS,POS,A1,A2) # replace the BIM_POS by POS from map file, eg, convert from hg19 to hg38
 
 cat("Save bim file ...\n")
 fwrite(new_bim,
-       file="~{output_prefix}.rsid_variantid_flipped.bim",
+       file="~{output_prefix}.rsid_variantid.bim",
        sep="\t",
        col.names=FALSE,
        quote=FALSE)
@@ -89,8 +80,8 @@ R --vanilla -f rsid_variantid_map.R
   }
 
   output {
-    File output_sst_file = "~{output_prefix}.rsid_variantid_flipped.sst"
-    File output_bim_file_for_PRScs = "~{output_prefix}.rsid_variantid_flipped.bim"
+    File output_sst_file = "~{output_prefix}.rsid_variantid.sst"
+    File output_bim_file_for_PRScs = "~{output_prefix}.rsid_variantid.bim"
   }
 }
 
@@ -144,24 +135,16 @@ cat("Make sure that A1/A2 match the variant REF/ALT (order doesn't matter) ...\n
 new_sst = new_sst |>
   dplyr::filter((A1 == REF & A2 == ALT) | (A1 == ALT & A2 == REF))
 
+# keep the original A1,A2 from GWAS summary, don't use the ALT,REF from mapping file
 new_sst=new_sst |>
   dplyr::rename(SST_ID=SNP,
                 VARIANT_ID=ID,
-                SNP=RSID)
-
-cat("Flip alleles to A1=ALT and A2=REF ...\n")
-new_sst <- new_sst |>
-  dplyr::mutate(
-    is_flipped = A1 == REF,
-    A1 = ALT,
-    A2 = REF,
-    BETA = if_else(is_flipped, -BETA, BETA)
-  ) |>
-  dplyr::select(SNP,A1,A2,BETA,P,VARIANT_ID,is_flipped)
+                SNP=RSID) |>
+  dplyr::select(SNP,A1,A2,BETA,P,VARIANT_ID)
 
 cat("Save sst file ...\n")
 fwrite(new_sst,
-       file="~{output_prefix}.rsid_variantid_flipped.sst",
+       file="~{output_prefix}.rsid_variantid.sst",
        sep="\t",
        col.names=TRUE,
        quote=FALSE)
@@ -187,12 +170,13 @@ cat("Make sure that A1/A2 match the variant REF/ALT (order doesn't matter) ...\n
 new_bim = new_bim |>
   dplyr::filter((A1 == REF & A2 == ALT) | (A1 == ALT & A2 == REF))
 
+# keep the original A1,A2 from GWAS summary, don't use the ALT,REF from mapping file
 new_bim=new_bim |>
-  dplyr::select(BIM_CHROM,SNP,CM_POS,POS,ALT,REF)
+  dplyr::select(BIM_CHROM,SNP,CM_POS,POS,A1,A2)
 
 cat("Save bim file ...\n")
 fwrite(new_bim,
-       file="~{output_prefix}.rsid_variantid_flipped.bim",
+       file="~{output_prefix}.rsid_variantid.bim",
        sep="\t",
        col.names=FALSE,
        quote=FALSE)
@@ -213,7 +197,7 @@ R --vanilla -f rsid_variantid_map.R
   }
 
   output {
-    File output_sst_file = "~{output_prefix}.rsid_variantid_flipped.sst"
-    File output_bim_file_for_PRScs = "~{output_prefix}.rsid_variantid_flipped.bim"
+    File output_sst_file = "~{output_prefix}.rsid_variantid.sst"
+    File output_bim_file_for_PRScs = "~{output_prefix}.rsid_variantid.bim"
   }
 }
