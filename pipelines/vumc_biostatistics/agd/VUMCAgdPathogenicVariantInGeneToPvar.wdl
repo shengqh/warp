@@ -16,7 +16,7 @@ version 1.0
 ##
 ## ### Inputs:
 ## - annovar_url: BigQuery table URL for Annovar data (default: working-set-385118.agd250k.annovar_pvar)
-## - input_genes_url: GCS path to file containing Genes to query, with column name "GENE"
+## - input_genes_file: GCS path to file containing Genes to query, with column name "GENE"
 ## - output_prefix: Prefix for output files
 ## - target_gcp_folder: Optional target GCP folder for the output file
 ##
@@ -64,7 +64,7 @@ workflow VUMCAgdPathogenicVariantInGeneToPvar {
     String annovar_url='working-set-385118.agd250k.annovar_pvar_dnsnp157_clinvar20251109'
     String dbsnp_column='dbsnp157'
 
-    String input_genes_url
+    File input_genes_file
     String output_prefix
 
     String? target_gcp_folder
@@ -74,7 +74,7 @@ workflow VUMCAgdPathogenicVariantInGeneToPvar {
     input:
       annovar_url = annovar_url,
       dbsnp_column = dbsnp_column,
-      input_genes_url = input_genes_url,
+      input_genes_file_url = input_genes_file,
       output_prefix = output_prefix
   }
 
@@ -98,7 +98,7 @@ task AgdPathogenicVariantInGeneToPvar {
     String annovar_url
     String dbsnp_column
 
-    String input_genes_url
+    String input_genes_file_url
     String output_prefix
 
     String docker = "us.gcr.io/broad-dsp-gcr-public/terra-jupyter-hail:1.1.14"
@@ -117,7 +117,7 @@ client = bigquery.Client()
 # Configure the external data source and query job.
 external_config = bigquery.ExternalConfig("CSV")
 external_config.source_uris = [
-    "~{input_genes_url}"
+    "~{input_genes_file_url}"
 ]
 external_config.schema = [
     bigquery.SchemaField("GENE", "STRING"),
