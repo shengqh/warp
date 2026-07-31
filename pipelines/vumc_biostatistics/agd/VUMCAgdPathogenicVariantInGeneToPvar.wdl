@@ -61,7 +61,8 @@ import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 
 workflow VUMCAgdPathogenicVariantInGeneToPvar {
   input {
-    String annovar_url='working-set-385118.agd250k.cb_clinvar_variant'
+    String annovar_url='working-set-385118.agd250k.annovar_pvar_dnsnp157_clinvar20251109'
+    String dbsnp_column='dbsnp157'
 
     String input_genes_url
     String output_prefix
@@ -72,6 +73,7 @@ workflow VUMCAgdPathogenicVariantInGeneToPvar {
   call AgdPathogenicVariantInGeneToPvar {
     input:
       annovar_url = annovar_url,
+      dbsnp_column = dbsnp_column,
       input_genes_url = input_genes_url,
       output_prefix = output_prefix
   }
@@ -94,6 +96,7 @@ workflow VUMCAgdPathogenicVariantInGeneToPvar {
 task AgdPathogenicVariantInGeneToPvar {
   input {
     String annovar_url
+    String dbsnp_column
 
     String input_genes_url
     String output_prefix
@@ -134,18 +137,23 @@ res = client.query(query, job_config=job_config).result().to_dataframe()
 print(res.shape)
 res.head()
 
-query = f"""SELECT anno._CHROM, anno.POS, anno.ID, anno.Ref, anno.Alt, anno.avsnp151 as avsnp, anno.Gene_refGene, anno.CLNSIG, anno.CLNREVSTAT 
+query = f"""
+SELECT 
+    anno._CHROM, anno.POS, anno.ID, anno.Ref, anno.Alt, anno.~{dbsnp_column} as SNP, anno.Gene_refGene, anno.CLNSIG, anno.CLNREVSTAT 
 FROM
-  \`~{annovar_url}\` as anno,
-  {table_id} as g
-WHERE 
+    \`~{annovar_url}\` as anno
+JOIN
+    {table_id} as g
+ON
     anno.Gene_refGene = g.GENE 
-    and 
-    anno.CLNSIG LIKE '%athogenic%'
-    and
-    (anno.CLNREVSTAT = 'criteria_provided,_multiple_submitters,_no_conflicts' or 
-     anno.CLNREVSTAT = 'reviewed_by_expert_panel' or 
-     anno.CLNREVSTAT = 'practice_guideline')
+WHERE 
+    LOWER(anno.CLNSIG) LIKE '%pathogenic%'
+    AND LOWER(anno.CLNSIG) NOT LIKE '%conflict%'
+    AND (
+        anno.CLNREVSTAT = 'criteria_provided,_multiple_submitters,_no_conflicts'
+        OR anno.CLNREVSTAT = 'reviewed_by_expert_panel'
+        OR anno.CLNREVSTAT = 'practice_guideline'
+    )
 ORDER BY
     anno._CHROM, anno.POS
 """
