@@ -131,7 +131,10 @@ with open_maybe_gzip(input_file) as fin, \
         a2 = row["NON_EFFECT_ALLELE"]
         beta = row["BETA"]
         pval = row["PVAL"]
-        chr_val = chr_map.get(row["CHR"], row["CHR"])
+
+        chr_str = row["CHR"].replace('chr', '')
+        chr_val = chr_map.get(chr_str, chr_str)
+        
         pos = row["POS"]
 
         sst_out.write(f"{snpid}\t{a1}\t{a2}\t{beta}\t{pval}\n")

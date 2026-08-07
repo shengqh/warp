@@ -137,7 +137,10 @@ with open_maybe_gzip(input_file) as fin, \
         a2 = row["AX"]
         beta = math.log(float(row["OR"]))
         pval = row["P"]
-        chr_val = chr_map.get(row["CHROM"], row["CHROM"])
+
+        chr_str = row["CHROM"].replace('chr', '')
+        chr_val = chr_map.get(chr_str, chr_str)
+
         pos = row["POS"]
 
         sst_out.write(f"{snpid}\t{a1}\t{a2}\t{beta}\t{pval}\n")
