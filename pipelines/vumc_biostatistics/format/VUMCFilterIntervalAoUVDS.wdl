@@ -24,24 +24,24 @@ version 1.0
 ## - reference_genome: Reference genome version for Hail. Default is "GRCh38".
 ## - interval: Genomic interval used to filter the VDS.
 ## - output_prefix: Prefix for the output Hail MatrixTable path.
-## - target_gcp_folder: Optional GCP folder path to copy output files to after completion.
+## - target_gcp_folder: GCP folder path to copy output files.
 ##
 ## ### Outputs:
 ## - hail_gcs_path: GCS path to the output Hail MatrixTable.
-## - hail_local_path: Local marker file (if copied to GCS) or compressed MatrixTable archive.
 
 workflow VUMCFilterIntervalAoUVDS {
   input {
-    String google_project_id
+    String google_project_id = "wb-quick-okra-799"
 
     String vds_srwgs_path = "gs://vwb-aou-datasets-controlled/v9/wgs/short_read/snpindel/vds/hail.vds"
+    
     String reference_genome = "GRCh38"
 
-    String interval
+    String interval = "chr11:108217482-108374103"
 
-    String output_prefix
+    String output_prefix = "ATM_AoU"
 
-    String? target_gcp_folder
+    String target_gcp_folder = "gs://workspace-bucket-wb-quick-okra-799/00_ATM_variants/data/"
   }
 
   parameter_meta {
@@ -49,7 +49,7 @@ workflow VUMCFilterIntervalAoUVDS {
     reference_genome: "Reference genome version for Hail. Default is 'GRCh38'."
     interval: "Genomic interval to filter the VDS"
     output_prefix: "Prefix for the output Hail MatrixTable path"
-    target_gcp_folder: "Optional GCP folder path to copy output files to after completion"
+    target_gcp_folder: "GCP folder path to save output files"
   }
 
   call FilterVDS {
@@ -75,18 +75,17 @@ task FilterVDS {
     String reference_genome
     String interval
     String output_prefix
-    String? target_gcp_folder
+    String target_gcp_folder
 
-    String docker = "hailgenetics/hail:0.2.127-py3.11"
+    String docker = "hailgenetics/hail:0.2.138-py3.13"
     Int memory_gb = 20
     Int disk_size = 20
   }
 
   Int total_memory_gb = memory_gb + 2
 
-  Boolean output_to_gcp = defined(target_gcp_folder)
   String gcs_output_dir = sub("~{target_gcp_folder}", "/+$", "")
-  String gcs_output_path = if output_to_gcp then gcs_output_dir + "/" + output_prefix else ""
+  String gcs_output_path = gcs_output_dir + "/" + output_prefix
 
   String local_output_file = "~{output_prefix}/metadata.json.gz"
 
@@ -94,7 +93,7 @@ task FilterVDS {
 
 #https://discuss.hail.is/t/i-get-a-negativearraysizeexception-when-loading-a-plink-file/899
 
-export PYSPARK_SUBMIT_ARGS="--driver-java-options '-XX:hashCode=0' --conf 'spark.executor.extraJavaOptions=-XX:hashCode=0' pyspark-shell"
+export PYSPARK_SUBMIT_ARGS="pyspark-shell"
 
 mkdir -p tmp
 
@@ -103,7 +102,7 @@ cat <<CODE > filter_vds.py
 import logging
 import hail as hl
 
-logger = logging.getLogger('b2h')
+logger = logging.getLogger('vds_interval')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)-8s - %(message)s')
 
 logger.info("Calling hl.init ...")
@@ -114,7 +113,6 @@ hl.init(tmp_dir='./tmp',
         quiet=True,
         spark_conf={
             'spark.driver.memory': '~{memory_gb}g',
-            'spark.executor.memory': '~{memory_gb}g',
             'spark.network.timeout': '800s',
             'spark.executor.heartbeatInterval': '400s'
         })
@@ -124,18 +122,15 @@ hl.default_reference(new_default_reference = "~{reference_genome}")
 logger.info("Read vds from ~{vds_srwgs_path} ...")
 vds = hl.vds.read_vds("~{vds_srwgs_path}")
 
-vds.reference_data.count()
-
-vds.reference_data.describe()
-
-vds.variant_data.count()
-
-vds.variant_data.describe()
-
 parsed = [hl.parse_locus_interval("~{interval}")]
 
 logger.info("Filtering vds by interval ~{interval} ...")
 vds_interval = hl.vds.filter_intervals(vds, parsed)
+
+logger.info(
+    "Filtered variants: %d",
+    vds_interval.variant_data.count_rows()
+)
 
 mt = vds_interval.variant_data
 
@@ -147,49 +142,21 @@ vds_transformed = hl.vds.VariantDataset(vds.reference_data, mt)
 mt_dense = hl.vds.to_dense_mt(vds_transformed)
 
 logger.info("Writing MatrixTable to ~{output_prefix} ...")
-mt_dense.write("~{output_prefix}", overwrite=True)
+mt_dense.write("~{gcs_output_path}", overwrite=True)
 
 CODE
 
 python3 filter_vds.py
-
-if [[ -f "~{local_output_file}" ]]; then
-  echo "Writing completed successfully."
-
-  if [[ "~{output_to_gcp}" == "true" ]]; then
-    echo "Copying MatrixTable to GCS..."
-    gsutil -m rsync -Cr ~{output_prefix} ~{gcs_output_path}
-
-    res=$?
-    if [[ $res -ne 0 ]]; then
-      echo "Copying to GCS failed."
-      exit $res
-    fi
-
-    echo "Copying to GCS succeed."
-    touch hail_copied_to_gcp.txt
-    exit 0
-  else
-    echo "Compressing hail matrix folder ..."
-    tar czf ~{output_prefix}.tar.gz ~{output_prefix}
-    rm -rf ~{output_prefix}
-  fi
-
-else
-  echo "Writing failed."
-  exit 1
-fi
 
 >>>
 
   runtime {
     docker: "~{docker}"
     preemptible: 1
-    disks: "local-disk ~{disk_size} HDD"
+    disks: "local-disk ~{disk_size} SSD"
     memory: "~{total_memory_gb} GiB"
   }
   output {
     String hail_gcs_path = "~{gcs_output_path}"
-    File hail_local_path = if output_to_gcp then "hail_copied_to_gcp.txt" else "~{output_prefix}.tar.gz"
   }
 }
