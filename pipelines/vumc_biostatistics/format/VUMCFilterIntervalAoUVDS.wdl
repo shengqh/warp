@@ -143,6 +143,8 @@ mt_dense = hl.vds.to_dense_mt(vds_transformed)
 logger.info("Writing MatrixTable to ~{output_prefix} ...")
 mt_dense.write("~{gcs_output_path}", overwrite=True)
 
+logger.info("Done.")
+
 CODE
 
 python3 filter_vds.py
