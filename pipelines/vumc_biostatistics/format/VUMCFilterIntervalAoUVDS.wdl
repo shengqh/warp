@@ -1,4 +1,4 @@
-version 1.1
+version 1.0
 
 ## Copyright Vanderbilt Health, 2026
 ##
