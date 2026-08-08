@@ -29,7 +29,7 @@ version 1.0
 ## ### Outputs:
 ## - hail_gcs_path: GCS path to the output Hail MatrixTable.
 
-workflow VUMCFilterIntervalAoUVDS {
+workflow VUMCVDSToHailMatrixFilterByInterval {
   input {
     String google_project_id = "wb-quick-okra-799"
 
