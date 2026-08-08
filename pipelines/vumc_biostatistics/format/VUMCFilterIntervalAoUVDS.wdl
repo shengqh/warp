@@ -64,7 +64,6 @@ workflow VUMCFilterIntervalAoUVDS {
 
   output {
     String hail_gcs_path = FilterVDS.hail_gcs_path
-    File hail_local_path = FilterVDS.hail_local_path
   }
 }
 
