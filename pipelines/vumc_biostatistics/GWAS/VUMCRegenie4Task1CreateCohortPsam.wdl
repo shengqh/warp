@@ -32,6 +32,7 @@ version 1.0
 ## - Supports ancestry-specific analyses
 ## - File copy operation to GCP is optional and only executed if a target folder is provided
 
+import "../../../tasks/vumc_biostatistics/WDLUtils.wdl" as WDLUtils
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../agd/AgdUtils.wdl" as AgdUtils
 
@@ -51,6 +52,13 @@ workflow VUMCRegenie4Task1CreateCohortPsam {
     String output_prefix
 
     String? target_gcp_folder
+  }
+
+  if(!defined(input_grid) && (!defined(input_ancestry) || !defined(input_ancestry_file))){
+    call WDLUtils.FailWithMessage {
+      input:
+        message = "Either input_grid must be defined, or both input_ancestry and input_ancestry_file must be defined."
+    }
   }
 
   call AgdUtils.CreateCohortPsam as CreateCohortPsam {
