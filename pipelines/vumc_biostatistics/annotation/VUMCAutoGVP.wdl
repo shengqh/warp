@@ -950,7 +950,7 @@ bash /rocker-build/AutoGVP/run_autogvp.sh \
 
 status=$?
 
-rm -rf ~{target_prefix}-autogvp-annotated-full.tsv
+#rm -rf ~{target_prefix}-autogvp-annotated-full.tsv
 
 if [ $status -ne 0 ]; then
   rm -f ~{target_prefix}-autogvp-annotated-full.tsv ~{target_prefix}-autogvp-annotated-abridged.tsv
@@ -970,5 +970,6 @@ echo "autogvp_end=$(date)"
   }
   output {
     File autogvp_abridged_file = "~{target_prefix}-autogvp-annotated-abridged.tsv"
+    File autogvp_full_file = "~{target_prefix}-autogvp-annotated-full.tsv"
   }
 }
