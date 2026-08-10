@@ -1,0 +1,7 @@
+{
+  "VUMCVcfExtract.input_vcf": "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf/agd_chrM.primary_grid.vcf.gz",
+  "VUMCVcfExtract.input_vcf_index": "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf/agd_chrM.primary_grid.vcf.gz.tbi",
+  "VUMCVcfExtract.include_samples": "/nobackup/h_cqs/shengq2/biovu/20240202_agd35k_whitelist_v2/agd35k_eligible.v2.txt",
+  "VUMCVcfExtract.include_region_bed": "/nobackup/h_cqs/shengq2/biovu/agd35k/msvcf/VTCN1.bed",
+  "VUMCVcfExtract.target_prefix": "chrM_filterSample_filterRegion"
+}
