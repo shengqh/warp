@@ -1,0 +1,7 @@
+{
+  "VUMCPvar2SitesOnlyVcf.input_pvar": "/nobackup/h_cqs/shengq2/biovu/agd35k/eligible_v5_202410/AGD35K_QCedV2/QCV2_chr22.pvar",
+  "VUMCPvar2SitesOnlyVcf.add_chr_prefix": true,
+  "VUMCPvar2SitesOnlyVcf.create_variant_id": true,
+  "VUMCPvar2SitesOnlyVcf.output_prefix": "QCV2_chr22"
+}
+

@@ -1,5 +1,7 @@
 {
   "VUMCPvar2SitesOnlyVcf.input_pvar": "/nobackup/h_cqs/shengq2/biovu/agd250k/eligible_v6_202504/primary-pass-pgen/agd250k_chrM.primary_pass.pvar",
+  "VUMCPvar2SitesOnlyVcf.add_chr_prefix": true,
+  "VUMCPvar2SitesOnlyVcf.create_variant_id": false,
   "VUMCPvar2SitesOnlyVcf.output_prefix": "agd250k_chrM.primary_pass"
 }
 
