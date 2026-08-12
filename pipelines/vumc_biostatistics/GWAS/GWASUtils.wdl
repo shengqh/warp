@@ -209,7 +209,7 @@ regenie --step 1 \
   ~{step1_option} \
   --threads ~{cpu} \
   --out ~{output_prefix} \
-  --force-step1
+  --force-step1  | tee ~{output_prefix}.model.log
 
 mv ~{output_prefix}_pred.list old.list
  
@@ -233,6 +233,7 @@ done < old.list
   output {
     File pred_list_file = "~{output_prefix}_pred.list" 
     Array[File] pred_loco_files = glob("*.loco")
+    File regenie_log_file = "~{output_prefix}.model.log"
   }
 }
 
@@ -300,7 +301,7 @@ regenie --step 2 \
   ~{step2_option} \
   --threads ~{cpu} \
   --pred pred.list \
-  --out ~{output_prefix} | tee ~{output_prefix}.log
+  --out ~{output_prefix} | tee ~{output_prefix}.test.log
 
 >>>
 
@@ -313,7 +314,7 @@ regenie --step 2 \
   }
   output {
     Array[File] regenie_files = glob("~{output_prefix}*.regenie")
-    File regenie_log_file = "~{output_prefix}.log"
+    File regenie_log_file = "~{output_prefix}.test.log"
   }
 }
 
