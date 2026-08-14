@@ -1,4 +1,5 @@
 {
-  "VUMCGetGeneLocus.gene_symbol": "TP53"
+  "VUMCGetGeneLocus.gene_symbol": "ATM",
+  "VUMCGetGeneLocus.GetGeneLocus.shift_bases": "5000"
 }
 

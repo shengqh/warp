@@ -1,5 +1,104 @@
 version 1.0
 
+task GetGeneLocus_hg38_AnnotationHub {
+  input {
+    String gene_symbol
+    Int shift_bases = 2000
+
+    String docker = "shengqh/annotationhub:20260814"
+    Int preemptible = 1
+
+    Int addChr = 1
+  }
+
+  String target_file = gene_symbol + ".bed"
+
+  command <<<
+
+mkdir -p AnnotationHub_cache
+
+cat <<EOF > script.r
+
+library(AnnotationHub)
+library(ensembldb)
+library(stringr)
+
+setAnnotationHubOption("CACHE", "./AnnotationHub_cache")
+
+gene_names_str="~{gene_symbol}"
+gene_names <- trimws(strsplit(gene_names_str, ",")[[1]])
+
+cat("gene_names: ", gene_names, "\n")
+
+addChr=~{addChr}
+shift_bases=~{shift_bases}
+
+ah <- AnnotationHub()
+
+edb = query(ah, c("EnsDb", "Homo sapiens", "113"))
+edb <- edb[[1]]
+
+geneLocus = genes(
+    edb,
+    filter = AnnotationFilterList(GeneNameFilter(gene_names),
+                                  GeneBiotypeFilter("protein_coding")),
+    return.type = "DataFrame"
+)
+
+#          gene_id   gene_name   gene_biotype gene_seq_start gene_seq_end
+#       <character> <character>    <character>      <integer>    <integer>
+# 1 ENSG00000149311         ATM protein_coding      108222804    108369102
+#      seq_name seq_strand seq_coord_system            description
+#   <character>  <integer>      <character>            <character>
+# 1          11          1       chromosome ATM serine/threonine..
+#      gene_id_version canonical_transcript      symbol entrezid
+#          <character>          <character> <character>   <list>
+# 1 ENSG00000149311.22      ENST00000675843         ATM      472
+
+geneLocus<-geneLocus[nchar(geneLocus\$seq_name) < 6,]
+
+geneLocus\$score<-1000
+
+geneLocus<-geneLocus[,c("seq_name", "gene_seq_start", "gene_seq_end", "score", "symbol", "seq_strand", "gene_id")]
+geneLocus<-geneLocus[order(geneLocus\$seq_name, geneLocus\$gene_seq_start),]
+
+geneLocus\$seq_strand[geneLocus\$seq_strand == 1]<-"+"
+geneLocus\$seq_strand[geneLocus\$seq_strand == -1]<-"-"
+
+if(addChr & (!any(grepl("chr", geneLocus\$seq_name)))){
+  geneLocus\$seq_name = paste0("chr", geneLocus\$seq_name)
+}
+
+geneLocus\$seq_name=gsub("chrMT", "chrM", geneLocus\$seq_name)
+
+if(shift_bases > 0){
+  geneLocus\$gene_seq_start = geneLocus\$gene_seq_start - shift_bases
+  geneLocus\$gene_seq_end = geneLocus\$gene_seq_end + shift_bases
+}
+
+bedFile<-"~{target_file}"
+write.table(geneLocus, file=bedFile, row.names=F, col.names = F, sep="\t", quote=F)
+
+EOF
+
+R -f script.r
+
+rm -rf AnnotationHub_cache
+
+>>>
+
+  runtime {
+    cpu: 1
+    docker: "~{docker}"
+    preemptible: preemptible
+    disks: "local-disk 10 HDD"
+    memory: "4 GiB"
+  }
+  output {
+    File gene_bed = "~{target_file}"
+  }
+}
+
 task GetGeneLocus {
   input {
     String gene_symbol
