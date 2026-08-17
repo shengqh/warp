@@ -10,7 +10,7 @@ workflow VUMCGetGeneLocus {
     String? target_gcp_folder
   }
 
-  call BioUtils.GetGeneLocus_hg38_AnnotationHub as GetGeneLocus {
+  call BioUtils.GetGeneLocus as GetGeneLocus {
     input:
       gene_symbol = gene_symbol
   }

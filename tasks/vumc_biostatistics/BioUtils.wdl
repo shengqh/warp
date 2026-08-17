@@ -1,8 +1,11 @@
 version 1.0
 
-task GetGeneLocus_hg38_AnnotationHub {
+task GetGeneLocus {
   input {
     String gene_symbol
+
+    String database = "EnsDb:Homo sapiens:113"
+
     Int shift_bases = 2000
 
     String docker = "shengqh/annotationhub:20260814"
@@ -30,12 +33,17 @@ gene_names <- trimws(strsplit(gene_names_str, ",")[[1]])
 
 cat("gene_names: ", gene_names, "\n")
 
+db_str="~{database}"
+db <- trimws(strsplit(db_str, ":")[[1]])
+
+cat("db: ", db, "\n")
+
 addChr=~{addChr}
 shift_bases=~{shift_bases}
 
 ah <- AnnotationHub()
 
-edb = query(ah, c("EnsDb", "Homo sapiens", "113"))
+edb = query(ah, db)
 edb <- edb[[1]]
 
 geneLocus = genes(
@@ -99,7 +107,7 @@ rm -rf AnnotationHub_cache
   }
 }
 
-task GetGeneLocus {
+task GetGeneLocus_Biomart {
   input {
     String gene_symbol
     Int shift_bases = 2000
