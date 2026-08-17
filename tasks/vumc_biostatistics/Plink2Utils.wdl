@@ -220,7 +220,7 @@ if [[ "~{keep_pvar}" != "" ]]; then
     --pvar ~{input_pvar} \
     --psam ~{input_psam} \
     ~{plink2_filter_option} \
-    ~{"--keep " + keep_psam} ~{"--remove" + exclude_sample_id_file} \\
+    ~{"--keep " + keep_psam} ~{"--remove " + exclude_sample_id_file} \\
     ~{"--extract bed0 " + keep_bed} ~{"--exclude range " + exclude_range_file} \\
     --extract keep_variant_ids.txt \
     --threads ~{cpu} \
@@ -233,7 +233,7 @@ else
       --pvar ~{input_pvar} \
       --psam ~{input_psam} \
       ~{plink2_filter_option} \
-      ~{"--keep " + keep_psam} ~{"--remove" + exclude_sample_id_file} \\
+      ~{"--keep " + keep_psam} ~{"--remove " + exclude_sample_id_file} \\
       ~{"--extract bed0 " + keep_bed} ~{"--exclude range " + exclude_range_file} \\
       --extract ~{keep_variant_ids} \
       --threads ~{cpu} \
@@ -245,7 +245,7 @@ else
       --pvar ~{input_pvar} \
       --psam ~{input_psam} \
       ~{plink2_filter_option} \
-      ~{"--keep " + keep_psam} ~{"--remove" + exclude_sample_id_file} \\
+      ~{"--keep " + keep_psam} ~{"--remove " + exclude_sample_id_file} \\
       ~{"--extract bed0 " + keep_bed} ~{"--exclude range " + exclude_range_file} \\
       --threads ~{cpu} \
       --make-pgen \
