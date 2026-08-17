@@ -185,6 +185,7 @@ task PgenFilter {
     File input_psam
 
     File? keep_psam
+    File? exclude_sample_id_file
     File? keep_pvar
     File? keep_bed
     File? keep_variant_ids
@@ -217,7 +218,7 @@ if [[ "~{keep_pvar}" != "" ]]; then
     --pvar ~{input_pvar} \
     --psam ~{input_psam} \
     ~{plink2_filter_option} \
-    ~{"--keep " + keep_psam} \
+    ~{"--keep " + keep_psam} ~{"--remove" + exclude_sample_id_file} \\
     ~{"--extract bed0 " + keep_bed} \
     --extract keep_variant_ids.txt \
     --threads ~{cpu} \
