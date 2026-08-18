@@ -19,9 +19,11 @@ version 1.0
 ## - input_pvar: Input PVAR file containing variant information
 ## - input_psam: Input PSAM file containing sample information
 ## - keep_psam: Optional PSAM file specifying which samples to keep
+## - exclude_sample_id_file: Optional file containing a list of sample IDs to exclude, one ID per line
 ## - keep_pvar: Optional PVAR file specifying which variants to keep, ID should match those in input_pvar
 ## - keep_variant_ids: Optional file containing a list of variant IDs to keep, one ID per line, ID should match those in input_pvar
 ## - keep_bed: Optional BED file specifying genomic regions to keep
+## - exclude_bed: Optional BED file specifying genomic regions to exclude
 ## - output_prefix: Prefix for output files
 ## - plink2_filter_option: Additional filtering options for Plink2
 ## - target_gcp_folder: Optional target GCP folder for the output files
@@ -49,9 +51,12 @@ workflow VUMCPgenFilter {
     File input_psam
 
     File? keep_psam
+    File? exclude_sample_id_file
+
     File? keep_pvar
-    File? keep_variant_ids
     File? keep_bed
+    File? keep_variant_ids
+    File? exclude_bed
         
     String output_prefix
 
@@ -69,6 +74,8 @@ workflow VUMCPgenFilter {
       keep_pvar = keep_pvar,
       keep_bed = keep_bed,
       keep_variant_ids = keep_variant_ids,
+      exclude_sample_id_file = exclude_sample_id_file,
+      exclude_bed = exclude_bed,
       output_prefix = output_prefix,
       plink2_filter_option = plink2_filter_option
   }
