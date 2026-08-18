@@ -482,3 +482,51 @@ mv ~{output_prefix}.afreq ~{output_prefix}.afreq.txt
     File output_allele_freq = "~{output_prefix}.afreq.txt"
   }
 }
+
+task PgenToBedFilter {
+  input {
+    File input_pgen
+    File input_pvar
+    File input_psam
+
+    File? exclude_sample_id_file
+
+    File? exclude_range_file
+
+    String output_prefix
+
+    String plink2_filter_option
+
+    Int memory_gb = 20
+
+    String docker = "hkim298/plink_1.9_2.0:20230116_20230707"
+  }
+
+  Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")  * 2) + 20
+
+  command <<<
+  
+plink2 \
+    --pgen ~{input_pgen} \
+    --pvar ~{input_pvar} \
+    --psam ~{input_psam} \
+    ~{plink2_filter_option} \
+    ~{"--exclude range " + exclude_range_file} \
+    ~{"--remove " + exclude_sample_id_file} \
+    --make-bed \
+    --out ~{output_prefix}
+>>>
+
+  runtime {
+    docker: docker
+    preemptible: 1
+    disks: "local-disk " + disk_size + " HDD"
+    memory: memory_gb + " GiB"
+  }
+
+  output {
+    File output_bed = "~{output_prefix}.bed"
+    File output_bim = "~{output_prefix}.bim"
+    File output_fam = "~{output_prefix}.fam"
+  }
+}
