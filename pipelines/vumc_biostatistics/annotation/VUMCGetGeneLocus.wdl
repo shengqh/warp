@@ -26,5 +26,6 @@ workflow VUMCGetGeneLocus {
 
   output {
     File gene_bed = select_first([CopyFile.output_file, GetGeneLocus.gene_bed])
+    String gene_interval = GetGeneLocus.gene_interval
   }
 }
