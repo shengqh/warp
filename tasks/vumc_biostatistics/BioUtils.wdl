@@ -10,6 +10,8 @@ task GetGeneLocus {
 
     Int frank_bases = 5000
 
+    Boolean localHub = false
+
     String docker = "shengqh/annotationhub:20260819"
     Int preemptible = 1
 
@@ -17,6 +19,7 @@ task GetGeneLocus {
   }
 
   String target_file = gene_symbol + ".bed"
+  String localHub_option = if localHub then "localHub=TRUE" else ""
 
   command <<<
 
@@ -44,7 +47,7 @@ cat("db: ", db, "\n")
 addChr=~{addChr}
 frank_bases=~{frank_bases}
 
-ah <- AnnotationHub()
+ah <- AnnotationHub(~{localHub_option})
 
 edb = query(ah, db)
 edb <- edb[[1]]
