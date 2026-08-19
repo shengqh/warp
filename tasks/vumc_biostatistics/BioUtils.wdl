@@ -6,7 +6,7 @@ task GetGeneLocus {
 
     String database = "EnsDb:Homo sapiens:113"
 
-    Int shift_bases = 2000
+    Int frank_bases = 2000
 
     String docker = "shengqh/annotationhub:20260814"
     Int preemptible = 1
@@ -39,7 +39,7 @@ db <- trimws(strsplit(db_str, ":")[[1]])
 cat("db: ", db, "\n")
 
 addChr=~{addChr}
-shift_bases=~{shift_bases}
+frank_bases=~{frank_bases}
 
 ah <- AnnotationHub()
 
@@ -79,13 +79,16 @@ if(addChr & (!any(grepl("chr", geneLocus\$seq_name)))){
 
 geneLocus\$seq_name=gsub("chrMT", "chrM", geneLocus\$seq_name)
 
-if(shift_bases > 0){
-  geneLocus\$gene_seq_start = geneLocus\$gene_seq_start - shift_bases
-  geneLocus\$gene_seq_end = geneLocus\$gene_seq_end + shift_bases
+if(frank_bases > 0){
+  geneLocus\$gene_seq_start = geneLocus\$gene_seq_start - frank_bases
+  geneLocus\$gene_seq_end = geneLocus\$gene_seq_end + frank_bases
 }
 
 bedFile<-"~{target_file}"
 write.table(geneLocus, file=bedFile, row.names=F, col.names = F, sep="\t", quote=F)
+
+interval<-paste0(geneLocus\$seq_name[1], ":", geneLocus\$gene_seq_start[1], "-", geneLocus\$gene_seq_end[1])
+writeLines(interval, con="~{gene_symbol}.interval")
 
 EOF
 
@@ -104,13 +107,14 @@ rm -rf AnnotationHub_cache
   }
   output {
     File gene_bed = "~{target_file}"
+    String gene_interval = read_string("~{gene_symbol}.interval")
   }
 }
 
 task GetGeneLocus_Biomart {
   input {
     String gene_symbol
-    Int shift_bases = 2000
+    Int frank_bases = 2000
 
     String docker = "shengqh/report:20241120"
     Int preemptible = 1
@@ -135,7 +139,7 @@ dataset="~{dataset}"
 symbolKey="~{symbolKey}"
 genes="~{gene_symbol}"
 addChr=~{addChr}
-shift_bases=~{shift_bases}
+frank_bases=~{frank_bases}
 
 ensembl <- useMart("ensembl", host=host, dataset=dataset)
 
@@ -162,9 +166,9 @@ if(addChr & (!any(grepl("chr", geneLocus\$chromosome_name)))){
 
 geneLocus\$chromosome_name=gsub("chrMT", "chrM", geneLocus\$chromosome_name)
 
-if(shift_bases > 0){
-  geneLocus\$start_position = geneLocus\$start_position - shift_bases
-  geneLocus\$end_position = geneLocus\$end_position + shift_bases
+if(frank_bases > 0){
+  geneLocus\$start_position = geneLocus\$start_position - frank_bases
+  geneLocus\$end_position = geneLocus\$end_position + frank_bases
 }
 
 bedFile<-"~{target_file}"
