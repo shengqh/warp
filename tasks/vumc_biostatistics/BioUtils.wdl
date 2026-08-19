@@ -4,11 +4,13 @@ task GetGeneLocus {
   input {
     String gene_symbol
 
+    # If you change this database, it would not be useable in AllOfUs workbench 
+    # since it forbids the workflow to download database files.
     String database = "EnsDb:Homo sapiens:113"
 
     Int frank_bases = 5000
 
-    String docker = "shengqh/annotationhub:20260814"
+    String docker = "shengqh/annotationhub:20260819"
     Int preemptible = 1
 
     Int addChr = 1
@@ -19,6 +21,7 @@ task GetGeneLocus {
   command <<<
 
 mkdir -p AnnotationHub_cache
+cp /cache/AnnotationHub/* AnnotationHub_cache/
 
 cat <<EOF > script.r
 
@@ -94,7 +97,7 @@ EOF
 
 R -f script.r
 
-rm -rf AnnotationHub_cache
+rm -rf AnnotationHub_cache tmp.*
 
 >>>
 
