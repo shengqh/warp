@@ -6,7 +6,7 @@ task GetGeneLocus {
 
     String database = "EnsDb:Homo sapiens:113"
 
-    Int frank_bases = 2000
+    Int frank_bases = 5000
 
     String docker = "shengqh/annotationhub:20260814"
     Int preemptible = 1

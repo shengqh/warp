@@ -7,12 +7,15 @@ workflow VUMCGetGeneLocus {
   input {
     String gene_symbol
 
+    Int frank_bases = 5000
+
     String? target_gcp_folder
   }
 
   call BioUtils.GetGeneLocus as GetGeneLocus {
     input:
-      gene_symbol = gene_symbol
+      gene_symbol = gene_symbol,
+      frank_bases = frank_bases
   }
 
   if(defined(target_gcp_folder)){
