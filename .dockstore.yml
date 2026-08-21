@@ -609,3 +609,9 @@ workflows:
   - name: VUMCVariantID2SitesOnlyVcf
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/format/VUMCVariantID2SitesOnlyVcf.wdl
+
+  - name: VUMCPrepareCohortPgen
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCPrepareCohortPgen.wdl
+
+
