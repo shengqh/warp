@@ -430,7 +430,7 @@ task RegeniePlots {
 
     # Runtime
     String docker = "shengqh/report:20250415"
-    Float memory = 16.0
+    Float memory = 40.0
     Int? disk_size_override
     Int cpu = 1
     Int preemptible = 1
