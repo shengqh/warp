@@ -1,0 +1,7 @@
+{
+  "VUMCAnnovarHg38Clinvar.clinvar_txt": "/data/cqs/references/annovar/humandb/hg38_clinvar_20260816.txt",
+  "VUMCAnnovarHg38Clinvar.clinvar_index": "/data/cqs/references/annovar/humandb/hg38_clinvar_20260816.txt.idx",
+  "VUMCAnnovarHg38Clinvar.target_prefix": "VTCN1",
+  "VUMCAnnovarHg38Clinvar.input_vcf": "/nobackup/h_cqs/jennifer_pietenpol_projects/20241011_PheWAS_of_immune_checkpoint_genes/VTCN1.vcf.gz"
+}
+
