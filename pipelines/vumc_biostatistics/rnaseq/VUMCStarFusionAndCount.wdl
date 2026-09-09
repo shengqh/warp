@@ -2,22 +2,24 @@ version 1.0
 
 ## VUMC STAR-Fusion and Gene Expression Quantification Workflow
 ##
-## This WDL workflow performs comprehensive RNA-Seq analysis including gene fusion
-## detection via STAR-Fusion and transcript-level quantification using featureCounts.
+## This WDL workflow performs comprehensive paired-end RNA-Seq analysis, combining
+## gene fusion detection via STAR-Fusion with gene-level expression quantification
+## using STAR alignment and featureCounts, in a single unified pipeline.
 ## Developed by the VUMC/VANGARD Bioinformatics Core for translational genomics research.
 ## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
-## 
+##
 ## ### Workflow Overview:
-## This pipeline processes paired-end RNA-Seq FASTQ data through fusion detection
-## and gene expression quantification workflows, providing comprehensive analysis
-## for oncology research, rare disease studies, and general transcriptomics applications.
+## This pipeline processes paired-end RNA-Seq FASTQ data through parallel fusion
+## detection and gene expression quantification branches, providing comprehensive
+## analysis for oncology research, rare disease studies, and general transcriptomics
+## applications.
 ##
 ## ### Processing Steps:
-## 1. Input preparation: Untar FASTQ files if provided as compressed archive
+## 1. Input preparation: Untar FASTQ files if provided as a compressed archive
 ## 2. STAR-Fusion analysis: Identify gene fusions using STAR aligner with fusion detection
-## 3. STAR alignment: Generate coordinate-sorted BAM file for downstream quantification
-## 4. featureCounts: Calculate gene-level expression counts from aligned reads
-## 5. Output management: Optionally transfer results to specified GCP bucket location
+## 3. STAR alignment: Generate a BAM file suitable for downstream gene-level quantification
+## 4. featureCounts: Calculate gene-level expression counts from the aligned reads
+## 5. Output management: Optionally transfer results to a specified GCP bucket location
 ##
 ## ### Required Inputs:
 ## - sample_name: Unique sample identifier for file naming and tracking
