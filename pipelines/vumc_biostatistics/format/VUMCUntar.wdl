@@ -94,6 +94,17 @@ set -euo pipefail
 
 tar -xzvf "~{input_tar_gz}"
 
+status=$?
+if [ $status -ne 0 ]; then
+  echo "Error: Failed to extract ~{input_tar_gz}"
+  exit $status
+fi
+
+mv */*~{output_extension} .
+
+echo "Successfully extracted ~{input_tar_gz}"
+exit 0
+
   >>>
 
   runtime {
