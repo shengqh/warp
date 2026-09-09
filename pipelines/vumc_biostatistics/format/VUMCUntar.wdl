@@ -100,7 +100,7 @@ if [ $status -ne 0 ]; then
   exit $status
 fi
 
-mv */*~{output_extension} .
+mv */*~{output_extension} . 2>/dev/null || true 
 
 echo "Successfully extracted ~{input_tar_gz}"
 exit 0
