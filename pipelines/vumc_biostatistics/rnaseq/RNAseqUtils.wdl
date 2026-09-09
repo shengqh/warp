@@ -26,6 +26,7 @@ task STAR_Unsorted {
     File sjdbList_out_tab
     File transcriptInfo_tab
 
+    Int preemptible = 3
     Int memory_gb = 50
     Float disk_size_factor = 3.25
     Int additional_disk_size_gb = 10
@@ -106,7 +107,7 @@ STAR ~{star_option} \
     memory: memory_gb + " GiB"
     disks: "local-disk " + disk_size_gb + " HDD"
     cpu: threads
-    preemptible: 3
+    preemptible: preemptible
   }
 
   output {
@@ -168,6 +169,7 @@ task STARForCount {
     
     # runtime params
     String docker = "trinityctat/starfusion:1.15.1"
+    Int preemptible = 3
     String star_path = "/usr/local/bin/STAR"
     Int cpu = 8
     Float fastq_disk_space_multiplier = 3.25
@@ -256,7 +258,7 @@ rm -rf genome_dir
     memory: memory_gb + " GiB"
     disks: "local-disk " + disk_size_gb + " " + (if use_ssd then "SSD" else "HDD")
     cpu: cpu
-    preemptible: 3
+    preemptible: preemptible
   }
 
   output {
