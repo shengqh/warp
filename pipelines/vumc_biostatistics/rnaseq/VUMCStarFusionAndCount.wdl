@@ -85,11 +85,11 @@ workflow VUMCStarFusionAndCount {
 
     # runtime params
     String docker = "trinityctat/starfusion:1.15.1"
-    Int cpu = 8
+    Int cpu = 12
     Float fastq_disk_space_multiplier = 3.25
     Int memory_gb = 50
     Float genome_disk_space_multiplier = 2.5
-    Int preemptible = 2
+    Int preemptible = 3
     Float extra_disk_space = 10
     Boolean use_ssd = true
 
@@ -156,6 +156,8 @@ workflow VUMCStarFusionAndCount {
       left_fq = final_left_fq,
       right_fq = final_right_fq,
       genome_plug_n_play_tar_gz = genome_plug_n_play_tar_gz,
+
+      preemptible = preemptible,
       docker = docker,
       cpu = cpu,
       fastq_disk_space_multiplier = fastq_disk_space_multiplier,
