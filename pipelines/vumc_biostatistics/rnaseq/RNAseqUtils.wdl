@@ -18,45 +18,6 @@ struct StarReference {
   File transcriptInfo_tab
 }
 
-task FeatureCounts {
-  input {
-    String featureCounts_option = "-g gene_id -t exon -p --countReadPairs"
-    File bam
-    File? bam_index
-    File gtf
-    String sample_name
-    Int threads = 8
-  }
-  Int disk_size_gb = ceil(size([bam, gtf], "GB")) + 4
-  command <<<
-
-set -euo pipefail
-
-featureCounts -v
-
-featureCounts ~{featureCounts_option} \
-  -T ~{threads} \
-  -a ~{gtf} \
-  -o ~{sample_name}.count \
-  ~{bam}
-
-gzip ~{sample_name}.count
-mv ~{sample_name}.count.summary ~{sample_name}.count.summary.txt
-
-  >>>
-  runtime {
-    docker: "shengqh/cqs_rnaseq:20240813"
-    memory: 40 + " GiB"
-    disks: "local-disk " + disk_size_gb + " HDD"
-    cpu: threads
-    preemptible: 3
-  }
-  output {
-    File output_count = "~{sample_name}.count.gz"
-    File output_count_summary = "~{sample_name}.count.summary.txt"
-  }
-}
-
 task STARForCount {
   input {
     String sample_name
@@ -94,7 +55,7 @@ echo "star_index_folder_name: $star_index_folder_name"
 ~{star_path} ~{star_option} \
   --outSAMattrRGline ID:~{sample_name} SM:~{sample_name} LB:~{sample_name} PL:ILLUMINA PU:ILLUMINA \
   --runThreadN ~{cpu} \
-  --genomeDir `pwd`/genome_dir/ctat_genome_lib_build_dir/ref_genome.fa.star.idx \
+  --genomeDir $star_index_folder_name \
   --readFilesIn ~{left_fq} ~{right_fq} \
   --readFilesCommand "gunzip -c" \
   --outFileNamePrefix ~{sample_name}_ \
@@ -113,6 +74,45 @@ echo "star_index_folder_name: $star_index_folder_name"
   output {
     File output_bam = "~{sample_name}_Aligned.out.bam"
     File output_star_summary = "~{sample_name}_Log.final.out"  
+  }
+}
+
+task FeatureCounts {
+  input {
+    String featureCounts_option = "-g gene_id -t exon -p --countReadPairs"
+    File bam
+    File? bam_index
+    File gtf
+    String sample_name
+    Int threads = 8
+  }
+  Int disk_size_gb = ceil(size([bam, gtf], "GB")) + 4
+  command <<<
+
+set -euo pipefail
+
+featureCounts -v
+
+featureCounts ~{featureCounts_option} \
+  -T ~{threads} \
+  -a ~{gtf} \
+  -o ~{sample_name}.count \
+  ~{bam}
+
+gzip ~{sample_name}.count
+mv ~{sample_name}.count.summary ~{sample_name}.count.summary.txt
+
+  >>>
+  runtime {
+    docker: "shengqh/cqs_rnaseq:20240813"
+    memory: 40 + " GiB"
+    disks: "local-disk " + disk_size_gb + " HDD"
+    cpu: threads
+    preemptible: 3
+  }
+  output {
+    File output_count = "~{sample_name}.count.gz"
+    File output_count_summary = "~{sample_name}.count.summary.txt"
   }
 }
 
