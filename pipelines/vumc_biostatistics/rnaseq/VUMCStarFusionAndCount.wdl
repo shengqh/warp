@@ -95,18 +95,23 @@ workflow VUMCStarFusionAndCount {
     Boolean examine_coding_effect = true
     Float min_FFPM = 0.1
 
-    Int fusion_memory_gb = 50
-    Float fusion_fastq_disk_space_multiplier = 3.25
-    Float fusion_extra_disk_space = 10
+    # based on test, the memory usually less than 40, adding 5 gb only add about 1 cent per hour, so we can set it to 45 gb to be safe
+    Int fusion_memory_gb = 45
+
+    # since in fusion, we will delete the genome tar.gz file after untar which will free up about 27 gb,
+    # so we don't need to reserve extra disk space for fastq files
+    Float fusion_fastq_disk_space_multiplier = 1
+    Float fusion_extra_disk_space = 5
     Boolean fusion_use_ssd = true
 
     # for star+featureCounts, we don't need the whole database for star_fusion which requires about 100gb space
     # we can use small one with about 37 g
     StarReference reference
     
-    Int star_memory_gb = 50
+    # based on test, the memory usually less than 40, adding 5 gb only add about 1 cent per hour, so we can set it to 45 gb to be safe
+    Int star_memory_gb = 45
     Float star_fastq_disk_space_multiplier = 3.25
-    Float star_extra_disk_space = 10
+    Float star_extra_disk_space = 5
     Boolean star_use_ssd = true
 
     # for featureCounts, use the gtf extracted from genome_plug_n_play_tar_gz to keep consistent
