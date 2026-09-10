@@ -5,8 +5,8 @@ struct StarReference {
   File SA
   File SAindex
   File chrLength_txt
-  File chrNameLength_txt
   File chrName_txt
+  File chrNameLength_txt
   File chrStart_txt
   File exonGeTrInfo_tab
   File exonInfo_tab
