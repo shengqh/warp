@@ -102,7 +102,7 @@ workflow VUMCStarFusionAndCount {
 
     # for star+featureCounts, we don't need the whole database for star_fusion which requires about 100gb space
     # we can use small one with about 37 g
-    StarReference reference
+    STARReference reference
     
     Int star_memory_gb = 50
     Float star_fastq_disk_space_multiplier = 3.25
