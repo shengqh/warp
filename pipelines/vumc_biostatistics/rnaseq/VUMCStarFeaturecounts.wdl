@@ -54,7 +54,7 @@ workflow VUMCStarFeaturecounts {
     File? fastq_pair_tar_gz
     File? fastq_pair_tar_gz_output_extension = ".fastq.gz"
 
-    STARReference reference
+    StarReference reference
 
     File gtf
 
