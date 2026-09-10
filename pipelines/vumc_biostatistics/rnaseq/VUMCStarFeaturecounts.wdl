@@ -2,71 +2,59 @@ version 1.0
 
 ## VUMC RNA-Seq Analysis Workflow with STAR and FeatureCounts
 ##
-## This workflow processes RNA-Seq data using STAR alignment and FeatureCounts quantification.
-## Optionally outputs sorted BAM files based on user configuration.
-## Developed by VUMC/VANGARD team for efficient processing of RNA-Seq data.
+## This workflow aligns RNA-Seq FASTQ files with STAR and quantifies gene-level counts with FeatureCounts.
+## It supports paired-end FASTQ inputs, compressed FASTQ tar.gz archives, and optional coordinate-sorted BAM output.
+## Developed by the VUMC/VANGARD team for efficient and reproducible RNA-Seq processing.
 ## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
-## 
+##
 ## ### Workflow Purpose:
-## This pipeline handles RNA-Seq data processing from FASTQ files to gene counts,
-## enabling gene expression analysis and downstream applications.
+## This pipeline converts raw RNA-Seq reads into aligned BAM files and gene-count tables for downstream
+## expression analysis, differential expression testing, and other transcriptomics workflows.
 ##
 ## ### Workflow Steps:
-## 1. STAR: Align paired-end FASTQ files to reference genome
-## 2. FeatureCounts: Quantify gene expression from aligned BAM files
-## 3. (Optional) Sort BAM files by coordinate if output_sorted_bam is true
-## 4. (Optional) Copy output files to a specified GCP folder
+## 1. STAR: Align paired-end FASTQ files to the reference genome
+## 2. FeatureCounts: Count reads assigned to genes using the provided GTF annotation
+## 3. (Optional) Sort the aligned BAM by genomic coordinate when output_sorted_bam is true
+## 4. (Optional) Copy selected output files to a target GCP folder
 ##
 ## ### Inputs:
-## - left_fq, right_fq: Paired-end FASTQ files (or fastq_pair_tar_gz as alternative)
-## - sample_name: Identifier for the sample
-## - Reference genome files (chrLength_txt, chrNameLength_txt, Genome, SA, SAindex, etc.)
-## - gtf: Gene annotation file for quantification
+## - left_fq, right_fq: Paired-end FASTQ files or alternative compressed FASTQ pair inputs
+## - sample_name: Sample identifier used in output naming
+## - Reference genome files (chrLength.txt, chrNameLength.txt, Genome, SA, SAindex, etc.)
+## - gtf: Gene annotation file used for read counting
 ## - output_sorted_bam: Flag to generate coordinate-sorted BAM files (default: true)
-## - target_gcp_folder: Optional GCP destination for output files
+## - target_gcp_folder: Optional destination for copied output files
 ##
 ## ### Outputs:
 ## - output_star_summary: STAR alignment summary statistics
 ## - output_count: FeatureCounts gene count matrix
-## - output_count_summary: FeatureCounts alignment summary
+## - output_count_summary: FeatureCounts read-assignment summary
 ## - output_bam: Coordinate-sorted BAM file (optional, controlled by output_sorted_bam)
 ## - output_bam_index: BAM index file (optional, controlled by output_sorted_bam)
 ##
 ## ### Notes:
-## - Supports flexible input: individual FASTQ files or compressed tar.gz pairs
-## - STAR provides efficient spliced alignment for RNA-Seq data
-## - FeatureCounts delivers accurate gene-level quantification
-## - BAM output is configurable to balance storage and downstream analysis needs
-## - GCP file transfer occurs only when target_gcp_folder is specified
+## - Supports both individual FASTQ files and compressed tar.gz paired-input archives
+## - STAR provides efficient spliced alignment for RNA-Seq reads
+## - FeatureCounts offers accurate gene-level quantification
+## - BAM output can be enabled or disabled to balance storage and downstream analysis needs
+## - GCP transfer occurs only when target_gcp_folder is provided
 
+import "../format/VUMCUntar.wdl" as UntarModule
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../../../tasks/wdl/BamProcessing.wdl" as Processing
 import "./RNAseqUtils.wdl" as RNAseqUtils
 
 workflow VUMCStarFeaturecounts {
   input {
-    # input data options
+    String sample_name
+
     File? left_fq
     File? right_fq
-    File? fastq_pair_tar_gz
 
-    String sample_name
-    
-    File chrLength_txt
-    File chrNameLength_txt
-    File chrName_txt
-    File chrStart_txt
-    File exonGeTrInfo_tab
-    File exonInfo_tab
-    File geneInfo_tab
-    File Genome
-    File genomeParameters_txt
-    File SA
-    File SAindex
-    File sjdbInfo_txt
-    File sjdbList_fromGTF_out_tab
-    File sjdbList_out_tab
-    File transcriptInfo_tab
+    File? fastq_pair_tar_gz
+    File? fastq_pair_tar_gz_output_extension = ".fastq.gz"
+
+    STARReference reference
 
     File gtf
 
@@ -75,27 +63,25 @@ workflow VUMCStarFeaturecounts {
     String? target_gcp_folder
   }
 
-  call RNAseqUtils.STAR_Unsorted {
+  if(defined(fastq_pair_tar_gz)) {
+    call UntarModule.Untar {
+      input:
+        input_tar_gz = select_first([fastq_pair_tar_gz]),
+        output_extension = select_first([fastq_pair_tar_gz_output_extension]),
+    }
+    File untar_fastq1 = Untar.output_files[0]
+    File untar_fastq2 = Untar.output_files[1]
+  }
+
+  File final_left_fq = select_first([left_fq, untar_fastq1])
+  File final_right_fq = select_first([right_fq, untar_fastq2])
+
+  call RNAseqUtils.STARForCount as STAR_Unsorted {
     input:
-      fastq_pair_tar_gz = fastq_pair_tar_gz,
-      left_fq = left_fq,
-      right_fq = right_fq,
       sample_name = sample_name,
-      chrLength_txt = chrLength_txt,
-      chrNameLength_txt = chrNameLength_txt,
-      chrName_txt = chrName_txt,
-      chrStart_txt = chrStart_txt,
-      exonGeTrInfo_tab = exonGeTrInfo_tab,
-      exonInfo_tab = exonInfo_tab,
-      geneInfo_tab = geneInfo_tab,
-      Genome = Genome,
-      genomeParameters_txt = genomeParameters_txt,
-      SA = SA,
-      SAindex = SAindex,
-      sjdbInfo_txt = sjdbInfo_txt,
-      sjdbList_fromGTF_out_tab = sjdbList_fromGTF_out_tab,
-      sjdbList_out_tab = sjdbList_out_tab,
-      transcriptInfo_tab = transcriptInfo_tab
+      left_fq = final_left_fq,
+      right_fq = final_right_fq,
+      reference = reference,
   }
 
   call RNAseqUtils.FeatureCounts {

@@ -1,6 +1,6 @@
 version 1.0
 
-struct StarReference {
+struct STARReference {
   File Genome
   File SA
   File SAindex
@@ -25,7 +25,7 @@ task STARForCount {
     File left_fq
     File right_fq
 
-    StarReference reference
+    STARReference reference
 
     String star_option = "--twopassMode Basic --outSAMmapqUnique 60 --outSAMprimaryFlag AllBestScore"
     

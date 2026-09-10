@@ -48,6 +48,7 @@ workflow VUMCStarFusion {
     # or
     # download from https://data.broadinstitute.org/Trinity/CTAT_RESOURCE_LIB/ and upload to your GCP bucket
     File genome_plug_n_play_tar_gz 
+    Int uncompressed_genome_size_gb = 72 # for GRCh38_gencode_v44_CTAT_lib_Oct292023.plug-n-play
 
     # STAR-Fusion parameters
     String fusion_inspector = "validate"  # inspect or validate
@@ -80,25 +81,27 @@ workflow VUMCStarFusion {
   File final_left_fq = select_first([left_fq, untar_fastq1])
   File final_right_fq = select_first([right_fq, untar_fastq2])
 
-  call STARFusionModule.star_fusion as STARFusion {
+  call RNAseqUtils.star_fusion as STARFusion {
     input:
-      sample_id = sample_name,
+      sample_name = sample_name,
+
       left_fq = final_left_fq,
       right_fq = final_right_fq,
+      fastq_disk_space_multiplier = fastq_disk_space_multiplier,
+
       genome = genome_plug_n_play_tar_gz,
+      uncompressed_genome_size_gb = uncompressed_genome_size_gb,
 
       examine_coding_effect = examine_coding_effect,
       coord_sort_bam = false,
       min_FFPM = min_FFPM,
+      fusion_inspector = fusion_inspector,
 
       preemptible = preemptible,
       docker = docker,
       cpu = cpu,
       memory = memory_gb + " GiB",
       extra_disk_space = extra_disk_space,
-      fastq_disk_space_multiplier = fastq_disk_space_multiplier,
-      genome_disk_space_multiplier = genome_disk_space_multiplier,
-      fusion_inspector = fusion_inspector,
       use_ssd = use_ssd
   }
 
