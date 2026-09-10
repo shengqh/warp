@@ -90,31 +90,31 @@ workflow VUMCStarFusionAndCount {
     File genome_plug_n_play_tar_gz 
     Int uncompressed_genome_size_gb = 72 # for GRCh38_gencode_v44_CTAT_lib_Oct292023.plug-n-play
 
-    # for star+featureCounts, we don't need the whole database for star_fusion which requires about 100gb space
-    # we can use small one with about 37 g
-    StarReference reference
-
-    # gtf extracted from genome_plug_n_play_tar_gz to keep consistent
-    File gtf
-
     # STAR-Fusion parameters
     String fusion_inspector = "validate"  # inspect or validate
     Boolean examine_coding_effect = true
     Float min_FFPM = 0.1
 
-    # runtime params
-    String docker = "trinityctat/starfusion:1.15.1"
-    Int cpu = 12
-    
-    Int star_memory_gb = 40
-    Float star_fastq_disk_space_multiplier = 3.25
-    Float star_extra_disk_space = 10
-    Boolean star_use_ssd = true
-
     Int fusion_memory_gb = 50
     Float fusion_fastq_disk_space_multiplier = 3.25
     Float fusion_extra_disk_space = 10
     Boolean fusion_use_ssd = true
+
+    # for star+featureCounts, we don't need the whole database for star_fusion which requires about 100gb space
+    # we can use small one with about 37 g
+    StarReference reference
+    
+    Int star_memory_gb = 50
+    Float star_fastq_disk_space_multiplier = 3.25
+    Float star_extra_disk_space = 10
+    Boolean star_use_ssd = true
+
+    # for featureCounts, use the gtf extracted from genome_plug_n_play_tar_gz to keep consistent
+    File gtf
+
+    # runtime params
+    String docker = "trinityctat/starfusion:1.15.1"
+    Int cpu = 12
 
     Int preemptible = 3
 
