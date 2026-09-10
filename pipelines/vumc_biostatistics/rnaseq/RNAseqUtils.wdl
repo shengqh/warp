@@ -1,119 +1,21 @@
 version 1.0
 
-task STAR_Unsorted {
-  input {
-    File? fastq_pair_tar_gz
-    File? left_fq
-    File? right_fq
-
-    String sample_name
-
-    String star_option = "--twopassMode Basic --outSAMmapqUnique 60 --outSAMprimaryFlag AllBestScore"
-    
-    File chrLength_txt
-    File chrNameLength_txt
-    File chrName_txt
-    File chrStart_txt
-    File exonGeTrInfo_tab
-    File exonInfo_tab
-    File geneInfo_tab
-    File Genome
-    File genomeParameters_txt
-    File SA
-    File SAindex
-    File sjdbInfo_txt
-    File sjdbList_fromGTF_out_tab
-    File sjdbList_out_tab
-    File transcriptInfo_tab
-
-    Int preemptible = 3
-    Int memory_gb = 50
-    Float disk_size_factor = 3.25
-    Int additional_disk_size_gb = 10
-    Int threads = 8
-  }
-  Int disk_size_gb = ceil(size([Genome, SA, SAindex], "GB") + size([fastq_pair_tar_gz, left_fq, right_fq], "GB") * disk_size_factor + additional_disk_size_gb)
-
-  command <<<
-
-set -euo pipefail
-
-if [[ ! -z "~{fastq_pair_tar_gz}" ]]; then
-  # untar the fq pair
-  mv ~{fastq_pair_tar_gz} reads.tar.gz
-  tar xzvf reads.tar.gz
-  rm reads.tar.gz
-
-  # left reads
-  if compgen -G "*_1.fastq*" > /dev/null; then
-    left_fq=(*_1.fastq*)
-  elif compgen -G "*_1.fq*" > /dev/null; then
-    left_fq=(*_1.fq*)
-  fi
-
-  # right reads (_2 preferred, fallback to _3)
-  if compgen -G "*_2.fastq*" > /dev/null; then
-    right_fq=(*_2.fastq*)
-  elif compgen -G "*_2.fq*" > /dev/null; then
-    right_fq=(*_2.fq*)
-  elif compgen -G "*_3.fastq*" > /dev/null; then
-    right_fq=(*_3.fastq*)
-  elif compgen -G "*_3.fq*" > /dev/null; then
-    right_fq=(*_3.fq*)
-  fi
-else
-  left_fq="~{left_fq}"
-  right_fq="~{right_fq}"
-fi
-
-# sanity check
-if [[ -z "${left_fq[0]:-}" || -z "${right_fq[0]:-}" ]]; then
-  echo "Error: fastq files not found"
-  ls -ltr
-  exit 1
-fi
-
-echo "left_fq:  ${left_fq[@]}"
-echo "right_fq: ${right_fq[@]}"
-
-left_fqs=$(IFS=, ; echo "${left_fq[*]}")
-
-read_params="--readFilesIn ${left_fqs}"
-if [[ "${right_fq[0]}" != "" ]]; then
-  right_fqs=$(IFS=, ; echo "${right_fq[*]}")   
-  read_params="${read_params} ${right_fqs}"
-fi
-
-echo "read_params: ${read_params}"
-
-star_index_folder_name=$(dirname ~{Genome})
-echo "star_index_folder_name: $star_index_folder_name"
-
-STAR --version
-
-STAR ~{star_option} \
-  --outSAMattrRGline ID:~{sample_name} SM:~{sample_name} LB:~{sample_name} PL:ILLUMINA PU:ILLUMINA \
-  --runThreadN ~{threads} \
-  --genomeDir $star_index_folder_name \
-  ${read_params} \
-  --readFilesCommand zcat \
-  --outFileNamePrefix ~{sample_name}_ \
-  --outSAMtype BAM Unsorted
-
-  >>>
-
-  runtime {
-    docker: "shengqh/cqs_rnaseq:20240813"
-    memory: memory_gb + " GiB"
-    disks: "local-disk " + disk_size_gb + " HDD"
-    cpu: threads
-    preemptible: preemptible
-  }
-
-  output {
-    File output_bam = "~{sample_name}_Aligned.out.bam"
-    File output_star_summary = "~{sample_name}_Log.final.out"
-  }
+struct StarReference {
+  File chrLength_txt
+  File chrNameLength_txt
+  File chrName_txt
+  File chrStart_txt
+  File exonGeTrInfo_tab
+  File exonInfo_tab
+  File geneInfo_tab
+  File Genome
+  File genomeParameters_txt
+  File SA
+  File SAindex
+  File sjdbInfo_txt
+  File sjdbList_fromGTF_out_tab
+  File sjdbList_out_tab
+  File transcriptInfo_tab
 }
 
 task FeatureCounts {
@@ -159,11 +61,10 @@ task STARForCount {
   input {
     String sample_name
 
-    File? fastq_pair_tar_gz
-    File? left_fq
-    File? right_fq
+    File left_fq
+    File right_fq
 
-    File genome_plug_n_play_tar_gz
+    StarReference reference
 
     String star_option = "--twopassMode Basic --outSAMmapqUnique 60 --outSAMprimaryFlag AllBestScore"
     
@@ -174,69 +75,19 @@ task STARForCount {
     Int cpu = 8
     Float fastq_disk_space_multiplier = 3.25
     Int memory_gb = 50
-    Float genome_disk_space_multiplier = 2.5
     Float extra_disk_space = 10
     Boolean use_ssd = true
   }
   
-  Int disk_size_gb = ceil((fastq_disk_space_multiplier * (size(left_fq, "GB") + size(right_fq, "GB"))) + size(genome_plug_n_play_tar_gz, "GB") * genome_disk_space_multiplier + extra_disk_space)
+  Int disk_size_gb = ceil(size([reference.Genome, reference.SA, reference.SAindex], "GB") + size([left_fq, right_fq], "GB") * fastq_disk_space_multiplier + extra_disk_space)
 
   command <<<
 
 set -ex
 shopt -s nullglob
 
-if [[ ! -z "~{fastq_pair_tar_gz}" ]]; then
-  # untar the fq pair
-  mv ~{fastq_pair_tar_gz} reads.tar.gz
-  tar xzvf reads.tar.gz
-  rm reads.tar.gz
-
-  # left reads
-  if compgen -G "*_1.fastq*" > /dev/null; then
-    left_fq=(*_1.fastq*)
-  elif compgen -G "*_1.fq*" > /dev/null; then
-    left_fq=(*_1.fq*)
-  fi
-
-  # right reads (_2 preferred, fallback to _3)
-  if compgen -G "*_2.fastq*" > /dev/null; then
-    right_fq=(*_2.fastq*)
-  elif compgen -G "*_2.fq*" > /dev/null; then
-    right_fq=(*_2.fq*)
-  elif compgen -G "*_3.fastq*" > /dev/null; then
-    right_fq=(*_3.fastq*)
-  elif compgen -G "*_3.fq*" > /dev/null; then
-    right_fq=(*_3.fq*)
-  fi
-else
-  left_fq="~{left_fq}"
-  right_fq="~{right_fq}"
-fi
-
-# sanity check
-if [[ -z "${left_fq[0]:-}" || -z "${right_fq[0]:-}" ]]; then
-  echo "Error: fastq files not found"
-  ls -ltr
-  exit 1
-fi
-
-echo "left_fq:  ${left_fq[@]}"
-echo "right_fq: ${right_fq[@]}"
-
-left_fqs=$(IFS=, ; echo "${left_fq[*]}")
-
-read_params="${left_fqs}"
-if [[ "${right_fq[0]}" != "" ]]; then
-  right_fqs=$(IFS=, ; echo "${right_fq[*]}")   
-  read_params="${read_params} ${right_fqs}"
-fi
-
-echo "read_params: ${read_params}"
-
-mkdir -p genome_dir
-
-tar xzvf ~{genome_plug_n_play_tar_gz} -C genome_dir --strip-components 1
+star_index_folder_name=$(dirname ~{reference.Genome})
+echo "star_index_folder_name: $star_index_folder_name"
 
 ~{star_path} --version
 
@@ -244,12 +95,10 @@ tar xzvf ~{genome_plug_n_play_tar_gz} -C genome_dir --strip-components 1
   --outSAMattrRGline ID:~{sample_name} SM:~{sample_name} LB:~{sample_name} PL:ILLUMINA PU:ILLUMINA \
   --runThreadN ~{cpu} \
   --genomeDir `pwd`/genome_dir/ctat_genome_lib_build_dir/ref_genome.fa.star.idx \
-  --readFilesIn ${read_params} \
+  --readFilesIn ~{left_fq} ~{right_fq} \
   --readFilesCommand "gunzip -c" \
   --outFileNamePrefix ~{sample_name}_ \
   --outSAMtype BAM Unsorted
-
-rm -rf genome_dir
 
   >>>
 
@@ -264,5 +113,97 @@ rm -rf genome_dir
   output {
     File output_bam = "~{sample_name}_Aligned.out.bam"
     File output_star_summary = "~{sample_name}_Log.final.out"  
+  }
+}
+
+# Modified from https://github.com/STAR-Fusion/STAR-Fusion/blob/master/WDL/star_fusion_workflow.wdl
+task star_fusion {
+  input {
+    String sample_name
+
+    File left_fq
+    File right_fq
+
+    File genome
+    Float uncompressed_genome_size_gb
+    
+    String? fusion_inspector
+    Boolean examine_coding_effect
+    Boolean coord_sort_bam
+    Float min_FFPM
+
+    Int preemptible
+    String docker
+    Int cpu
+    String memory
+    Float extra_disk_space
+    Float fastq_disk_space_multiplier
+    Boolean use_ssd
+  }
+
+  command <<<
+
+    set -ex
+    shopt -s nullglob
+
+    mkdir -p ~{sample_name}
+
+    mkdir -p genome_dir
+
+    tar xf ~{genome} -C genome_dir --strip-components 1
+
+    # delete the genome to save space
+    rm -f ~{genome}
+
+    /usr/local/src/STAR-Fusion/STAR-Fusion \
+      --genome_lib_dir `pwd`/genome_dir/ctat_genome_lib_build_dir \
+      --left_fq ~{left_fq} \
+      --right_fq ~{right_fq} \
+      --output_dir ~{sample_name} \
+      --CPU ~{cpu} \
+      ~{"--FusionInspector " + fusion_inspector} \
+      ~{true='--examine_coding_effect' false='' examine_coding_effect} \
+      ~{"--min_FFPM " + min_FFPM}
+    
+    # rename outputs to include the sample ID
+    mv ~{sample_name}/star-fusion.fusion_predictions.tsv ~{sample_name}.star-fusion.fusion_predictions.tsv && gzip ~{sample_name}.star-fusion.fusion_predictions.tsv
+    mv ~{sample_name}/star-fusion.fusion_predictions.abridged.tsv ~{sample_name}.star-fusion.fusion_predictions.abridged.tsv && gzip ~{sample_name}.star-fusion.fusion_predictions.abridged.tsv
+    mv ~{sample_name}/Chimeric.out.junction ~{sample_name}.Chimeric.out.junction && gzip ~{sample_name}.Chimeric.out.junction
+    mv ~{sample_name}/SJ.out.tab ~{sample_name}.SJ.out.tab && gzip ~{sample_name}.SJ.out.tab 
+    mv ~{sample_name}/Log.final.out ~{sample_name}.Log.final.out
+
+    gzip -c ~{sample_name}/star-fusion.preliminary/star-fusion.fusion_candidates.preliminary > ~{sample_name}.star-fusion.fusion_candidates.preliminary.tsv.gz
+
+  >>>
+
+  output {
+    
+    File fusion_predictions = "~{sample_name}.star-fusion.fusion_predictions.tsv.gz"
+    File fusion_predictions_abridged = "~{sample_name}.star-fusion.fusion_predictions.abridged.tsv.gz"
+
+    File preliminary_fusion_predictions = "~{sample_name}.star-fusion.fusion_candidates.preliminary.tsv.gz"
+
+    File junction = "~{sample_name}.Chimeric.out.junction.gz"
+    File sj = "~{sample_name}.SJ.out.tab.gz"
+
+    File? coding_effect = "~{sample_name}/star-fusion.fusion_predictions.abridged.coding_effect.tsv"
+    
+    Array[File] extract_fusion_reads = glob("~{sample_name}/star-fusion.fusion_evidence_*.fq")
+
+    File star_log_final = "~{sample_name}.Log.final.out"
+    
+    File? fusion_inspector_validate_fusions_abridged = "~{sample_name}/FusionInspector-validate/finspector.FusionInspector.fusions.abridged.tsv"
+    File? fusion_inspector_validate_web = "~{sample_name}/FusionInspector-validate/finspector.fusion_inspector_web.html"
+
+    File? fusion_inspector_inspect_fusions_abridged = "~{sample_name}/FusionInspector-inspect/finspector.FusionInspector.fusions.abridged.tsv"
+    File? fusion_inspector_inspect_web = "~{sample_name}/FusionInspector-inspect/finspector.fusion_inspector_web.html"
+  }
+
+  runtime {
+    preemptible: preemptible
+    disks: "local-disk " + ceil((fastq_disk_space_multiplier * (size(left_fq, "GB") + size(right_fq, "GB"))) + size(genome, "GB") + uncompressed_genome_size_gb + extra_disk_space) + " " + (if use_ssd then "SSD" else "HDD")
+    docker: docker
+    cpu: cpu
+    memory: memory
   }
 }
