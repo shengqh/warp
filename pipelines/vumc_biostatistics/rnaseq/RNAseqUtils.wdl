@@ -1,6 +1,9 @@
 version 1.0
 
 struct StarReference {
+  File Genome
+  File SA
+  File SAindex
   File chrLength_txt
   File chrNameLength_txt
   File chrName_txt
@@ -8,10 +11,7 @@ struct StarReference {
   File exonGeTrInfo_tab
   File exonInfo_tab
   File geneInfo_tab
-  File Genome
   File genomeParameters_txt
-  File SA
-  File SAindex
   File sjdbInfo_txt
   File sjdbList_fromGTF_out_tab
   File sjdbList_out_tab
