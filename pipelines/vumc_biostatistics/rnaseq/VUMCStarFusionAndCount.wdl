@@ -1,37 +1,50 @@
 version 1.0
 
-## VUMC STAR-Fusion and Gene Expression Quantification Workflow
+## VUMC STAR-Fusion and RNA-Seq Quantification Workflow
 ##
-## This WDL workflow performs comprehensive paired-end RNA-Seq analysis, combining
-## gene fusion detection via STAR-Fusion with gene-level expression quantification
-## using STAR alignment and featureCounts, in a single unified pipeline.
+## This WDL workflow analyzes paired-end RNA-Seq data in parallel branches:
+## STAR-Fusion detects candidate gene fusions, while STAR alignment and featureCounts
+## generate gene-level expression estimates in a single unified workflow.
 ## Developed by the VUMC/VANGARD Bioinformatics Core for translational genomics research.
 ## Author: Quanhu Sheng (quanhu.sheng.1@vumc.org)
 ##
 ## ### Workflow Overview:
-## This pipeline processes paired-end RNA-Seq FASTQ data through parallel fusion
-## detection and gene expression quantification branches, providing comprehensive
-## analysis for oncology research, rare disease studies, and general transcriptomics
-## applications.
+## FASTQ files are optionally extracted from a tar.gz archive, then processed by
+## STAR-Fusion for fusion detection and by STAR plus featureCounts for expression
+## quantification. Results can optionally be copied to a specified GCP location.
 ##
 ## ### Processing Steps:
 ## 1. Input preparation: Untar FASTQ files if provided as a compressed archive
 ## 2. STAR-Fusion analysis: Identify gene fusions using STAR aligner with fusion detection
 ## 3. STAR alignment: Generate a BAM file suitable for downstream gene-level quantification
 ## 4. featureCounts: Calculate gene-level expression counts from the aligned reads
-## 5. Output management: Optionally transfer results to a specified GCP bucket location
+## 5. Output management: Optionally copy results to a specified GCP bucket location
 ##
 ## ### Required Inputs:
 ## - sample_name: Unique sample identifier for file naming and tracking
-## - left_fq, right_fq: Paired-end FASTQ files (R1/R2), or fastq_pair_tar_gz as alternative
+## - left_fq, right_fq: Paired-end FASTQ files (R1/R2), or fastq_pair_tar_gz as an alternative
 ## - genome_plug_n_play_tar_gz: STAR-Fusion reference genome library (CTAT resource)
+## - reference: STAR reference used for alignment and expression quantification
 ## - gtf: Gene annotation file in GTF format for expression quantification
 ##
 ## ### Optional Parameters:
+## - fastq_pair_tar_gz_output_extension: Extension assigned to FASTQ files extracted from the archive (default: .fastq.gz)
+## - uncompressed_genome_size_gb: Uncompressed STAR-Fusion genome size in GB (default: 72)
 ## - fusion_inspector: FusionInspector mode - "validate" (default) or "inspect"
 ## - examine_coding_effect: Predict coding consequences of detected fusions (default: true)
 ## - min_FFPM: Minimum fusion fragments per million mapped reads threshold (default: 0.1)
-## - target_gcp_folder: Destination GCS path for automated output file transfer
+## - docker: Docker image used for STAR-Fusion and RNA-Seq processing (default: trinityctat/starfusion:1.15.1)
+## - cpu: Number of CPUs allocated to processing tasks (default: 12)
+## - star_memory_gb: Memory allocated to STAR alignment in GB (default: 40)
+## - star_fastq_disk_space_multiplier: STAR FASTQ disk space multiplier (default: 3.25)
+## - star_extra_disk_space: Additional STAR disk space in GB (default: 10)
+## - star_use_ssd: Whether to use SSD storage for STAR alignment (default: true)
+## - fusion_memory_gb: Memory allocated to STAR-Fusion in GB (default: 50)
+## - fusion_fastq_disk_space_multiplier: STAR-Fusion FASTQ disk space multiplier (default: 3.25)
+## - fusion_extra_disk_space: Additional STAR-Fusion disk space in GB (default: 10)
+## - fusion_use_ssd: Whether to use SSD storage for STAR-Fusion (default: true)
+## - preemptible: Maximum number of preemptible VM retries (default: 3)
+## - target_gcp_folder: Destination GCS path for optional output copying
 ##
 ## ### Output Files:
 ## Fusion Detection Results:
@@ -53,13 +66,12 @@ version 1.0
 ## ### Implementation Notes:
 ## - STAR-Fusion provides high-sensitivity fusion detection with low false-positive rates
 ## - featureCounts offers fast, accurate gene-level quantification from BAM alignments
-## - All outputs compatible with standard downstream analysis tools and visualization platforms
-## - GCP file transfer is conditional and only executes when target_gcp_folder is specified
+## - Outputs are compatible with standard downstream analysis and visualization tools
+## - GCP output copying is conditional on target_gcp_folder being specified
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
 import "../format/VUMCUntar.wdl" as UntarModule
 import "./RNAseqUtils.wdl" as RNAseqUtils
-import "https://github.com/STAR-Fusion/STAR-Fusion/raw/refs/heads/master/WDL/star_fusion_workflow.wdl" as STARFusionModule
 
 workflow VUMCStarFusionAndCount {
   input {
@@ -76,6 +88,11 @@ workflow VUMCStarFusionAndCount {
     # or
     # download from https://data.broadinstitute.org/Trinity/CTAT_RESOURCE_LIB/ and upload to your GCP bucket
     File genome_plug_n_play_tar_gz 
+    Int uncompressed_genome_size_gb = 72 # for GRCh38_gencode_v44_CTAT_lib_Oct292023.plug-n-play
+
+    # for star+featureCounts, we don't need the whole database for star_fusion which requires about 100gb space
+    # we can use small one with about 37 g
+    StarReference reference
 
     # gtf extracted from genome_plug_n_play_tar_gz to keep consistent
     File gtf
@@ -91,14 +108,15 @@ workflow VUMCStarFusionAndCount {
     
     Int star_memory_gb = 40
     Float star_fastq_disk_space_multiplier = 3.25
+    Float star_extra_disk_space = 10
+    Boolean star_use_ssd = true
 
-    Int fusion_memory_gb = 60
-    Float fusion_fastq_disk_space_multiplier = 4.25
+    Int fusion_memory_gb = 50
+    Float fusion_fastq_disk_space_multiplier = 3.25
+    Float fusion_extra_disk_space = 10
+    Boolean fusion_use_ssd = true
 
-    Float genome_disk_space_multiplier = 2.5
     Int preemptible = 3
-    Float extra_disk_space = 10
-    Boolean use_ssd = true
 
     String? target_gcp_folder
   }
@@ -116,60 +134,22 @@ workflow VUMCStarFusionAndCount {
   File final_left_fq = select_first([left_fq, untar_fastq1])
   File final_right_fq = select_first([right_fq, untar_fastq2])
 
-  call STARFusionModule.star_fusion as STARFusion {
-    input:
-      sample_id = sample_name,
-      left_fq = final_left_fq,
-      right_fq = final_right_fq,
-      genome = genome_plug_n_play_tar_gz,
-
-      examine_coding_effect = examine_coding_effect,
-      coord_sort_bam = false,
-      min_FFPM = min_FFPM,
-
-      preemptible = preemptible,
-      docker = docker,
-      cpu = cpu,
-      memory = fusion_memory_gb + " GiB",
-      extra_disk_space = extra_disk_space,
-      fastq_disk_space_multiplier = fusion_fastq_disk_space_multiplier,
-      genome_disk_space_multiplier = genome_disk_space_multiplier,
-      fusion_inspector = fusion_inspector,
-      use_ssd = use_ssd
-  }
-
-  Float junction_file_size_mb = size(STARFusion.junction, "MB")
-
-  if (defined(target_gcp_folder)) {
-    String gcs_output_dir_1 = sub(select_first([target_gcp_folder]), "/+$", "") + "/" + sample_name + "/"
-    call GcpUtils.MoveOrCopyFiles as CopyFile1 {
-      input:
-        source_file1 = STARFusion.fusion_predictions_abridged,
-        source_file2 = STARFusion.fusion_predictions,
-        source_file3 = STARFusion.junction,
-        source_file4 = STARFusion.coding_effect,
-        source_file5 = STARFusion.fusion_inspector_validate_web,
-        source_file6 = STARFusion.fusion_inspector_validate_fusions_abridged,
-        source_file7 = STARFusion.fusion_inspector_inspect_web,
-        source_file8 = STARFusion.fusion_inspector_inspect_fusions_abridged,
-        is_move_file = false,
-        target_gcp_folder = gcs_output_dir_1
-    }
-  }
-
   call RNAseqUtils.STARForCount as STAR_Unsorted {
     input:
       sample_name = sample_name,
+
       left_fq = final_left_fq,
       right_fq = final_right_fq,
-      genome_plug_n_play_tar_gz = genome_plug_n_play_tar_gz,
+      fastq_disk_space_multiplier = star_fastq_disk_space_multiplier,
+
+      reference = reference,
 
       preemptible = preemptible,
       docker = docker,
       cpu = cpu,
-      fastq_disk_space_multiplier = star_fastq_disk_space_multiplier,
       memory_gb = star_memory_gb,
-      genome_disk_space_multiplier = genome_disk_space_multiplier
+      extra_disk_space = star_extra_disk_space,
+      use_ssd = star_use_ssd
   }
 
   call RNAseqUtils.FeatureCounts {
@@ -180,12 +160,55 @@ workflow VUMCStarFusionAndCount {
   }
 
   if (defined(target_gcp_folder)) {
-    String gcs_output_dir_2 = sub(select_first([target_gcp_folder]), "/+$", "") + "/" + sample_name + "/"
-    call GcpUtils.MoveOrCopyFiles as CopyFile2 {
+    String gcs_output_dir_1 = sub(select_first([target_gcp_folder]), "/+$", "") + "/" + sample_name + "/"
+    call GcpUtils.MoveOrCopyFiles as CopyFile1 {
       input:
         source_file1 = STAR_Unsorted.output_star_summary,
         source_file2 = FeatureCounts.output_count,
         source_file3 = FeatureCounts.output_count_summary,
+        is_move_file = false,
+        target_gcp_folder = gcs_output_dir_1
+    }
+  }
+
+  call RNAseqUtils.star_fusion as STARFusion {
+    input:
+      sample_name = sample_name,
+
+      left_fq = final_left_fq,
+      right_fq = final_right_fq,
+      fastq_disk_space_multiplier = fusion_fastq_disk_space_multiplier,
+
+      genome = genome_plug_n_play_tar_gz,
+      uncompressed_genome_size_gb = uncompressed_genome_size_gb,
+
+      examine_coding_effect = examine_coding_effect,
+      coord_sort_bam = false,
+      min_FFPM = min_FFPM,
+      fusion_inspector = fusion_inspector,
+
+      preemptible = preemptible,
+      docker = docker,
+      cpu = cpu,
+      memory = fusion_memory_gb + " GiB",
+      extra_disk_space = fusion_extra_disk_space,
+      use_ssd = fusion_use_ssd
+  }
+
+  Float junction_file_size_mb = size(STARFusion.junction, "MB")
+
+  if (defined(target_gcp_folder)) {
+    String gcs_output_dir_2 = sub(select_first([target_gcp_folder]), "/+$", "") + "/" + sample_name + "/"
+    call GcpUtils.MoveOrCopyFiles as CopyFile2 {
+      input:
+        source_file1 = STARFusion.fusion_predictions_abridged,
+        source_file2 = STARFusion.fusion_predictions,
+        source_file3 = STARFusion.junction,
+        source_file4 = STARFusion.coding_effect,
+        source_file5 = STARFusion.fusion_inspector_validate_web,
+        source_file6 = STARFusion.fusion_inspector_validate_fusions_abridged,
+        source_file7 = STARFusion.fusion_inspector_inspect_web,
+        source_file8 = STARFusion.fusion_inspector_inspect_fusions_abridged,
         is_move_file = false,
         target_gcp_folder = gcs_output_dir_2
     }
@@ -193,19 +216,19 @@ workflow VUMCStarFusionAndCount {
 
   # Outputs that will be retained when execution is complete
   output {
-    File fusion_predictions_abridged = select_first([CopyFile1.output_file1, STARFusion.fusion_predictions_abridged])
-    File fusion_predictions = select_first([CopyFile1.output_file2, STARFusion.fusion_predictions])
-    File fusion_chimeric_out_junction = select_first([CopyFile1.output_file3, STARFusion.junction])
+    File star_summary = select_first([CopyFile1.output_file1, STAR_Unsorted.output_star_summary])
+    File featurecounts_count = select_first([CopyFile1.output_file2, FeatureCounts.output_count])
+    File featurecounts_count_summary = select_first([CopyFile1.output_file3, FeatureCounts.output_count_summary])
 
-    File? fusion_coding_effect = if(defined(CopyFile1.output_file4)) then CopyFile1.output_file4 else STARFusion.coding_effect
-    File? fusion_inspector_validate_web = if(defined(CopyFile1.output_file5)) then CopyFile1.output_file5 else STARFusion.fusion_inspector_validate_web
-    File? fusion_inspector_validate_fusions_abridged = if(defined(CopyFile1.output_file6)) then CopyFile1.output_file6 else STARFusion.fusion_inspector_validate_fusions_abridged
-    File? fusion_inspector_inspect_web = if(defined(CopyFile1.output_file7)) then CopyFile1.output_file7 else STARFusion.fusion_inspector_inspect_web
-    File? fusion_inspector_inspect_fusions_abridged = if(defined(CopyFile1.output_file8)) then CopyFile1.output_file8 else STARFusion.fusion_inspector_inspect_fusions_abridged
+    File fusion_predictions_abridged = select_first([CopyFile2.output_file1, STARFusion.fusion_predictions_abridged])
+    File fusion_predictions = select_first([CopyFile2.output_file2, STARFusion.fusion_predictions])
+    File fusion_chimeric_out_junction = select_first([CopyFile2.output_file3, STARFusion.junction])
 
-    File star_summary = select_first([CopyFile2.output_file1, STAR_Unsorted.output_star_summary])
-    File featurecounts_count = select_first([CopyFile2.output_file2, FeatureCounts.output_count])
-    File featurecounts_count_summary = select_first([CopyFile2.output_file3, FeatureCounts.output_count_summary])
+    File? fusion_coding_effect = if(defined(CopyFile2.output_file4)) then CopyFile2.output_file4 else STARFusion.coding_effect
+    File? fusion_inspector_validate_web = if(defined(CopyFile2.output_file5)) then CopyFile2.output_file5 else STARFusion.fusion_inspector_validate_web
+    File? fusion_inspector_validate_fusions_abridged = if(defined(CopyFile2.output_file6)) then CopyFile2.output_file6 else STARFusion.fusion_inspector_validate_fusions_abridged
+    File? fusion_inspector_inspect_web = if(defined(CopyFile2.output_file7)) then CopyFile2.output_file7 else STARFusion.fusion_inspector_inspect_web
+    File? fusion_inspector_inspect_fusions_abridged = if(defined(CopyFile2.output_file8)) then CopyFile2.output_file8 else STARFusion.fusion_inspector_inspect_fusions_abridged
 
     Float fusion_junction_file_size_mb = junction_file_size_mb
   }
