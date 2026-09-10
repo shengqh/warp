@@ -85,6 +85,7 @@ task FeatureCounts {
     File gtf
     String sample_name
     Int threads = 8
+    Int memory = 5
   }
   Int disk_size_gb = ceil(size([bam, gtf], "GB")) + 4
   command <<<
@@ -105,7 +106,7 @@ mv ~{sample_name}.count.summary ~{sample_name}.count.summary.txt
   >>>
   runtime {
     docker: "shengqh/cqs_rnaseq:20240813"
-    memory: 40 + " GiB"
+    memory: memory + " GiB"
     disks: "local-disk " + disk_size_gb + " HDD"
     cpu: threads
     preemptible: 3
