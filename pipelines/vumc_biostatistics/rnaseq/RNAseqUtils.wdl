@@ -84,7 +84,8 @@ task FeatureCounts {
     File? bam_index
     File gtf
     String sample_name
-    Int threads = 8
+    # with 8 cpu, only less than 30% cpu were used, 4cpu should be enough
+    Int threads = 4
     Int memory = 5
   }
   Int disk_size_gb = ceil(size([bam, gtf], "GB")) + 4
