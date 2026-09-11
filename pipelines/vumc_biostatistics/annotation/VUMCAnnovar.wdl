@@ -59,10 +59,10 @@ task Annovar {
 
     Int memory_gb = 20
     Int cpu = 1
-    Int extra_disk_space = 20
+    Int extra_disk_space = 5 #since we will delete the annova db after uncompress, the space should be enough.
 
     String docker = "shengqh/annovar:20241117"
-    Float vcf_disk_size_factor = 5
+    Float vcf_disk_size_factor = 1 #since we will delete the annova db after uncompress, the space should be enough.
   }
 
   Float true_annovar_db_umcompressed_gb = if(defined(annovar_db_umcompressed_gb)) then annovar_db_umcompressed_gb else 0
