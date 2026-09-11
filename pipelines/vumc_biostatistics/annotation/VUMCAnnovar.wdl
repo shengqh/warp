@@ -84,6 +84,7 @@ if [[ "~{annovar_db_tar_gz}" == "" ]]; then
   echo "No annovar database provided, use default /opt/annovar/humandb"
 else
   tar -zxvf ~{annovar_db_tar_gz}
+  rm -rf ~{annovar_db_tar_gz} # once the tar.gz file is uncompressed, delete it to free up space.
 fi
 
 table_annovar.pl ~{target_prefix}.avinput ~{real_annovar_db} -buildver ~{buildver} ~{real_annovar_param} --outfile ~{target_prefix}.annovar
