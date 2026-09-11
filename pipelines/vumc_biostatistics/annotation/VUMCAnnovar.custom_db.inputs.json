@@ -1,7 +1,8 @@
 {
   "VUMCAnnovar.target_prefix": "VTCN1",
   "VUMCAnnovar.input_vcf": "/nobackup/h_cqs/jennifer_pietenpol_projects/20241011_PheWAS_of_immune_checkpoint_genes/VTCN1.vcf.gz",
-  "VUMCAnnovar.annovar_db_tar_gz": "/data/cqs/references/annovar/humandb_slim.tar.gz",
-  "VUMCAnnovar.annovar_param": "-protocol cytoBand,cosmic70 -operation r,f --remove"
+  "VUMCAnnovar.annovar_db_tar_gz": "/data/cqs/references/annovar/hg38_clinvar_20260905.tar.gz",
+  "VUMCAnnovar.annovar_db_umcompressed_gb": 1,
+  "VUMCAnnovar.annovar_db_folder_in_tar_gz": "humandb",
+  "VUMCAnnovar.annovar_param": "-protocol clinvar_20260905 -operation f --remove"
 }
-

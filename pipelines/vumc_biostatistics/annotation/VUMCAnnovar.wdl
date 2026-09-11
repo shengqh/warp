@@ -8,6 +8,8 @@ workflow VUMCAnnovar {
 
     File? annovar_db_tar_gz
     Float? annovar_db_umcompressed_gb
+    String annovar_db_folder_in_tar_gz = "humandb"
+
     String? annovar_param
 
     String target_prefix
@@ -22,6 +24,7 @@ workflow VUMCAnnovar {
       input_vcf = input_vcf,
       annovar_db_tar_gz = annovar_db_tar_gz,
       annovar_db_umcompressed_gb = true_annovar_db_umcompressed_gb,
+      annovar_db_folder_in_tar_gz = annovar_db_folder_in_tar_gz,
       annovar_param = annovar_param,
       target_prefix = target_prefix
   }
@@ -47,6 +50,7 @@ task Annovar {
 
     File? annovar_db_tar_gz
     Float? annovar_db_umcompressed_gb
+    String annovar_db_folder_in_tar_gz = "humandb"
     String? annovar_param
 
     String target_prefix
@@ -55,16 +59,17 @@ task Annovar {
 
     Int memory_gb = 20
     Int cpu = 1
+    Int extra_disk_space = 20
 
     String docker = "shengqh/annovar:20241117"
     Float vcf_disk_size_factor = 5
   }
 
   Float true_annovar_db_umcompressed_gb = if(defined(annovar_db_umcompressed_gb)) then annovar_db_umcompressed_gb else 0
-  Int disk_size = ceil(size([input_vcf], "GB") * vcf_disk_size_factor + size(annovar_db_tar_gz, "GB") + true_annovar_db_umcompressed_gb) + 20
+  Int disk_size = ceil(size([input_vcf], "GB") * vcf_disk_size_factor + size(annovar_db_tar_gz, "GB") + true_annovar_db_umcompressed_gb) + extra_disk_space
 
-  String real_annovar_db = if(defined(annovar_db_tar_gz)) then sub(basename(select_first([annovar_db_tar_gz])), ".tar.gz$", "") else "/opt/annovar/humandb"
-  String delete_annovar_db = if(defined(annovar_db_tar_gz)) then sub(basename(select_first([annovar_db_tar_gz])), ".tar.gz$", "") else ""  
+  String real_annovar_db = if(defined(annovar_db_tar_gz)) then annovar_db_folder_in_tar_gz else "/opt/annovar/humandb"
+  String delete_annovar_db = if(defined(annovar_db_tar_gz)) then annovar_db_folder_in_tar_gz else ""  
   String real_annovar_param= if(defined(annovar_db_tar_gz)) then annovar_param else "-protocol refGene -operation g --remove"
 
   command <<<
@@ -93,7 +98,7 @@ gzip ~{target_prefix}.annovar.~{buildver}_multianno.txt
     docker: docker
     preemptible: 1
     cpu: cpu
-    disks: "local-disk " + disk_size + " HDD"
+    disks: "local-disk " + disk_size + " SSD"
     memory: memory_gb + " GiB"
   }
   output {
