@@ -40,7 +40,8 @@ task STARForCount {
     Boolean use_ssd = true
   }
   
-  Int disk_size_gb = ceil(size([reference.Genome, reference.SA, reference.SAindex], "GB") + size([left_fq, right_fq], "GB") * fastq_disk_space_multiplier + extra_disk_space)
+  Int fastq_gb = ceil(size([left_fq, right_fq], "GB") * fastq_disk_space_multiplier + extra_disk_space)
+  Int disk_size_gb = ceil(size([reference.Genome, reference.SA, reference.SAindex], "GB") + fastq_gb)
 
   command <<<
 
@@ -48,6 +49,7 @@ set -ex
 shopt -s nullglob
 
 star_index_folder_name=$(dirname ~{reference.Genome})
+
 echo "star_index_folder_name: $star_index_folder_name"
 
 ~{star_path} --version
@@ -56,6 +58,64 @@ echo "star_index_folder_name: $star_index_folder_name"
   --outSAMattrRGline ID:~{sample_name} SM:~{sample_name} LB:~{sample_name} PL:ILLUMINA PU:ILLUMINA \
   --runThreadN ~{cpu} \
   --genomeDir $star_index_folder_name \
+  --readFilesIn ~{left_fq} ~{right_fq} \
+  --readFilesCommand "gunzip -c" \
+  --outFileNamePrefix ~{sample_name}_ \
+  --outSAMtype BAM Unsorted
+
+  >>>
+
+  runtime {
+    docker: docker
+    memory: memory_gb + " GiB"
+    disks: "local-disk " + disk_size_gb + " " + (if use_ssd then "SSD" else "HDD")
+    cpu: cpu
+    preemptible: preemptible
+  }
+
+  output {
+    File output_bam = "~{sample_name}_Aligned.out.bam"
+    File output_star_summary = "~{sample_name}_Log.final.out"  
+  }
+}
+
+task STARForCountLocal {
+  input {
+    String sample_name
+
+    File left_fq
+    File right_fq
+
+    String genome_local_folder
+
+    String star_option = "--twopassMode Basic --outSAMmapqUnique 60 --outSAMprimaryFlag AllBestScore"
+    
+    # runtime params
+    String docker = "trinityctat/starfusion:1.15.1"
+    Int preemptible = 3
+    String star_path = "/usr/local/bin/STAR"
+    Int cpu = 8
+    Float fastq_disk_space_multiplier = 3.25
+    Int memory_gb = 45
+    Float extra_disk_space = 5
+    Boolean use_ssd = true
+  }
+  
+  Int disk_size_gb = ceil(size([left_fq, right_fq], "GB") * fastq_disk_space_multiplier + extra_disk_space)
+
+  command <<<
+
+set -ex
+shopt -s nullglob
+
+echo "star_index_folder_name: ~{genome_local_folder}"
+
+~{star_path} --version
+
+~{star_path} ~{star_option} \
+  --outSAMattrRGline ID:~{sample_name} SM:~{sample_name} LB:~{sample_name} PL:ILLUMINA PU:ILLUMINA \
+  --runThreadN ~{cpu} \
+  --genomeDir ~{genome_local_folder} \
   --readFilesIn ~{left_fq} ~{right_fq} \
   --readFilesCommand "gunzip -c" \
   --outFileNamePrefix ~{sample_name}_ \
@@ -126,8 +186,9 @@ task star_fusion {
     File left_fq
     File right_fq
 
-    File genome
-    Float uncompressed_genome_size_gb
+    String? genome_local_folder
+    File? genome
+    Float? uncompressed_genome_size_gb
     
     String? fusion_inspector
     Boolean examine_coding_effect
@@ -142,9 +203,13 @@ task star_fusion {
 
     # since we will delete the genome after untarring, 
     # we should have enough disk space.
-    Float fastq_disk_space_multiplier = 1
+    Float fastq_disk_space_multiplier = 3.25
     Boolean use_ssd = true
   }
+
+  Float actual_disk_space_multiplier = if defined(genome_local_folder) then fastq_disk_space_multiplier else 1
+  Float fastq_disk = ceil((actual_disk_space_multiplier * (size(left_fq, "GB") + size(right_fq, "GB"))) + extra_disk_space) 
+  Float actual_disk = if defined(genome_local_folder) then fastq_disk else ceil(fastq_disk + size(genome, "GB") + uncompressed_genome_size_gb)
 
   command <<<
 
@@ -153,15 +218,21 @@ task star_fusion {
 
     mkdir -p ~{sample_name}
 
-    mkdir -p genome_dir
+    if [ "~{genome_local_folder}" == "" ]; then
+      mkdir -p genome_dir
 
-    tar xf ~{genome} -C genome_dir --strip-components 1
+      tar xf ~{genome} -C genome_dir --strip-components 1
 
-    # delete the genome to save space
-    rm -f ~{genome}
+      # delete the genome to save space
+      rm -f ~{genome}
+
+      cur_genome_dir=`pwd`/genome_dir/ctat_genome_lib_build_dir
+    else
+      cur_genome_dir=~{genome_local_folder}
+    fi
 
     /usr/local/src/STAR-Fusion/STAR-Fusion \
-      --genome_lib_dir `pwd`/genome_dir/ctat_genome_lib_build_dir \
+      --genome_lib_dir $cur_genome_dir \
       --left_fq ~{left_fq} \
       --right_fq ~{right_fq} \
       --output_dir ~{sample_name} \
@@ -206,7 +277,7 @@ task star_fusion {
 
   runtime {
     preemptible: preemptible
-    disks: "local-disk " + ceil((fastq_disk_space_multiplier * (size(left_fq, "GB") + size(right_fq, "GB"))) + size(genome, "GB") + uncompressed_genome_size_gb + extra_disk_space) + " " + (if use_ssd then "SSD" else "HDD")
+    disks: "local-disk " + actual_disk + " " + (if use_ssd then "SSD" else "HDD")
     docker: docker
     cpu: cpu
     memory: memory
