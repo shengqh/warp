@@ -125,7 +125,7 @@ task PheTK {
     Int min_cases
     Int min_phecode_count
     
-    String docker = "phetk/phetk:0.2.2"
+    String docker = "phetk/phetk:0.3.3"
 
     Int preemptible = 3
     Int cpu = 1
