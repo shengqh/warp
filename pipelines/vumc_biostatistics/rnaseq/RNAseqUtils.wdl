@@ -228,7 +228,7 @@ task star_fusion {
 
       cur_genome_dir=`pwd`/genome_dir/ctat_genome_lib_build_dir
     else
-      cur_genome_dir=~{genome_local_folder}
+      cur_genome_dir="~{genome_local_folder}"
     fi
 
     /usr/local/src/STAR-Fusion/STAR-Fusion \
