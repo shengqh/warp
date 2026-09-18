@@ -3,8 +3,8 @@
   "VUMCPheTK.independent_variable_of_interest": "independent_variable_of_interest",
   "VUMCPheTK.covariate_cols": "age sex pc1 pc2 pc3 pc4 pc5 pc6 pc7 pc8 pc9 pc10 pc11 pc12 pc13 pc14 pc15 pc16 pc17 pc18 pc19 pc20",
   "VUMCPheTK.phecode_version": "1.2",
-  "VUMCPheTK.cohort_file_path": "/nobackup/h_cqs/shengq2/biovu/phewas/BERG_MegaExHLADPB1_phecode_counts_2026_0206_PRIMARY_GRID_filter_sexfilter.tsv",
+  "VUMCPheTK.cohort_file_path": "/nobackup/h_cqs/shengq2/biovu/phewas/Phillips_HLA_database_Bstar51genotyped_MegaExv7Eligible_PRIMARYGRIDonly_14sexdropped_mismatched_megaex_agd_allancestry_all_sex_phewas_format_2026_02_10.csv",
   "VUMCPheTK.output_file_prefix": "hla_bstar51_all_ancestry_all_sex",
-  "VUMCPheTK.phecode_count_file_path": "/nobackup/h_cqs/shengq2/biovu/phewas/Phillips_HLA_database_Bstar51genotyped_MegaExv7Eligible_PRIMARYGRIDonly_14sexdropped_mismatched_megaex_agd_allancestry_all_sex_phewas_format_2026_02_10.csv"
+  "VUMCPheTK.phecode_count_file_path": "/nobackup/h_cqs/shengq2/biovu/phewas/BERG_MegaExHLADPB1_phecode_counts_2026_0206_PRIMARY_GRID_filter_sexfilter.tsv"
 }
 

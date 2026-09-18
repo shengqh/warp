@@ -4,7 +4,7 @@ fi
 
 cd /data/cqs/shengq2/temp
 
-java -Dconfig.file=/data/cqs/softwares/cqsperl/config/wdl/cromwell.local.conf \
+java -Dconfig.file=/nobackup/h_cqs/shengq2/program/cqsperl/config/wdl/cromwell.local_auto_pull.conf \
   -jar /data/cqs/softwares/cromwell/cromwell-90.jar \
   run /nobackup/h_cqs/shengq2/program/warp/pipelines/vumc_biostatistics/genotype/VUMCPheTK.wdl \
   -i /nobackup/h_cqs/shengq2/program/warp/pipelines/vumc_biostatistics/genotype/VUMCPheTK.inputs.json \

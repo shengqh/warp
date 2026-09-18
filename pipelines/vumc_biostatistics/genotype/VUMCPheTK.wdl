@@ -50,6 +50,8 @@ workflow VUMCPheTK {
     String independent_variable_of_interest
     String output_file_prefix
 
+    String docker = "phetk/phetk:0.3.3"
+
     Int min_cases=50
     Int min_phecode_count=1
 
@@ -83,13 +85,15 @@ workflow VUMCPheTK {
       independent_variable_of_interest = independent_variable_of_interest,
       output_file_prefix = output_file_prefix,
       min_cases = min_cases,
-      min_phecode_count = min_phecode_count
+      min_phecode_count = min_phecode_count,
+      docker = docker
   }
 
   call PheTKVis {
     input:
       phewas_result_file = PheTK.output_phewas_file,
-      output_file_prefix = output_file_prefix
+      output_file_prefix = output_file_prefix,
+      docker = docker
   }
 
   if(defined(target_gcp_folder)){
@@ -125,7 +129,7 @@ task PheTK {
     Int min_cases
     Int min_phecode_count
     
-    String docker = "phetk/phetk:0.3.3"
+    String docker
 
     Int preemptible = 3
     Int cpu = 1
@@ -168,7 +172,7 @@ task PheTKVis {
     File phewas_result_file
     String output_file_prefix
     
-    String docker = "phetk/phetk:0.2.2"
+    String docker
 
     Int preemptible = 3
     Int cpu = 1
