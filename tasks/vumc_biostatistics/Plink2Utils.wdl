@@ -188,9 +188,17 @@ task PgenFilter {
     File? exclude_sample_id_file
 
     File? keep_pvar
+
+    #bed file is 0-based
     File? keep_bed
+
     File? keep_variant_ids
+
+    #bed file is 0-based
     File? exclude_bed
+
+    #range file is 1-based
+    File? exclude_range_file
     
     String output_prefix
 
@@ -221,7 +229,7 @@ if [[ "~{keep_pvar}" != "" ]]; then
     --psam ~{input_psam} \
     ~{plink2_filter_option} \
     ~{"--keep " + keep_psam} ~{"--remove " + exclude_sample_id_file} \
-    ~{"--extract bed0 " + keep_bed} ~{"--exclude bed0 " + exclude_bed} \
+    ~{"--extract bed0 " + keep_bed} ~{"--exclude bed0 " + exclude_bed} ~{"--exclude range " + exclude_range_file} \
     --extract keep_variant_ids.txt \
     --threads ~{cpu} \
     --make-pgen \
@@ -234,7 +242,7 @@ else
       --psam ~{input_psam} \
       ~{plink2_filter_option} \
       ~{"--keep " + keep_psam} ~{"--remove " + exclude_sample_id_file} \
-      ~{"--extract bed0 " + keep_bed} ~{"--exclude bed0 " + exclude_bed} \
+      ~{"--extract bed0 " + keep_bed} ~{"--exclude bed0 " + exclude_bed} ~{"--exclude range " + exclude_range_file} \
       --extract ~{keep_variant_ids} \
       --threads ~{cpu} \
       --make-pgen \
@@ -246,7 +254,7 @@ else
       --psam ~{input_psam} \
       ~{plink2_filter_option} \
       ~{"--keep " + keep_psam} ~{"--remove " + exclude_sample_id_file} \
-      ~{"--extract bed0 " + keep_bed} ~{"--exclude bed0 " + exclude_bed} \
+      ~{"--extract bed0 " + keep_bed} ~{"--exclude bed0 " + exclude_bed} ~{"--exclude range " + exclude_range_file} \
       --threads ~{cpu} \
       --make-pgen \
       --out ~{output_prefix}
