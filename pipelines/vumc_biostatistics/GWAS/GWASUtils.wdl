@@ -185,7 +185,8 @@ task Regenie4Step1FitModel {
 
     #String docker = "skoyamamd/regenie:3.4.2"
     #String docker = "quay.io/biocontainers/regenie:4.0--h90dfdf2_1"
-    String docker = "shengqh/regenie4:20241127"
+    #String docker = "shengqh/regenie4:20241127"
+    String docker = "shengqh/regenie:4.1.3.1"
   }
 
   Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB") * disk_size_factor) + 10
@@ -268,7 +269,8 @@ task Regenie4Step2AssociationTest {
 
     #String docker = "skoyamamd/regenie:3.4.2"
     #String docker = "quay.io/biocontainers/regenie:4.0--h90dfdf2_1"
-    String docker = "shengqh/regenie4:20241127"
+    #String docker = "shengqh/regenie4:20241127"
+    String docker = "shengqh/regenie:4.1.3.1"
   }
 
   Int disk_size = ceil(size([input_pgen, input_pvar, input_psam], "GB")) + 20
