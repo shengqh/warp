@@ -50,8 +50,9 @@ workflow VUMCRegenie4TaskAll {
 
     #option of variants for model fitting
     #--maf 0.01 --max-maf 0.99 make sure modeling will not fail due to low variance: ERROR: !! Uh-oh, SNP chr22:33765420:A:G has low variance (=0.000000).
-    #--hwe 1e-15 is suitable for large scale biobank. Increase it based on your sample size.
-    String step1_plink2_option="--maf 0.01 --max-maf 0.99 --mac 100 --geno 0.1 --hwe 1e-15 --snps-only --not-chr 23-27 --max-alleles 2"
+    #--hwe 1e-15 is suitable for large scale biobank. Increase it based on your sample size. Also, add 0 as sample size to avoid the follwoing error: 
+    #  Error: --hwe filter is suspiciously strict for the sample size; you may be filtering out many variants with association signals.
+    String step1_plink2_option="--maf 0.01 --max-maf 0.99 --mac 100 --geno 0.1 --hwe 1e-15 0 --mind 0.1 --snps-only --not-chr 23-27 --max-alleles 2"
     String step1_regenie_option="--loocv --bsize 1000 --lowmem"
     Int step1_block_size=1000
     Int step1_max_variants=500000
