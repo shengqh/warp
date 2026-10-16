@@ -71,8 +71,8 @@ task process_vds {
         set -e
 
         # Remove this when you are running on a Spark cluster.
-        mkdir -p tmp_dir
-        export TMPDIR=${PWD}/tmp_dir/
+        mkdir -p tmp
+        export TMPDIR=${PWD}/tmp/
 
         python3 <<EOF
         import datetime
