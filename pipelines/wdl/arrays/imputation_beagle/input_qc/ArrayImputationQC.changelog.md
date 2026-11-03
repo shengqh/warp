@@ -1,3 +1,18 @@
+# 1.3.2
+2026-10-01 (Date of Last Commit)
+
+* `qc_messages` output is now an Optional output, which will be null if input passes all quality checks
+
+# 1.3.1
+2026-09-24 (Date of Last Commit)
+
+* Remove optional inputs that are not used in the service
+
+# 1.3.0
+2026-02-04 (Date of Last Commit)
+
+* Lower variant number check to 3 million from 10 million to further prevent whole genome inputs from being submitted
+
 # 1.2.5
 2025-12-23 (Date of Last Commit)
 

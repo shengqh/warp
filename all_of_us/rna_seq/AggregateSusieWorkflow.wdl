@@ -10,6 +10,7 @@ task AggregateSusie{
     }
 
     command <<<
+    set -euo pipefail
     export GSUTIL_PARALLEL_PROCESS_COUNT=32
     export GSUTIL_PARALLEL_THREAD_COUNT=8
 
@@ -18,8 +19,6 @@ task AggregateSusie{
     mkdir -p localized
     gsutil -m cp -I localized/ < file_paths.txt 
 
-    # Write the new local file paths into filelist.txt
-    ls -1 "$(pwd)/localized/*" > filelist.txt
     Rscript /tmp/merge_susie.R --FilePaths file_paths.txt  --OutputPrefix ~{OutputPrefix}
     >>>
 
@@ -60,6 +59,7 @@ task AnnotateSusie {
 
     }
     command <<<
+    set -euo pipefail
     Rscript /tmp/annotate_susie_data.R \
         --OutputPrefix ~{OutputPrefix} \
         --GencodeGTF ~{GencodeGTF} \
@@ -106,7 +106,7 @@ workflow AggregateSusieWorkflow {
 
     }
  
-    String pipeline_version = "aou_9.0.1"
+    String pipeline_version = "aou_9.0.3"
     
     call AggregateSusie {
         input:
