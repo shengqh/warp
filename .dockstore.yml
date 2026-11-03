@@ -618,4 +618,8 @@ workflows:
     subclass: WDL
     primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCPrepareCohortPgen.wdl
 
+  - name: VUMCExtractCohortPgen
+    subclass: WDL
+    primaryDescriptorPath: /pipelines/vumc_biostatistics/agd/VUMCExtractCohortPgen.wdl
+
 
