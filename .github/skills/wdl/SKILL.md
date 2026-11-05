@@ -1,24 +1,34 @@
 ---
 name: wdl
-description: WDL (Workflow Description Language) workflows — writing, editing, formatting, and creating new WDL pipeline files. Use for any task involving .wdl files, workflow introductions/headers, WDL tasks, scatter/gather patterns, parameter_meta, or VUMC biostatistics pipelines.
-applyTo: "**/*.wdl"
+description: "Format, write, or edit WDL (Workflow Description Language) files in the Warp project. Use for .wdl formatting, workflow headers, inputs and outputs, imports, calls, scatter blocks, conditionals, or parameter_meta."
 ---
 
-# WDL Workflow Introduction Format
+# WDL Formatting and Workflow Conventions
 
-Every WDL workflow file in this codebase begins with a structured header comment block and includes a `parameter_meta` block inside the workflow. This format ensures that every workflow is self-documented with clear descriptions of its purpose, inputs, outputs, and steps, and that all inputs are documented in a machine-readable way for downstream tools.
+Use this skill when formatting an existing WDL file or writing a workflow that follows the Warp/VUMC Biostatistics conventions. Treat formatting as a presentation-only change: preserve the workflow's behavior, expressions, names, imports, defaults, call aliases, and output types unless the user also requests a functional change.
 
 ---
 
-## Header Comment Block
+## Formatting Procedure
 
-Use `##` (double hash) comment lines with embedded Markdown headings.
+1. Read the whole target file before editing. Check nearby WDL files and imported task/workflow definitions when needed to preserve local naming and syntax conventions.
+2. Keep the WDL version declaration at the top. Separate it from the documentation header with a blank line when a header is present.
+3. Keep the structured documentation header before imports, with each documentation line prefixed by `##`; use `##` for blank lines inside the comment block.
+4. Put imports after the header and before the workflow or task definition, with one import per line.
+5. Indent nested blocks consistently with two spaces per level. Put opening braces on the declaration line and closing braces at the declaration's indentation.
+6. Keep one declaration or statement per line. In `input`, `output`, `parameter_meta`, and call `input:` blocks, put each entry on its own line. Align block contents by indentation, not by padding names or values into columns.
+7. Use blank lines to separate logical groups, such as related inputs, local declarations, calls, and outputs. Avoid adding blank lines between every statement.
+8. For `scatter` and `if` blocks, put the block body on subsequent indented lines and close the block at its opening statement's indentation. Keep the existing condition, iteration expression, and scope unchanged.
+9. Review the diff to confirm that only whitespace, line breaks, and explicitly requested documentation changed. Do not silently fix misspellings, rename identifiers, reorder inputs, restructure logic, or change defaults while formatting.
+10. If a WDL formatter or validator is configured in the project, use it after editing. Otherwise, report that no formatter/validator was run rather than implying the file was validated.
+
+## Documentation Header
+
+Use `##` comment lines with embedded Markdown headings for a structured workflow header when the file has one or when the user asks for documentation to be added. Follow the existing header rather than inserting a new one into files that intentionally omit it.
 
 ```wdl
 version 1.0
 
-## Copyright Vanderbilt Health, <YEAR>
-##
 ## <Workflow Title>
 ##
 ## <One or two sentence description of the workflow purpose.>
@@ -53,20 +63,62 @@ workflow MyWorkflow {
 
 **Rules:**
 - Use `##` for every comment line; use `##` alone for blank lines within the block.
-- The very first line after `version 1.0` (separated by a blank line) is the copyright notice: `## Copyright Vanderbilt Health, <YEAR>`, followed by a `##` blank line, then the workflow title.
+- Preserve existing header content and ordering. Do not invent a copyright notice, author, domain, or other factual information.
 - Section headings use Markdown `###` inside the comment: `## ### Section:`.
 - Step names within "Workflow Steps" are **bold**: `## 1. **StepName**: description.`
-- Include `Author:` field with name and email.
 - The `Notes:` section is optional; include it when there are non-obvious behaviors or dependencies.
 - `import` statements come immediately after the header block, before the `workflow` block.
-- `target_gcp_folder` is always described as **Optional** in the inputs section.
+- Describe optional inputs accurately, including `target_gcp_folder` when present.
 - Do not include implementation details (Docker images, runtime parameters) in the header — those belong in task files.
 
 ---
 
+## Workflow Layout
+
+Follow the supplied workflow's organization when applicable:
+
+```wdl
+workflow MyWorkflow {
+  input {
+    Array[String] identifiers
+
+    Array[File] input_files
+
+    String output_prefix
+    String option = "default"
+  }
+
+  Int item_count = length(identifiers)
+
+  Array[Int] indices = range(item_count)
+  scatter(index in indices) {
+    call SomeTask as ProcessItem {
+      input:
+        input_file = input_files[index],
+        output_prefix = output_prefix + "." + identifiers[index]
+    }
+  }
+
+  if (defined(optional_destination)) {
+    String destination = select_first([optional_destination])
+    call SomeTask as CopyResults {
+      input:
+        source_files = ProcessItem.output_files,
+        target = destination
+    }
+  }
+
+  output {
+    Array[File] results = ProcessItem.output_files
+  }
+}
+```
+
+The sample is a layout illustration, not a template to copy blindly. Preserve legal WDL syntax and the file's existing style where it differs. In particular, do not change conditional expressions or optional-value handling just to match the illustration.
+
 ## `parameter_meta` Block
 
-The `parameter_meta` block provides machine-readable documentation for every workflow input. It lives **inside** the `workflow` block, after the `meta` block and before the workflow body.
+When a workflow already uses `parameter_meta`, or the user requests it, document every declared input. Place it inside the workflow after `input` (and after `meta` if present), before the workflow body. Do not add a `parameter_meta` block solely as part of a formatting-only change.
 
 ### Workflow-level `parameter_meta` (simple string form)
 
@@ -134,7 +186,7 @@ task MyTask {
 
 **Rules for `parameter_meta`:**
 - Every input variable declared in the `input {}` block must have a corresponding entry.
-- Workflow-level: always use the simple `param: "description"` string form.
+- Workflow-level: use the simple `param: "description"` string form.
 - Task-level: use the object form `param: { description: "...", localization_optional: true }` for `File` inputs that can be streamed from GCS without full localization; use plain strings for non-file inputs.
 - For optional inputs (`?` type suffix or inputs with defaults), the description should indicate they are optional and describe the default behavior (e.g., `"Optional. If not provided, all samples are included."`).
 - For Struct-type inputs, describe the struct's overall purpose, not individual fields.
