@@ -1,8 +1,42 @@
 version 1.0
 
-import "../../../tasks/wdl/Utilities.wdl" as Utils
+## VUMC FASTQ QC
+##
+## Validates paired-end gzipped FASTQ files for a single sample.
+## Developed by VUMC Biostatistics for sequencing data quality control.
+##
+## ### Workflow Purpose:
+## Detects corrupted or malformed paired-end FASTQ files before they are used by downstream
+## pipelines, and records the reason for any failure in the QC file.
+##
+## ### Workflow Steps:
+## 1. **ValidatePairendFastq (gzip check)**: Tests the integrity of every fastq_1 and fastq_2 file with `gzip -t`,
+##    and records each failure message in the QC file.
+## 2. **ValidatePairendFastq (FASTQ content check)**: Runs only if all gzip tests pass. Checks that the
+##    fastq_1 and fastq_2 files are equal in number and pair up, that each record starts with `@`,
+##    that read names match between mates, that sequence and quality lengths agree, and that no
+##    file ends early. Counts reads when validation succeeds.
+## 3. **ValidatePairendFastq (MD5)**: Runs only if all checks pass. Calculates the md5sum of every
+##    fastq_1 and fastq_2 file.
+##
+## ### Inputs:
+## - fastq_1: Array of gzipped FASTQ files for read 1.
+## - fastq_2: Array of gzipped FASTQ files for read 2, in the same order as fastq_1.
+## - sample_name: Sample name, used as the prefix of the output files.
+## - preemptible_tries: Number of preemptible attempts for the validation task (default 3).
+##
+## ### Outputs:
+## - qc_file: Text file named `<sample_name>.qc.txt`. Contains `READ<TAB><total read count>` on
+##   success, or `ERROR:` lines describing each failure (plus the affected files for content errors).
+## - qc_failed: 0 if all checks passed, 1 if the gzip test or the content validation failed.
+## - qc_gzip_failed: 0 if all files passed the gzip test, otherwise the exit code of the first failed test.
+## - fastq1_md5: One `md5sum` output line (`<md5>  <file name>`) per fastq_1 file, in input order. Empty if any check failed.
+## - fastq2_md5: One `md5sum` output line (`<md5>  <file name>`) per fastq_2 file, in input order. Empty if any check failed.
+##
+## ### Notes:
+## - A failed validation does not fail the workflow; check qc_failed and qc_gzip_failed.
+## - The content check is skipped when any gzip test fails; MD5 is calculated only when no error occurred.
 
-# WORKFLOW DEFINITION
 workflow VUMCFastqQC {
   input {
     Array[File] fastq_1
@@ -11,25 +45,10 @@ workflow VUMCFastqQC {
     Int preemptible_tries = 3
   }
 
-  scatter (idx in range(length(fastq_1))) {
-    File new_fastq_1 = fastq_1[idx]
-    File new_fastq_2 = fastq_2[idx]
-
-    Float fastq_size = size(new_fastq_1, "GiB") + size(new_fastq_2, "GiB")
-  }
-
-  # Sum the read group bam sizes to approximate the aggregated bam size
-  call Utils.SumFloats as SumFloats {
-    input:
-      sizes = fastq_size,
-      preemptible_tries = preemptible_tries
-  }
-
   call ValidatePairendFastq {
     input:
       fastq_1 = fastq_1,
       fastq_2 = fastq_2,
-      total_size = SumFloats.total_size,
       sample_name = sample_name,
       preemptible_tries = preemptible_tries
   }
@@ -39,6 +58,8 @@ workflow VUMCFastqQC {
     File qc_file = ValidatePairendFastq.qc_file
     Int qc_failed = ValidatePairendFastq.qc_failed
     Int qc_gzip_failed = ValidatePairendFastq.qc_gzip_failed
+    Array[String] fastq1_md5 = ValidatePairendFastq.fastq1_md5
+    Array[String] fastq2_md5 = ValidatePairendFastq.fastq2_md5
   }
 }
 
@@ -46,51 +67,58 @@ task ValidatePairendFastq {
   input {
     Array[File] fastq_1
     Array[File] fastq_2
-    Int preemptible_tries
     String sample_name
-    Float total_size
+    Int preemptible_tries
   }
 
+  Float total_size = size(fastq_1, "GiB") + size(fastq_2, "GiB")
   Int disk_size = ceil(total_size + 10)
-  String qc_file = sample_name + ".qc.txt"
+  String qc_file_name = sample_name + ".qc.txt"
   String res_file = sample_name + ".res.txt"
   String gzip_file = sample_name + ".gzip.txt"
+  String fastq1_md5_file = sample_name + ".fastq1.md5"
+  String fastq2_md5_file = sample_name + ".fastq2.md5"
 
   command <<<
+    : > ~{fastq1_md5_file}
+    : > ~{fastq2_md5_file}
 
-    echo "0" > ~{gzip_file}
-    for f1 in ~{sep=" " fastq_1} 
+    gzip_status=0
+    : > ~{qc_file_name}
+
+    for fastq in ~{sep=" " fastq_1} ~{sep=" " fastq_2}
     do
-      gzip -t $f1
+      gzip_msg=$(gzip -t "$fastq" 2>&1)
       status=$?
       if [[ $status != 0 ]]; then
-        echo "$status" > ~{gzip_file}
-        break
+        if [[ $gzip_status == 0 ]]; then
+          gzip_status=$status
+        fi
+        echo "ERROR: gzip test failed for $fastq (exit code $status): $gzip_msg" >> ~{qc_file_name}
       fi
     done
 
-    for f2 in ~{sep=" " fastq_2} 
-    do
-      gzip -t $f2
-      status=$?
-      if [[ $status != 0 ]]; then
-        echo "$status" > ~{gzip_file}
-        break
-      fi
-    done
+    echo "$gzip_status" > ~{gzip_file}
 
+    if [[ $gzip_status != 0 ]]; then
+      echo "1" > ~{res_file}
+    else
+python3 <<CODE
 
-    python3 <<CODE
-
-import argparse
 import logging
 import gzip
 import os
-import sys
 
 def validate2(logger, input1str, input2str, output):
   input1 = input1str.split(',')
   input2 = input2str.split(',')
+
+  if len(input1) != len(input2):
+    msg = "number of fastq_1 files (%d) not equals to fastq_2 files (%d)" % (len(input1), len(input2))
+    logger.error(msg)
+    with open(output, "wt") as fout:
+      fout.write("ERROR: %s\n" % msg)
+    return(1)
 
   error_files = []
   error_msgs = []
@@ -132,7 +160,6 @@ def validate2(logger, input1str, input2str, output):
           read_count += 1
           if read_count % 1000000 == 0:
             logger.info("%s" % read_count)
-            #break
 
           line1 = line1.rstrip()
           line2 = line2.rstrip()
@@ -180,7 +207,7 @@ def validate2(logger, input1str, input2str, output):
 
     total_read_count += read_count
 
-    if error_msg != None:
+    if error_msg is not None:
       logger.error(error_msg)
       error_msgs.append(error_msg)
       error_files.append(read1)
@@ -210,13 +237,26 @@ def validate2(logger, input1str, input2str, output):
 logger = logging.getLogger('fastq_validator')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)-8s - %(message)s')
   
-res = validate2(logger, "~{sep="," fastq_1}", "~{sep="," fastq_2}", "~{qc_file}")
+res = validate2(logger, "~{sep="," fastq_1}", "~{sep="," fastq_2}", "~{qc_file_name}")
 with open("~{res_file}", "wt") as fout:
   fout.write(f"{res}")
 
 CODE
 
-exit 0
+      if [[ "$(cat ~{res_file})" == "0" ]]; then
+        for fastq in ~{sep=" " fastq_1}
+        do
+          (cd "$(dirname "$fastq")" && md5sum "$(basename "$fastq")") >> ~{fastq1_md5_file}
+        done
+
+        for fastq in ~{sep=" " fastq_2}
+        do
+          (cd "$(dirname "$fastq")" && md5sum "$(basename "$fastq")") >> ~{fastq2_md5_file}
+        done
+      fi
+    fi
+
+    exit 0
 
 >>>
 
@@ -227,8 +267,10 @@ exit 0
     memory: "2 GiB"
   }
   output {
-    File qc_file = glob("~{qc_file}*")[0]
+    File qc_file = "~{qc_file_name}"
     Int qc_failed = read_int("~{res_file}")
     Int qc_gzip_failed = read_int("~{gzip_file}")
+    Array[String] fastq1_md5 = read_lines("~{fastq1_md5_file}")
+    Array[String] fastq2_md5 = read_lines("~{fastq2_md5_file}")
   }
 }
