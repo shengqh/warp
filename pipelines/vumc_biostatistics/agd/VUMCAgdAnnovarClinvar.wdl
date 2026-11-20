@@ -32,6 +32,7 @@ version 1.0
 ## - The workflow preserves the VCF variant identifiers (column 3) from the original input
 ## - ANNOVAR and ClinVar columns are appended after the VCF columns
 ## - Only variants with non-empty CLNSIG values are retained in the output
+## - A CLNSTAR column (ClinVar gold stars, 0-4) is appended, derived from CLNREVSTAT
 ## - Output is compressed with gzip
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
@@ -153,6 +154,28 @@ fi
 
 # remove the intermediate files
 rm -rf ~{target_prefix}.avinput vcf_columns.txt annovar.data.txt ~{target_prefix}.annovar.hg38_multianno.txt
+
+# add CLNSTAR (ClinVar gold stars, 0-4) derived from CLNREVSTAT
+awk -F'\t' -v OFS='\t' '
+BEGIN {
+  star["practice_guideline"] = 4
+  star["reviewed_by_expert_panel"] = 3
+  star["criteria_provided,_multiple_submitters,_no_conflicts"] = 2
+  star["criteria_provided,_conflicting_classifications"] = 1
+  star["criteria_provided,_single_submitter"] = 1
+}
+NR==1 {
+  for (i = 1; i <= NF; i++) if ($i == "CLNREVSTAT") col = i
+  if (!col) { print "Warning: CLNREVSTAT not found in the header" > "/dev/stderr" }
+  print $0, "CLNSTAR"
+  next
+}
+{
+  s = 0
+  if (col && ($col in star)) s = star[$col]
+  print $0, s
+}' ~{target_prefix}.annovar.hg38.txt > ~{target_prefix}.annovar.hg38.txt.tmp
+mv ~{target_prefix}.annovar.hg38.txt.tmp ~{target_prefix}.annovar.hg38.txt
 
 # compress the final output
 gzip ~{target_prefix}.annovar.hg38.txt

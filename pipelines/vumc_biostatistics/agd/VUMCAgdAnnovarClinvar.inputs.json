@@ -1,0 +1,7 @@
+{
+  "VUMCAgdAnnovarClinvar.input_vcf": "/nobackup/h_cqs/shengq2/biovu/agd312k/chrom-msvcf/postproc-vcf-pass/chr22.pass.vcf.gz",
+  "VUMCAgdAnnovarClinvar.target_prefix": "chr22",
+  "VUMCAgdAnnovarClinvar.clinvar_txt": "/data/cqs/references/annovar/clinvar_20261101/hg38_clinvar_20261101.txt",
+  "VUMCAgdAnnovarClinvar.clinvar_index": "/data/cqs/references/annovar/clinvar_20261101/hg38_clinvar_20261101.txt.idx"
+}
+
