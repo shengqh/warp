@@ -26,6 +26,8 @@ Use this skill when formatting an existing WDL file or writing a workflow that f
 
 Use `##` comment lines with embedded Markdown headings for a structured workflow header when the file has one or when the user asks for documentation to be added. Follow the existing header rather than inserting a new one into files that intentionally omit it.
 
+If author is defined, use author and email, otherwise, set author to "Quanhu Sheng" and email to "quanhu.sheng.1@vumc.org".
+
 ```wdl
 version 1.0
 
@@ -33,7 +35,7 @@ version 1.0
 ##
 ## <One or two sentence description of the workflow purpose.>
 ## Developed by VUMC Biostatistics for <domain>.
-## Author: <Name> (<email>)
+## Author: <author> (<email>)
 ##
 ## ### Workflow Purpose:
 ## <Detailed explanation of why this workflow exists and what problem it solves.>
