@@ -15,8 +15,9 @@ version 1.0
 ## ### Workflow Steps:
 ## 1. **Annotate with ClinVar**: Converts VCF input to ANNOVAR format and runs table_annovar with ClinVar database
 ## 2. **Preserve VCF Format**: Replaces ANNOVAR's first 5 columns with original VCF variant identifiers
-## 3. **Filter by ClinVar Significance**: Keeps only entries with non-empty CLNSIG (ClinVar significance) values
-## 4. **Move to GCP (Optional)**: If target_gcp_folder is specified, copies the result to Google Cloud Storage
+## 3. **Add ClinVar Star Rating**: Appends a CLNSTAR column (0-4 gold stars) derived from the CLNREVSTAT review status
+## 4. **Filter by ClinVar Significance**: Keeps only entries with non-empty CLNSIG (ClinVar significance) values
+## 5. **Move to GCP (Optional)**: If target_gcp_folder is specified, copies the result to Google Cloud Storage
 ##
 ## ### Inputs:
 ## - input_vcf: The input VCF file to be annotated
@@ -26,13 +27,16 @@ version 1.0
 ## - target_gcp_folder: Optional Google Cloud Storage folder path for copying results
 ##
 ## ### Outputs:
-## - annovar_file: The ClinVar-annotated output file, filtered and compressed
+## - annovar_file: The ClinVar-annotated output file with the CLNSTAR column, filtered and compressed
 ##
 ## ### Notes:
 ## - The workflow preserves the VCF variant identifiers (column 3) from the original input
 ## - ANNOVAR and ClinVar columns are appended after the VCF columns
 ## - Only variants with non-empty CLNSIG values are retained in the output
-## - A CLNSTAR column (ClinVar gold stars, 0-4) is appended, derived from CLNREVSTAT
+## - CLNSTAR mapping: practice_guideline = 4; reviewed_by_expert_panel = 3;
+##   criteria_provided,_multiple_submitters,_no_conflicts = 2;
+##   criteria_provided,_conflicting_classifications and criteria_provided,_single_submitter = 1;
+##   all other review statuses = 0
 ## - Output is compressed with gzip
 
 import "../../../tasks/vumc_biostatistics/GcpUtils.wdl" as GcpUtils
